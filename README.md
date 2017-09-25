@@ -3,7 +3,7 @@
 ## Installation
 
 ```bash
-$ pip install las
+$ pip install lucidtech-las
 ```
 
 ## Usage
