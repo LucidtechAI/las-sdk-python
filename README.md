@@ -6,7 +6,7 @@
 $ pip install lucidtech-las
 ```
 
-## Usage
+## Usage Match Receipts
 
 ```python
 from las import Client
@@ -44,4 +44,24 @@ print(response['matchedTransactions'])
 print(response['notMatchedTransactions'])
 
 # ['transaction_2']
+```
+
+## Usage Scan Receipt
+
+```python
+from las import Client
+
+api_key = '...'
+client = Client(api_key)
+
+fields = client.scan_receipt(receipt_url='https://example.com/img.jpeg')
+print(fields)
+
+# [{'label': 'total', 'value': '157.00', 'confidence': '0.968395300'} ...]
+
+with open('img.jpeg', 'rb') as fp:
+    fields = client.scan_receipt(receipt_fp=fp)
+    print(fields)
+
+# [{'label': 'total', 'value': '157.00', 'confidence': '0.968395300'} ...]
 ```
