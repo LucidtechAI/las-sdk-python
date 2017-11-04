@@ -1,20 +1,4 @@
 import pytest
-import configparser
-
-from functools import partial
-from las import Client
-
-
-@pytest.fixture(scope='module')
-def params(cfg):
-    config = configparser.ConfigParser()
-    config.read(cfg)
-    return partial(config.get, 'match_receipts')
-
-
-@pytest.fixture(scope='module')
-def api_key(params):
-    return params('api_key')
 
 
 @pytest.fixture(scope='module')
@@ -22,9 +6,7 @@ def url(params):
     return params('url')
 
 
-def test_match_receipts(url, api_key):
-    client = Client(api_key)
-
+def test_match_receipts(url, client):
     receipts = {
         'r1': url,
         'r2': url,

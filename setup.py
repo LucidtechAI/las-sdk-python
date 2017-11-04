@@ -1,6 +1,6 @@
 import sys
 
-from setuptools import setup, find_packages
+from setuptools import setup
 from setuptools.command.test import test
 
 
@@ -29,7 +29,7 @@ with open('README.md') as fp:
 
 setup(
     name='lucidtech-las',
-    version='0.0.3',
+    version='0.0.4',
     description='Python SDK for Lucidtech AI Services',
     long_description=readme,
     license='Apache 2.0',

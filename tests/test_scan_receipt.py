@@ -1,20 +1,4 @@
 import pytest
-import configparser
-
-from functools import partial
-from las import Client
-
-
-@pytest.fixture(scope='module')
-def params(cfg):
-    config = configparser.ConfigParser()
-    config.read(cfg)
-    return partial(config.get, 'match_receipts')
-
-
-@pytest.fixture(scope='module')
-def api_key(params):
-    return params('api_key')
 
 
 @pytest.fixture(scope='module')
@@ -28,8 +12,7 @@ def fp(params):
     return open(filename, 'rb')
 
 
-def test_scan_receipt_with_url(url, api_key):
-    client = Client(api_key)
+def test_scan_receipt_with_url(url, client):
     detections = client.scan_receipt(receipt_url=url)
     for detection in detections:
         assert 0 <= detection['confidence'] <= 1
@@ -37,8 +20,7 @@ def test_scan_receipt_with_url(url, api_key):
         assert detection['label']
 
 
-def test_scan_receipt_with_fp(fp, api_key):
-    client = Client(api_key)
+def test_scan_receipt_with_fp(fp, client):
     detections = client.scan_receipt(receipt_fp=fp)
     for detection in detections:
         assert 0 <= detection['confidence'] <= 1
@@ -46,8 +28,7 @@ def test_scan_receipt_with_fp(fp, api_key):
         assert detection['label']
 
 
-def test_scan_receipt_with_none(api_key):
-    client = Client(api_key)
+def test_scan_receipt_with_none(client):
     try:
         client.scan_receipt()
         assert False

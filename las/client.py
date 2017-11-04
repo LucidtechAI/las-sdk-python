@@ -5,9 +5,9 @@ from urllib.parse import urlencode, quote_plus
 
 
 class Client:
-    def __init__(self, api_key, stage='v0'):
+    def __init__(self, api_key, base_endpoint='https://api.lucidtech.ai', stage='v0'):
         self.api_key = api_key
-        self.base_endpoint = 'https://api.lucidtech.ai'
+        self.base_endpoint = base_endpoint
         self.stage = stage
 
     def match_receipts(self, transactions, receipts, matching_fields):
@@ -19,7 +19,9 @@ class Client:
 
         headers = {
             'x-api-key': self.api_key,
-            'Content-Type': 'application/json' }
+            'Content-Type': 'application/json'
+        }
+
         endpoint = '/'.join([self.base_endpoint, self.stage, 'receipts', 'match'])
         return requests.post(endpoint, json=body, headers=headers).json()
 
