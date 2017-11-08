@@ -1,5 +1,7 @@
 import pytest
 
+from las import Receipt
+
 
 @pytest.fixture(scope='module')
 def url(params):
@@ -7,30 +9,23 @@ def url(params):
 
 
 @pytest.fixture(scope='module')
-def fp(params):
-    filename = params('filename')
-    return open(filename, 'rb')
+def filename(params):
+    return params('filename')
+
+
+def scan_receipt(client, receipt):
+    detections = client.scan_receipt(receipt=receipt)
+    for detection in detections:
+        assert 0 <= detection['confidence'] <= 1
+        assert detection['value']
+        assert detection['label']
 
 
 def test_scan_receipt_with_url(url, client):
-    detections = client.scan_receipt(receipt_url=url)
-    for detection in detections:
-        assert 0 <= detection['confidence'] <= 1
-        assert detection['value']
-        assert detection['label']
+    receipt = Receipt(url=url)
+    scan_receipt(client, receipt)
 
 
-def test_scan_receipt_with_fp(fp, client):
-    detections = client.scan_receipt(receipt_fp=fp)
-    for detection in detections:
-        assert 0 <= detection['confidence'] <= 1
-        assert detection['value']
-        assert detection['label']
-
-
-def test_scan_receipt_with_none(client):
-    try:
-        client.scan_receipt()
-        assert False
-    except Exception as e:
-        assert e
+def test_scan_receipt_with_filename(filename, client):
+    receipt = Receipt(filename=filename)
+    scan_receipt(client, receipt)

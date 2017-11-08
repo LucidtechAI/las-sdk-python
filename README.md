@@ -9,7 +9,7 @@ $ pip install lucidtech-las
 ## Usage Match Receipts
 
 ```python
-from las import Client
+from las import Client, Receipt
 
 api_key = '...'
 client = Client(api_key)
@@ -21,9 +21,9 @@ transactions = {
 }
 
 receipts = {
-    'receipt_1': 'https://example.com/receipt1.jpeg',
-    'receipt_2': 'https://example.com/receipt2.jpeg',
-    'receipt_3': 'https://example.com/receipt3.jpeg',
+    'receipt_1': Receipt(url='https://example.com/receipt1.jpeg'),
+    'receipt_2': Receipt(url='https://example.com/receipt2.jpeg'),
+    'receipt_3': Receipt(url='https://example.com/receipt3.jpeg'),
 }
 
 matching_fields = [
@@ -49,19 +49,27 @@ print(response['notMatchedTransactions'])
 ## Usage Scan Receipt
 
 ```python
-from las import Client
+from las import Client, Receipt
 
 api_key = '...'
 client = Client(api_key)
 
-fields = client.scan_receipt(receipt_url='https://example.com/img.jpeg')
+receipt = Receipt(url='https://example.com/img.jpeg')
+fields = client.scan_receipt(receipt)
 print(fields)
 
 # [{'label': 'total', 'value': '157.00', 'confidence': '0.968395300'} ...]
 
 with open('img.jpeg', 'rb') as fp:
-    fields = client.scan_receipt(receipt_fp=fp)
+    receipt = Receipt(fp=fp)
+    fields = client.scan_receipt(receipt)
     print(fields)
+
+# [{'label': 'total', 'value': '157.00', 'confidence': '0.968395300'} ...]
+
+receipt = Receipt(filename='img.jpeg')
+fields = client.scan_receipt(receipt)
+print(fields)
 
 # [{'label': 'total', 'value': '157.00', 'confidence': '0.968395300'} ...]
 ```

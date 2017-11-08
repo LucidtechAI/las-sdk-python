@@ -2,6 +2,7 @@ import requests
 import imghdr
 
 from urllib.parse import urlencode, quote_plus
+from io import BytesIO
 
 
 class Client:
@@ -10,9 +11,22 @@ class Client:
         self.base_endpoint = base_endpoint
         self.stage = stage
 
+    def scan_receipt(self, receipt):
+        receipt_id = self._upload_receipt(receipt)
+
+        headers = {
+            'x-api-key': self.api_key,
+            'Content-Type': 'application/json'
+        }
+
+        params = {'receiptId': receipt_id}
+        querystring = urlencode(params, quote_via=quote_plus)
+        endpoint = '/'.join([self.base_endpoint, self.stage, 'receipts?' + querystring])
+        return requests.post(endpoint, headers=headers).json()
+
     def match_receipts(self, transactions, receipts, matching_fields):
         body = {
-            'receipts': receipts,
+            'receipts': {k: self._upload_receipt(r) for k, r in receipts.items()},
             'transactions': transactions,
             'matchingFields': matching_fields
         }
@@ -25,36 +39,21 @@ class Client:
         endpoint = '/'.join([self.base_endpoint, self.stage, 'receipts', 'match'])
         return requests.post(endpoint, json=body, headers=headers).json()
 
-    def _scan_receipt_with_url(self, receipt_url):
-        headers = {
-            'x-api-key': self.api_key,
-            'Content-Type': 'application/json'
-        }
-
-        params = {'url': receipt_url}
-        querystring = urlencode(params, quote_via=quote_plus)
-        endpoint = '/'.join([self.base_endpoint, self.stage, 'receipts?' + querystring])
-        return requests.post(endpoint, data=None, headers=headers).json()
-
-    def _scan_receipt_with_fp(self, receipt_fp):
+    def _upload_receipt(self, receipt):
         supported_formats = {'jpeg', 'png', 'bmp', 'gif'}
-        fmt = imghdr.what(receipt_fp)
+        fmt = imghdr.what(BytesIO(receipt.content))
 
         if fmt in supported_formats:
-            mime_type = 'image/{}'.format(fmt)
-
             headers = {
-                'x-api-key': self.api_key,
-                'Content-Type': mime_type
+                'x-api-key': self.api_key
             }
 
-            endpoint = '/'.join([self.base_endpoint, self.stage, 'receipts'])
-            return requests.post(endpoint, data=receipt_fp, headers=headers).json()
-
-    def scan_receipt(self, receipt_url=None, receipt_fp=None):
-        if receipt_url:
-            return self._scan_receipt_with_url(receipt_url)
-        elif receipt_fp:
-            return self._scan_receipt_with_fp(receipt_fp)
+            endpoint = '/'.join([self.base_endpoint, self.stage, 'receipts/upload'])
+            response = requests.get(endpoint, headers=headers).json()
+            upload_url = response['uploadUrl']
+            receipt_id = response['receiptId']
+            response = requests.put(upload_url, data=receipt.content)
+            if response.status_code == 200:
+                return receipt_id
         else:
-            raise Exception('receipt_url or receipt_fp must be provided')
+            raise Exception('File format {} not supported'.format(fmt))
