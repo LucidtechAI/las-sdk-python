@@ -48,6 +48,13 @@ print(response['notMatchedTransactions'])
 
 ## Usage Scan Receipt
 
+Supported file formats are
+- jpeg
+- png
+- gif
+- bmp
+- pdf
+
 ```python
 from las import Client, Receipt
 

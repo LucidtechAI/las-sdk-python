@@ -3,6 +3,7 @@ import imghdr
 
 from urllib.parse import urlencode, quote_plus
 from io import BytesIO
+from .extrahdr import what
 
 
 class Client:
@@ -40,8 +41,9 @@ class Client:
         return requests.post(endpoint, json=body, headers=headers).json()
 
     def _upload_receipt(self, receipt):
-        supported_formats = {'jpeg', 'png', 'bmp', 'gif'}
-        fmt = imghdr.what(BytesIO(receipt.content))
+        supported_formats = {'jpeg', 'png', 'bmp', 'gif', 'pdf'}
+        fp = BytesIO(receipt.content)
+        fmt = imghdr.what(fp) or what(fp)
 
         if fmt in supported_formats:
             headers = {
@@ -55,5 +57,7 @@ class Client:
             response = requests.put(upload_url, data=receipt.content)
             if response.status_code == 200:
                 return receipt_id
-        else:
+        elif fmt:
             raise Exception('File format {} not supported'.format(fmt))
+        else:
+            raise Exception('File format not recognized')
