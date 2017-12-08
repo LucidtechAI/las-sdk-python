@@ -8,6 +8,13 @@ $ pip install lucidtech-las
 
 ## Usage Match Receipts
 
+Supported file formats are
+- jpeg
+- png
+- gif
+- bmp
+- pdf
+
 ```python
 from las import Client, Receipt
 
@@ -23,7 +30,7 @@ transactions = {
 receipts = {
     'receipt_1': Receipt(url='https://example.com/receipt1.jpeg'),
     'receipt_2': Receipt(url='https://example.com/receipt2.jpeg'),
-    'receipt_3': Receipt(url='https://example.com/receipt3.jpeg'),
+    'receipt_3': Receipt(filename='receipt3.jpeg')
 }
 
 matching_fields = [
@@ -31,17 +38,29 @@ matching_fields = [
     'date'
 ]
 
+# Optionally specify a matching strategy for respective fields.
+
+matching_strategy = {
+    'total': {
+        'maximumDeviation': 1.0 # Total amount might differ with 1.0
+    },
+    'date': {
+        'maximumDeviation': 1 # Date might differ with 1 day
+    }
+}
+
 response = client.match_receipts(
     transactions=transactions,
     receipts=receipts,
-    matching_fields=matching_fields
+    matching_fields=matching_fields,
+    matching_strategy=matching_strategy
 )
 
 print(response['matchedTransactions'])
 
 # {'transaction_1': 'receipt_2', 'transaction_3': 'receipt_1'}
 
-print(response['notMatchedTransactions'])
+print(response['unmatchedTransactions'])
 
 # ['transaction_2']
 ```

@@ -25,11 +25,21 @@ class Client:
         endpoint = '/'.join([self.base_endpoint, self.stage, 'receipts?' + querystring])
         return requests.post(endpoint, headers=headers).json()
 
-    def match_receipts(self, transactions, receipts, matching_fields):
+    def match_receipts(self, transactions, receipts, matching_fields, matching_strategy=None):
+        matching_strategy = matching_strategy or {
+            'total': {
+                'maximumDeviation': 0.0
+            },
+            'date': {
+                'maximumDeviation': 0
+            }
+        }
+
         body = {
             'receipts': {k: self._upload_receipt(r) for k, r in receipts.items()},
             'transactions': transactions,
-            'matchingFields': matching_fields
+            'matchingFields': matching_fields,
+            'matchingStrategy': matching_strategy
         }
 
         headers = {
