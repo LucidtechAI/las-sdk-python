@@ -25,6 +25,19 @@ class Client:
         endpoint = '/'.join([self.base_endpoint, self.stage, 'receipts?' + querystring])
         return requests.post(endpoint, headers=headers).json()
 
+    def scan_invoice(self, invoice):
+        receipt_id = self._upload_receipt(invoice)
+
+        headers = {
+            'x-api-key': self.api_key,
+            'Content-Type': 'application/json'
+        }
+
+        params = {'receiptId': receipt_id}
+        querystring = urlencode(params, quote_via=quote_plus)
+        endpoint = '/'.join([self.base_endpoint, self.stage, 'invoices?' + querystring])
+        return requests.post(endpoint, headers=headers).json()
+
     def match_receipts(self, transactions, receipts, matching_fields, matching_strategy=None):
         matching_strategy = matching_strategy or {
             'total': {

@@ -5,12 +5,12 @@ from las import Receipt
 
 @pytest.fixture(scope='module')
 def url(params):
-    return params('url')
+    return params('receipt_url')
 
 
 @pytest.fixture(scope='module')
 def filename(params):
-    return params('filename')
+    return params('receipt_filename')
 
 
 def scan_receipt(client, receipt):
