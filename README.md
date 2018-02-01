@@ -41,6 +41,8 @@ print(fields)
 
 ### Scan Invoice
 
+Beta: accurate results only provided for Norwegian invoices atm.
+
 ```python
 from las import Client, Invoice
 
