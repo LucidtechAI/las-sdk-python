@@ -6,7 +6,7 @@
 $ pip install lucidtech-las
 ```
 
-## Usage Match Receipts
+## Usage
 
 Supported file formats are
 - jpeg
@@ -14,6 +14,56 @@ Supported file formats are
 - gif
 - bmp
 - pdf
+
+### Scan Receipt
+
+```python
+from las import Client, Receipt
+
+api_key = '...'
+client = Client(api_key)
+
+# With URL
+receipt = Receipt(url='https://example.com/img.jpeg')
+
+# With file object
+with open('img.jpeg', 'rb') as fp:
+    receipt = Receipt(fp=fp)
+    
+# With filename
+receipt = Receipt(filename='img.jpeg')
+
+fields = client.scan_receipt(receipt)
+print(fields)
+
+# [{'label': 'total', 'value': '157.00', 'confidence': '0.968395300'} ...]
+```
+
+### Scan Invoice
+
+```python
+from las import Client, Invoice
+
+api_key = '...'
+client = Client(api_key)
+
+# With URL
+invoice = Invoice(url='https://example.com/img.jpeg')
+
+# With file object
+with open('img.jpeg', 'rb') as fp:
+    invoice = Invoice(fp=fp)
+    
+# With filename
+invoice = Invoice(filename='img.jpeg')
+    
+fields = client.scan_invoice(invoice)
+print(fields)
+
+# [{'label': 'total_amount', 'value': '256.00', 'confidence': '0.98485885'} ...]
+```
+
+### Match Receipts
 
 ```python
 from las import Client, Receipt
@@ -65,37 +115,4 @@ print(response['unmatchedTransactions'])
 # ['transaction_2']
 ```
 
-## Usage Scan Receipt
 
-Supported file formats are
-- jpeg
-- png
-- gif
-- bmp
-- pdf
-
-```python
-from las import Client, Receipt
-
-api_key = '...'
-client = Client(api_key)
-
-receipt = Receipt(url='https://example.com/img.jpeg')
-fields = client.scan_receipt(receipt)
-print(fields)
-
-# [{'label': 'total', 'value': '157.00', 'confidence': '0.968395300'} ...]
-
-with open('img.jpeg', 'rb') as fp:
-    receipt = Receipt(fp=fp)
-    fields = client.scan_receipt(receipt)
-    print(fields)
-
-# [{'label': 'total', 'value': '157.00', 'confidence': '0.968395300'} ...]
-
-receipt = Receipt(filename='img.jpeg')
-fields = client.scan_receipt(receipt)
-print(fields)
-
-# [{'label': 'total', 'value': '157.00', 'confidence': '0.968395300'} ...]
-```
