@@ -67,6 +67,15 @@ print(fields)
 
 ### Match Receipts
 
+
+## Current limitations
+The number of receipts per request is limited to 15
+The number of transactions per request is limited to 100
+
+## Note on formats
+The 'date' field expects ISO 8601 yyyy-mm-dd format
+
+
 ```python
 from las import Client, Receipt
 
@@ -74,7 +83,7 @@ api_key = '...'
 client = Client(api_key)
 
 transactions = {
-    'transaction_1': {'total': '100.00', 'date': '2017-08-21'},
+    'transaction_1': {'total': '100.00', 'date': '2017-08-21'}, 
     'transaction_2': {'total': '340.90', 'date': '2016-03-08'},
     'transaction_3': {'total': '90.37', 'date': '2017-02-17'}
 }
@@ -94,10 +103,10 @@ matching_fields = [
 
 matching_strategy = {
     'total': {
-        'maximumDeviation': 1.0 # Total amount might differ with 1.0
+        'maximumDeviation': 5.0 # Total amount might differ up to 5.0
     },
     'date': {
-        'maximumDeviation': 1 # Date might differ with 1 day
+        'maximumDeviation': 2 # Date might differ up to 1 days
     }
 }
 
