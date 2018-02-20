@@ -103,7 +103,7 @@ matching_strategy = {
         'maximumDeviation': 5.0 # Total amount might differ up to 5.0
     },
     'date': {
-        'maximumDeviation': 2 # Date might differ up to 1 days
+        'maximumDeviation': 2 # Date might differ up to 2 days
     }
 }
 
