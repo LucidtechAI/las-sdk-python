@@ -46,7 +46,8 @@ print(response.detections)
 
 ### Scan Invoice
 
-Beta: accurate results only provided for Norwegian invoices
+#### Current Limitations
+- Accurate results only provided for Norwegian invoices
 
 ```python
 from las import Client, Invoice
