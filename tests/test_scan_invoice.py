@@ -14,8 +14,8 @@ def filename(params):
 
 
 def scan_invoice(client, invoice):
-    detections = client.scan_invoice(invoice=invoice)
-    for detection in detections:
+    response = client.scan_invoice(invoice=invoice)
+    for detection in response.detections:
         assert 0 <= detection['confidence'] <= 1
         assert detection['value']
         assert detection['label']

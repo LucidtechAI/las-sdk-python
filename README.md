@@ -33,8 +33,8 @@ with open('img.jpeg', 'rb') as fp:
 # With filename
 receipt = Receipt(filename='img.jpeg')
 
-fields = client.scan_receipt(receipt)
-print(fields)
+response = client.scan_receipt(receipt)
+print(response.detections)
 
 # [{'label': 'total', 'value': '157.00', 'confidence': '0.968395300'} ...]
 ```
@@ -59,8 +59,8 @@ with open('img.jpeg', 'rb') as fp:
 # With filename
 invoice = Invoice(filename='img.jpeg')
     
-fields = client.scan_invoice(invoice)
-print(fields)
+response = client.scan_invoice(invoice)
+print(response.detections)
 
 # [{'label': 'total_amount', 'value': '256.00', 'confidence': '0.98485885'} ...]
 ```
@@ -117,11 +117,11 @@ response = client.match_receipts(
     matching_strategy=matching_strategy
 )
 
-print(response['matchedTransactions'])
+print(response.matched_transactions)
 
 # {'transaction_1': 'receipt_2', 'transaction_3': 'receipt_1'}
 
-print(response['unmatchedTransactions'])
+print(response.unmatched_transactions)
 
 # ['transaction_2']
 ```

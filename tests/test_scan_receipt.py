@@ -14,8 +14,8 @@ def filename(params):
 
 
 def scan_receipt(client, receipt):
-    detections = client.scan_receipt(receipt=receipt)
-    for detection in detections:
+    response = client.scan_receipt(receipt=receipt)
+    for detection in response.detections:
         assert 0 <= detection['confidence'] <= 1
         assert detection['value']
         assert detection['label']

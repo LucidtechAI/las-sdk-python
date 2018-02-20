@@ -37,8 +37,8 @@ def test_match_receipts_with_url(url, client):
         matching_fields=matching_fields
     )
 
-    matched = response['matchedTransactions']
-    unmatched = response['unmatchedTransactions']
+    matched = response.matched_transactions
+    unmatched = response.unmatched_transactions
 
     assert matched.get('t3') and matched['t3'] in ['r1', 'r2', 'r3']
     assert 't1' in unmatched and 't2' in unmatched
@@ -55,8 +55,8 @@ def test_match_receipts_with_url(url, client):
         matching_strategy=matching_strategy
     )
 
-    matched = response['matchedTransactions']
-    unmatched = response['unmatchedTransactions']
+    matched = response.matched_transactions
+    unmatched = response.unmatched_transactions
 
     assert matched.get('t1') and matched['t1'] in ['r1', 'r2', 'r3']
     assert matched.get('t3') and matched['t3'] in ['r1', 'r2', 'r3']
@@ -73,8 +73,8 @@ def test_match_receipts_with_url(url, client):
         matching_strategy=matching_strategy
     )
 
-    matched = response['matchedTransactions']
-    unmatched = response['unmatchedTransactions']
+    matched = response.matched_transactions
+    unmatched = response.unmatched_transactions
 
     assert matched.get('t1') and matched['t1'] in ['r1', 'r2', 'r3']
     assert matched.get('t3') and matched['t3'] in ['r1', 'r2', 'r3']
@@ -86,6 +86,35 @@ def test_match_receipts_with_filename(filename, client):
         'r1': Receipt(filename=filename),
         'r2': Receipt(filename=filename),
         'r3': Receipt(filename=filename)
+    }
+
+    transactions = {
+        't1': {'total': '54.50', 'date': '2007-07-03'},
+        't2': {'total': '3.59', 'date': '2014-08-06'},
+        't3': {'total': 54.50, 'date': '2007-07-30'} }
+
+    matching_fields = [
+        'total',
+        'date'
+    ]
+
+    response = client.match_receipts(
+        transactions=transactions,
+        receipts=receipts,
+        matching_fields=matching_fields
+    )
+
+    matched = response.matched_transactions
+    unmatched = response.unmatched_transactions
+
+    assert matched.get('t3') and matched['t3'] in ['r1', 'r2', 'r3']
+    assert 't1' in unmatched and 't2' in unmatched
+
+
+def test_match_receipts_error(filename, client):
+    receipts = {
+        'r{}'.format(i): Receipt(filename=filename)
+        for i in range(20)
     }
 
     transactions = {
@@ -105,8 +134,4 @@ def test_match_receipts_with_filename(filename, client):
         matching_fields=matching_fields
     )
 
-    matched = response['matchedTransactions']
-    unmatched = response['unmatchedTransactions']
-
-    assert matched.get('t3') and matched['t3'] in ['r1', 'r2', 'r3']
-    assert 't1' in unmatched and 't2' in unmatched
+    assert response.error_message
