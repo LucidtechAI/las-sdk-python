@@ -15,6 +15,11 @@ Supported file formats are
 - bmp
 - pdf
 
+## Current Limitations
+
+- Documents must be in upright position
+- Only one receipt or invoice per document is supported
+
 ### Scan Receipt
 
 ```python
@@ -41,7 +46,7 @@ print(response.detections)
 
 ### Scan Invoice
 
-Beta: accurate results only provided for Norwegian invoices atm.
+Beta: accurate results only provided for Norwegian invoices
 
 ```python
 from las import Client, Invoice
@@ -68,12 +73,12 @@ print(response.detections)
 ### Match Receipts
 
 
-## Current limitations
-The number of receipts per request is limited to 15
-The number of transactions per request is limited to 100
+#### Current Limitations
+- The number of receipts per request is limited to 15 
+- The number of transactions per request is limited to 100
 
-## Note on formats
-The 'date' field expects ISO 8601 yyyy-mm-dd format
+#### Notes
+- The 'date' field must be on ISO 8601 yyyy-mm-dd form
 
 
 ```python
