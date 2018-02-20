@@ -29,7 +29,7 @@ with open('README.md') as fp:
 
 setup(
     name='lucidtech-las',
-    version='0.1.0',
+    version='0.1.1',
     description='Python SDK for Lucidtech AI Services',
     long_description=readme,
     license='Apache 2.0',

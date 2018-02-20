@@ -1,6 +1,7 @@
 import pytest
 
 from las import Receipt
+from las.client import LimitExceededException
 
 
 @pytest.fixture(scope='module')
@@ -128,10 +129,13 @@ def test_match_receipts_error(filename, client):
         'date'
     ]
 
-    response = client.match_receipts(
-        transactions=transactions,
-        receipts=receipts,
-        matching_fields=matching_fields
-    )
+    try:
+        client.match_receipts(
+            transactions=transactions,
+            receipts=receipts,
+            matching_fields=matching_fields
+        )
+        assert False
+    except LimitExceededException:
+        assert True
 
-    assert response.error_message

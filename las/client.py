@@ -6,6 +6,14 @@ from io import BytesIO
 from .extrahdr import what
 
 
+class LimitExceededException(Exception):
+    pass
+
+
+class FileFormatException(Exception):
+    pass
+
+
 class Response:
     def __init__(self, status_code):
         self.status_code = status_code
@@ -65,6 +73,12 @@ class Client:
         return ScanResponse(response.json(), response.status_code)
 
     def match_receipts(self, transactions, receipts, matching_fields, matching_strategy=None):
+        if len(transactions) > 100:
+            raise LimitExceededException('Exceeded maximum of 100 transactions per request')
+
+        if len(receipts) > 15:
+            raise LimitExceededException('Exceeded maximum of 15 receipts per request')
+
         matching_strategy = matching_strategy or {
             'total': {
                 'maximumDeviation': 0.0
@@ -108,6 +122,6 @@ class Client:
             if response.status_code == 200:
                 return receipt_id
         elif fmt:
-            raise Exception('File format {} not supported'.format(fmt))
+            raise FileFormatException('File format {} not supported'.format(fmt))
         else:
-            raise Exception('File format not recognized')
+            raise FileFormatException('File format not recognized')
