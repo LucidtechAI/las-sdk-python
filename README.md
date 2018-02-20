@@ -8,17 +8,11 @@ $ pip install lucidtech-las
 
 ## Usage
 
-Supported file formats are
-- jpeg
-- png
-- gif
-- bmp
-- pdf
-
-## Current Limitations
+### Preconditions
 
 - Documents must be in upright position
 - Only one receipt or invoice per document is supported
+- Supported file formats are: jpeg, png, gif, bmp, pdf
 
 ### Scan Receipt
 
@@ -46,7 +40,7 @@ print(response.detections)
 
 ### Scan Invoice
 
-#### Current Limitations
+#### Preconditions
 - Accurate results only provided for Norwegian invoices
 
 ```python
@@ -73,12 +67,9 @@ print(response.detections)
 
 ### Match Receipts
 
-
-#### Current Limitations
+#### Preconditions
 - The number of receipts per request is limited to 15 
 - The number of transactions per request is limited to 100
-
-#### Notes
 - The 'date' field must be on ISO 8601 yyyy-mm-dd form
 
 
