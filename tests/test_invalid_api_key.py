@@ -1,6 +1,6 @@
 import pytest
 
-from las import Receipt, Client
+from las import Receipt
 from las.client import InvalidAPIKeyException
 
 
