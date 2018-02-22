@@ -14,6 +14,10 @@ class FileFormatException(Exception):
     pass
 
 
+class InvalidAPIKeyException(Exception):
+    pass
+
+
 class Response:
     def __init__(self, status_code):
         self.status_code = status_code
@@ -115,12 +119,18 @@ class Client:
             }
 
             endpoint = '/'.join([self.base_endpoint, self.stage, 'receipts/upload'])
+
             response = requests.get(endpoint, headers=headers).json()
+            if response.get('message') and response.get('message') == 'Forbidden':
+                raise InvalidAPIKeyException('API key provided is not valid')
+
             upload_url = response['uploadUrl']
             receipt_id = response['receiptId']
             response = requests.put(upload_url, data=receipt.content)
             if response.status_code == 200:
                 return receipt_id
+            else:
+                raise Exception('Error when uploading to server')
         elif fmt:
             raise FileFormatException('File format {} not supported'.format(fmt))
         else:
