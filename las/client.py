@@ -83,14 +83,7 @@ class Client:
         if len(receipts) > 15:
             raise LimitExceededException('Exceeded maximum of 15 receipts per request')
 
-        matching_strategy = matching_strategy or {
-            'total': {
-                'maximumDeviation': 0.0
-            },
-            'date': {
-                'maximumDeviation': 0
-            }
-        }
+        matching_strategy = matching_strategy or {}
 
         body = {
             'receipts': {k: self._upload_receipt(r) for k, r in receipts.items()},

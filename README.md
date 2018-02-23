@@ -100,10 +100,13 @@ matching_fields = [
 
 matching_strategy = {
     'total': {
-        'maximumDeviation': 5.0 # Total amount might differ up to 5.0
+        'maximumDeviation': 5.0, # Total amount might differ up to 5.0
+        'maximum': 1000.00 # Total amount cannot be larger than 1000.00
     },
     'date': {
-        'maximumDeviation': 2 # Date might differ up to 2 days
+        'maximumDeviation': 2, # Date might differ up to 2 days
+        'minimum': '2017-10-23', # Date must be minimum 2017-10-23
+        'maximum': '2017-12-23' # Date must be maximum 2017-12-23
     }
 }
 

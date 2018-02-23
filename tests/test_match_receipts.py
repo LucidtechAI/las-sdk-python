@@ -64,7 +64,10 @@ def test_match_receipts_with_url(url, client):
     assert 't2' in unmatched
 
     matching_strategy = {
-        'date': {'maximumDeviation': 27}
+        'date': {
+            'minimum': '2007-07-10',
+            'maximum': '2007-08-10'
+        }
     }
 
     response = client.match_receipts(
