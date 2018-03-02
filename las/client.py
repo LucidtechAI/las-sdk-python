@@ -1,15 +1,38 @@
 import requests
 import imghdr
+import logging
 
 from backoff import on_exception, expo
 from urllib.parse import urlencode, quote_plus
 from io import BytesIO
 from .extrahdr import what
 from requests.exceptions import RequestException
+from json.decoder import JSONDecodeError
+
+
+logger = logging.getLogger('las')
+logger.addHandler(logging.NullHandler())
+logger.setLevel(logging.INFO)
 
 
 def fatal_code(e):
     return 400 <= e.response.status_code < 500
+
+
+def json_decode(response):
+    try:
+        response.raise_for_status()
+        return response.json()
+    except JSONDecodeError as e:
+        logger.error('Error in response. Returned {}'.format(response.text))
+        raise e
+    except Exception as e:
+        logger.error('Error in response. Returned {}'.format(response.text))
+
+        if response.status_code == 403 and 'Forbidden' in response.json().values():
+            raise InvalidAPIKeyException('API key provided is not valid')
+
+        raise e
 
 
 class LimitExceededException(Exception):
@@ -30,22 +53,17 @@ class Response:
 
 
 class ScanResponse(Response):
-    def __init__(self, json, status_code):
-        super().__init__(status_code)
-        if status_code == 200:
-            self.detections = json
-        else:
-            self.error_message = 'Unable to scan document'
+    def __init__(self, response):
+        super().__init__(response.status_code)
+        self.detections = json_decode(response)
 
 
 class MatchResponse(Response):
-    def __init__(self, json, status_code):
-        super().__init__(status_code)
-        if status_code == 200:
-            self.matched_transactions = json['matchedTransactions']
-            self.unmatched_transactions = json['unmatchedTransactions']
-        else:
-            self.error_message = json['errorMessage']
+    def __init__(self, response):
+        super().__init__(response.status_code)
+        decoded = json_decode(response)
+        self.matched_transactions = decoded['matchedTransactions']
+        self.unmatched_transactions = decoded['unmatchedTransactions']
 
 
 class Client:
@@ -67,7 +85,7 @@ class Client:
         querystring = urlencode(params, quote_via=quote_plus)
         endpoint = '/'.join([self.base_endpoint, self.stage, 'receipts?' + querystring])
         response = requests.post(endpoint, headers=headers)
-        return ScanResponse(response.json(), response.status_code)
+        return ScanResponse(response)
 
     @on_exception(expo, RequestException, max_tries=3, giveup=fatal_code)
     def scan_invoice(self, invoice):
@@ -82,7 +100,7 @@ class Client:
         querystring = urlencode(params, quote_via=quote_plus)
         endpoint = '/'.join([self.base_endpoint, self.stage, 'invoices?' + querystring])
         response = requests.post(endpoint, headers=headers)
-        return ScanResponse(response.json(), response.status_code)
+        return ScanResponse(response)
 
     @on_exception(expo, RequestException, max_tries=3, giveup=fatal_code)
     def match_receipts(self, transactions, receipts, matching_fields, matching_strategy=None):
@@ -108,7 +126,7 @@ class Client:
 
         endpoint = '/'.join([self.base_endpoint, self.stage, 'receipts', 'match'])
         response = requests.post(endpoint, json=body, headers=headers)
-        return MatchResponse(response.json(), response.status_code)
+        return MatchResponse(response)
 
     @on_exception(expo, RequestException, max_tries=3, giveup=fatal_code)
     def _upload_receipt(self, receipt):
@@ -123,17 +141,14 @@ class Client:
 
             endpoint = '/'.join([self.base_endpoint, self.stage, 'receipts/upload'])
 
-            response = requests.get(endpoint, headers=headers).json()
-            if response.get('message') and response.get('message') == 'Forbidden':
-                raise InvalidAPIKeyException('API key provided is not valid')
+            response = requests.get(endpoint, headers=headers)
+            decoded = json_decode(response)
 
-            upload_url = response['uploadUrl']
-            receipt_id = response['receiptId']
+            upload_url = decoded['uploadUrl']
+            receipt_id = decoded['receiptId']
             response = requests.put(upload_url, data=receipt.content)
-            if response.status_code == 200:
-                return receipt_id
-            else:
-                raise Exception('Error when uploading to server')
+            response.raise_for_status()
+            return receipt_id
         elif fmt:
             raise FileFormatException('File format {} not supported'.format(fmt))
         else:
