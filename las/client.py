@@ -1,9 +1,15 @@
 import requests
 import imghdr
 
+from backoff import on_exception, expo
 from urllib.parse import urlencode, quote_plus
 from io import BytesIO
 from .extrahdr import what
+from requests.exceptions import RequestException
+
+
+def fatal_code(e):
+    return 400 <= e.response.status_code < 500
 
 
 class LimitExceededException(Exception):
@@ -48,6 +54,7 @@ class Client:
         self.base_endpoint = base_endpoint
         self.stage = stage
 
+    @on_exception(expo, RequestException, max_tries=3, giveup=fatal_code)
     def scan_receipt(self, receipt):
         receipt_id = self._upload_receipt(receipt)
 
@@ -62,6 +69,7 @@ class Client:
         response = requests.post(endpoint, headers=headers)
         return ScanResponse(response.json(), response.status_code)
 
+    @on_exception(expo, RequestException, max_tries=3, giveup=fatal_code)
     def scan_invoice(self, invoice):
         receipt_id = self._upload_receipt(invoice)
 
@@ -76,6 +84,7 @@ class Client:
         response = requests.post(endpoint, headers=headers)
         return ScanResponse(response.json(), response.status_code)
 
+    @on_exception(expo, RequestException, max_tries=3, giveup=fatal_code)
     def match_receipts(self, transactions, receipts, matching_fields, matching_strategy=None):
         if len(transactions) > 100:
             raise LimitExceededException('Exceeded maximum of 100 transactions per request')
@@ -101,6 +110,7 @@ class Client:
         response = requests.post(endpoint, json=body, headers=headers)
         return MatchResponse(response.json(), response.status_code)
 
+    @on_exception(expo, RequestException, max_tries=3, giveup=fatal_code)
     def _upload_receipt(self, receipt):
         supported_formats = {'jpeg', 'png', 'bmp', 'gif', 'pdf'}
         fp = BytesIO(receipt.content)
