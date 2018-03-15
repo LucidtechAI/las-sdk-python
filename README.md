@@ -1,5 +1,9 @@
 # Python SDK for Lucidtech AI Services API
 
+## Documentation
+
+[Link to docs](https://docs.lucidtech.ai/python/index.html)
+
 ## Installation
 
 ```bash
