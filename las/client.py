@@ -8,6 +8,7 @@ from io import BytesIO
 from ._extrahdr import what
 from requests.exceptions import RequestException
 from json.decoder import JSONDecodeError
+from concurrent.futures import ThreadPoolExecutor
 
 
 logger = logging.getLogger('las')
@@ -35,19 +36,25 @@ def _json_decode(response):
         raise e
 
 
-class LimitExceededException(Exception):
+class ClientException(Exception):
+    """a ClientException is raised if the client refuses to
+    send request due to incorrect usage or bad request data."""
+    pass
+
+
+class LimitExceededException(ClientException):
     """a LimitExceededException is raised if the number of
     transactions or receipts exceeds the limit"""
     pass
 
 
-class FileFormatException(Exception):
+class FileFormatException(ClientException):
     """a FileFormatException is raised if the file format
     is not supported by the api."""
     pass
 
 
-class InvalidAPIKeyException(Exception):
+class InvalidAPIKeyException(ClientException):
     """an InvalidAPIKeyException is raised if api key is invalid."""
     pass
 
@@ -165,7 +172,7 @@ class Client:
         return ScanResponse(response)
 
     @on_exception(expo, RequestException, max_tries=3, giveup=_fatal_code)
-    def match_receipts(self, transactions, receipts, matching_fields, matching_strategy=None):
+    def match_receipts(self, transactions, receipts, matching_fields, matching_strategy=None, num_upload_threads=10):
         """Matches transactions and receipts
 
         >>> from las import Client, Receipt
@@ -184,12 +191,21 @@ class Client:
         :type matching_fields: list(str)
         :param matching_strategy: A dictionary of fields to matching strategies for that field
         :type matching_strategy: dict(str, dict) or None
+        :param num_upload_threads: A number specifying maximum allowed threads for uploading receipts
+        :type num_upload_threads: int
         :return: The results of the matching
         :rtype: MatchResponse
         :raises FileFormatException: If the receipt file format is not supported by the api
         :raises InvalidAPIKeyException: If the api key is invalid
         :raises LimitExceededException: If number of transactions exceeds 100 or number of receipts exceeds 15
+        :raises ClientException: If transactions or receipts is empty or None
         """
+        if not transactions:
+            raise ClientException('"transactions" cannot be empty or None')
+
+        if not receipts:
+            raise ClientException('"receipts" cannot be empty or None')
+
         if len(transactions) > 100:
             raise LimitExceededException('Exceeded maximum of 100 transactions per request')
 
@@ -198,8 +214,13 @@ class Client:
 
         matching_strategy = matching_strategy or {}
 
+        with ThreadPoolExecutor(max_workers=min(len(receipts), num_upload_threads)) as executor:
+            receipt_handles = {}
+            for k, r in zip(receipts.keys(), executor.map(self._upload_receipt, receipts.values())):
+                receipt_handles[k] = r
+
         body = {
-            'receipts': {k: self._upload_receipt(r) for k, r in receipts.items()},
+            'receipts': receipt_handles,
             'transactions': transactions,
             'matchingFields': matching_fields,
             'matchingStrategy': matching_strategy

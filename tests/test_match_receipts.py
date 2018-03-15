@@ -14,27 +14,36 @@ def filename(params):
     return params('receipt_filename')
 
 
-def test_match_receipts_with_url(url, client):
-    receipts = {
+@pytest.fixture(scope='module')
+def receipts_with_url(url):
+    return {
         'r1': Receipt(url=url),
         'r2': Receipt(url=url),
         'r3': Receipt(url=url)
     }
 
-    transactions = {
+
+@pytest.fixture(scope='module')
+def transactions():
+    return {
         't1': {'total': '54.50', 'date': '2007-07-03'},
         't2': {'total': '3.59', 'date': '2014-08-06'},
         't3': {'total': 54.50, 'date': '2007-07-30'}
     }
 
-    matching_fields = [
+
+@pytest.fixture(scope='module')
+def matching_fields():
+    return [
         'total',
         'date'
     ]
 
+
+def test_match_receipts_with_url1(receipts_with_url, transactions, matching_fields, client):
     response = client.match_receipts(
         transactions=transactions,
-        receipts=receipts,
+        receipts=receipts_with_url,
         matching_fields=matching_fields
     )
 
@@ -44,6 +53,8 @@ def test_match_receipts_with_url(url, client):
     assert matched.get('t3') and matched['t3'] in ['r1', 'r2', 'r3']
     assert 't1' in unmatched and 't2' in unmatched
 
+
+def test_match_receipts_with_url2(receipts_with_url, transactions, matching_fields, client):
     matching_strategy = {
         'total': {'maximumDeviation': 0.0},
         'date': {'maximumDeviation': 27}
@@ -51,7 +62,7 @@ def test_match_receipts_with_url(url, client):
 
     response = client.match_receipts(
         transactions=transactions,
-        receipts=receipts,
+        receipts=receipts_with_url,
         matching_fields=matching_fields,
         matching_strategy=matching_strategy
     )
@@ -63,6 +74,8 @@ def test_match_receipts_with_url(url, client):
     assert matched.get('t3') and matched['t3'] in ['r1', 'r2', 'r3']
     assert 't2' in unmatched
 
+
+def test_match_receipts_with_url3(receipts_with_url, transactions, matching_fields, client):
     matching_strategy = {
         'date': {
             'minimum': '2007-07-10',
@@ -72,7 +85,7 @@ def test_match_receipts_with_url(url, client):
 
     response = client.match_receipts(
         transactions=transactions,
-        receipts=receipts,
+        receipts=receipts_with_url,
         matching_fields=matching_fields,
         matching_strategy=matching_strategy
     )
@@ -85,22 +98,12 @@ def test_match_receipts_with_url(url, client):
     assert 't2' in unmatched
 
 
-def test_match_receipts_with_filename(filename, client):
+def test_match_receipts_with_filename(filename, transactions, matching_fields, client):
     receipts = {
         'r1': Receipt(filename=filename),
         'r2': Receipt(filename=filename),
         'r3': Receipt(filename=filename)
     }
-
-    transactions = {
-        't1': {'total': '54.50', 'date': '2007-07-03'},
-        't2': {'total': '3.59', 'date': '2014-08-06'},
-        't3': {'total': 54.50, 'date': '2007-07-30'} }
-
-    matching_fields = [
-        'total',
-        'date'
-    ]
 
     response = client.match_receipts(
         transactions=transactions,
@@ -115,22 +118,11 @@ def test_match_receipts_with_filename(filename, client):
     assert 't1' in unmatched and 't2' in unmatched
 
 
-def test_match_receipts_error(filename, client):
+def test_match_receipts_error(filename, transactions, matching_fields, client):
     receipts = {
         'r{}'.format(i): Receipt(filename=filename)
         for i in range(20)
     }
-
-    transactions = {
-        't1': {'total': '54.50', 'date': '2007-07-03'},
-        't2': {'total': '3.59', 'date': '2014-08-06'},
-        't3': {'total': 54.50, 'date': '2007-07-30'}
-    }
-
-    matching_fields = [
-        'total',
-        'date'
-    ]
 
     try:
         client.match_receipts(
