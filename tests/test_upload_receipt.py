@@ -14,7 +14,7 @@ def filename(params):
 
 
 def upload_receipt(client, receipt):
-    receipt_id = client._upload_receipt(receipt)
+    receipt_id = client._upload_document(receipt, 'EU')
     assert receipt_id
 
 

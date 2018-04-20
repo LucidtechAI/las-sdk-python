@@ -9,6 +9,7 @@ from ._extrahdr import what
 from requests.exceptions import RequestException
 from json.decoder import JSONDecodeError
 from concurrent.futures import ThreadPoolExecutor
+from functools import partial
 
 
 logger = logging.getLogger('las')
@@ -129,14 +130,14 @@ class Client:
         :raises InvalidAPIKeyException: If the api key is invalid
 
         """
-        receipt_id = self._upload_receipt(receipt)
+        document_id = self._upload_document(receipt, 'EU')
 
         headers = {
             'x-api-key': self.api_key,
             'Content-Type': 'application/json'
         }
 
-        params = {'receiptId': receipt_id}
+        params = {'documentId': document_id}
         querystring = urlencode(params, quote_via=quote_plus)
         endpoint = '/'.join([self.base_endpoint, self.stage, 'receipts?' + querystring])
         response = requests.post(endpoint, headers=headers)
@@ -158,14 +159,14 @@ class Client:
         :raises InvalidAPIKeyException: If the api key is invalid
 
         """
-        receipt_id = self._upload_receipt(invoice)
+        document_id = self._upload_document(invoice, 'EU')
 
         headers = {
             'x-api-key': self.api_key,
             'Content-Type': 'application/json'
         }
 
-        params = {'receiptId': receipt_id}
+        params = {'documentId': document_id}
         querystring = urlencode(params, quote_via=quote_plus)
         endpoint = '/'.join([self.base_endpoint, self.stage, 'invoices?' + querystring])
         response = requests.post(endpoint, headers=headers)
@@ -213,10 +214,11 @@ class Client:
             raise LimitExceededException('Exceeded maximum of 15 receipts per request')
 
         matching_strategy = matching_strategy or {}
-
-        with ThreadPoolExecutor(max_workers=min(len(receipts), num_upload_threads)) as executor:
+        max_workers = min(len(receipts), num_upload_threads)
+        with ThreadPoolExecutor(max_workers=max_workers) as executor:
             receipt_handles = {}
-            for k, r in zip(receipts.keys(), executor.map(self._upload_receipt, receipts.values())):
+            upload_document = partial(self._upload_document, region='EU')
+            for k, r in zip(receipts.keys(), executor.map(upload_document, receipts.values())):
                 receipt_handles[k] = r
 
         body = {
@@ -236,26 +238,33 @@ class Client:
         return MatchResponse(response)
 
     @on_exception(expo, RequestException, max_tries=3, giveup=_fatal_code)
-    def _upload_receipt(self, receipt):
-        supported_formats = {'jpeg', 'png', 'bmp', 'gif', 'pdf'}
-        fp = BytesIO(receipt.content)
+    def _upload_document(self, document, region):
+        supported_formats = {
+            'jpeg': 'image/jpeg',
+            'png': 'image/png',
+            'bmp': 'image/bmp',
+            'gif': 'image/gif',
+            'tiff': 'image/tiff',
+            'pdf': 'application/pdf'
+        }
+
+        fp = BytesIO(document.content)
         fmt = imghdr.what(fp) or what(fp)
 
         if fmt in supported_formats:
-            headers = {
-                'x-api-key': self.api_key
-            }
-
-            endpoint = '/'.join([self.base_endpoint, self.stage, 'receipts/upload'])
-
-            response = requests.get(endpoint, headers=headers)
+            headers = {'x-api-key': self.api_key}
+            endpoint = '/'.join([self.base_endpoint, self.stage, 'documents'])
+            payload = {'documentType': supported_formats[fmt], 'region': region}
+            response = requests.put(endpoint, headers=headers, json=payload)
             decoded = _json_decode(response)
 
             upload_url = decoded['uploadUrl']
-            receipt_id = decoded['receiptId']
-            response = requests.put(upload_url, data=receipt.content)
+            document_id = decoded['documentId']
+            headers = {'Content-Type': supported_formats[fmt]}
+            response = requests.put(upload_url, headers=headers, data=document.content)
             response.raise_for_status()
-            return receipt_id
+
+            return document_id
         elif fmt:
             raise FileFormatException('File format {} not supported'.format(fmt))
         else:
