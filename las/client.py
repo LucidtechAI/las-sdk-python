@@ -130,17 +130,15 @@ class Client:
         :raises InvalidAPIKeyException: If the api key is invalid
 
         """
-        document_id = self._upload_document(receipt, 'EU')
-
         headers = {
             'x-api-key': self.api_key,
             'Content-Type': 'application/json'
         }
 
-        params = {'documentId': document_id}
-        querystring = urlencode(params, quote_via=quote_plus)
-        endpoint = '/'.join([self.base_endpoint, self.stage, 'receipts?' + querystring])
-        response = requests.post(endpoint, headers=headers)
+        document_id = self._upload_document(receipt, 'EU')
+        payload = {'documentId': document_id}
+        endpoint = '/'.join([self.base_endpoint, self.stage, 'receipts'])
+        response = requests.post(endpoint, headers=headers, json=payload)
         return ScanResponse(response)
 
     @on_exception(expo, RequestException, max_tries=3, giveup=_fatal_code)
@@ -159,17 +157,15 @@ class Client:
         :raises InvalidAPIKeyException: If the api key is invalid
 
         """
-        document_id = self._upload_document(invoice, 'EU')
-
         headers = {
             'x-api-key': self.api_key,
             'Content-Type': 'application/json'
         }
 
-        params = {'documentId': document_id}
-        querystring = urlencode(params, quote_via=quote_plus)
-        endpoint = '/'.join([self.base_endpoint, self.stage, 'invoices?' + querystring])
-        response = requests.post(endpoint, headers=headers)
+        document_id = self._upload_document(invoice, 'EU')
+        payload = {'documentId': document_id}
+        endpoint = '/'.join([self.base_endpoint, self.stage, 'invoices'])
+        response = requests.post(endpoint, headers=headers, json=payload)
         return ScanResponse(response)
 
     @on_exception(expo, RequestException, max_tries=3, giveup=_fatal_code)
