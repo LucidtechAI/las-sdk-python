@@ -115,7 +115,7 @@ class Client:
         self.stage = stage
 
     @on_exception(expo, RequestException, max_tries=3, giveup=_fatal_code)
-    def scan_receipt(self, receipt):
+    def scan_receipt(self, receipt, **kwargs):
         """Scan receipt.
 
         >>> from las import Client, Receipt
@@ -124,6 +124,7 @@ class Client:
         >>> response = client.scan_receipt(receipt)
 
         :param Receipt receipt: The receipt to scan
+        :param dict kwargs: Additional keyword arguments to the scan call
         :return: The results of the scan
         :rtype: ScanResponse
         :raises FileFormatException: If the receipt file format is not supported by the api
@@ -136,13 +137,13 @@ class Client:
         }
 
         document_id = self._upload_document(receipt, 'EU')
-        payload = {'documentId': document_id}
+        payload = {'documentId': document_id, **kwargs}
         endpoint = '/'.join([self.base_endpoint, self.stage, 'receipts'])
         response = requests.post(endpoint, headers=headers, json=payload)
         return ScanResponse(response)
 
     @on_exception(expo, RequestException, max_tries=3, giveup=_fatal_code)
-    def scan_invoice(self, invoice):
+    def scan_invoice(self, invoice, **kwargs):
         """Scan invoice.
 
         >>> from las import Client, Invoice
@@ -151,6 +152,7 @@ class Client:
         >>> response = client.scan_invoice(invoice)
 
         :param Invoice invoice: The invoice to scan
+        :param dict kwargs: Additional keyword arguments to the scan call
         :return: The results of the scan
         :rtype: ScanResponse
         :raises FileFormatException: If the receipt file format is not supported by the api
@@ -163,7 +165,7 @@ class Client:
         }
 
         document_id = self._upload_document(invoice, 'EU')
-        payload = {'documentId': document_id}
+        payload = {'documentId': document_id, **kwargs}
         endpoint = '/'.join([self.base_endpoint, self.stage, 'invoices'])
         response = requests.post(endpoint, headers=headers, json=payload)
         return ScanResponse(response)

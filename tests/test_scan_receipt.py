@@ -15,8 +15,8 @@ def filename(params):
     return params('receipt_filename')
 
 
-def scan_receipt(client, receipt):
-    response = client.scan_receipt(receipt=receipt)
+def scan_receipt(client, receipt, **kwargs):
+    response = client.scan_receipt(receipt=receipt, **kwargs)
     for detection in response.detections:
         assert 0 <= detection['confidence'] <= 1
         assert detection['value']
@@ -31,6 +31,11 @@ def test_scan_receipt_with_url(url, client):
 def test_scan_receipt_with_filename(filename, client):
     receipt = Receipt(filename=filename)
     scan_receipt(client, receipt)
+
+
+def test_scan_receipt_with_kwargs(filename, client):
+    receipt = Receipt(filename=filename)
+    scan_receipt(client, receipt, **{'foo': 1})
 
 
 def test_scan_receipt_with_junk(client):
