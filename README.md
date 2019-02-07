@@ -128,6 +128,11 @@ print(response.matched_transactions)
 print(response.unmatched_transactions)
 
 # ['transaction_2']
+
+print(response.predictions)
+
+# {'r1': [{'label': 'total', 'value': '100.00', confidence: 0.998}, ...], ...}
+
 ```
 
 
