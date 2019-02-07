@@ -92,10 +92,19 @@ def test_match_receipts_with_url3(receipts_with_url, transactions, matching_fiel
 
     matched = response.matched_transactions
     unmatched = response.unmatched_transactions
+    predictions = response.predictions
 
     assert matched.get('t1') and matched['t1'] in ['r1', 'r2', 'r3']
     assert matched.get('t3') and matched['t3'] in ['r1', 'r2', 'r3']
     assert 't2' in unmatched
+
+    for r_id, receipt_predictions in predictions.items():
+        assert r_id in ['r1', 'r2', 'r3']
+
+        for detection in receipt_predictions:
+            assert 0 <= detection['confidence'] <= 1
+            assert detection['value']
+            assert detection['label']
 
 
 def test_match_receipts_with_filename(filename, transactions, matching_fields, client):

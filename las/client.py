@@ -3,7 +3,6 @@ import imghdr
 import logging
 
 from backoff import on_exception, expo
-from urllib.parse import urlencode, quote_plus
 from io import BytesIO
 from ._extrahdr import what
 from requests.exceptions import RequestException
@@ -91,6 +90,8 @@ class MatchResponse(_Response):
     :type matched_transactions: dict(str, str)
     :param unmatched_transactions: A list of unmatched transaction ids.
     :type unmatched_transactions: list(str)
+    :param predictions: A dictionary of receipt ids to predictions
+    :type predictions: dict(str, list)
 
     """
     def __init__(self, requests_response):
@@ -98,6 +99,7 @@ class MatchResponse(_Response):
         decoded = _json_decode(requests_response)
         self.matched_transactions = decoded['matchedTransactions']
         self.unmatched_transactions = decoded['unmatchedTransactions']
+        self.predictions = decoded['predictions']
 
 
 class Client:

@@ -3,6 +3,7 @@ import configparser
 
 from las import Client
 from functools import partial
+from os.path import expanduser
 
 
 def pytest_addoption(parser):
@@ -11,7 +12,7 @@ def pytest_addoption(parser):
 
 @pytest.fixture(scope='module')
 def cfg(request):
-    return request.config.getoption('--cfg')
+    return expanduser(request.config.getoption('--cfg'))
 
 
 @pytest.fixture(scope='module')

@@ -1,4 +1,5 @@
 import pytest
+import requests
 
 from las import Invoice
 from las.client import FileFormatException
@@ -41,16 +42,13 @@ def test_scan_invoice_with_kwargs(filename, client):
 def test_scan_invoice_with_junk(client):
     fp = BytesIO(b'junk')
     invoice = Invoice(fp=fp)
-    try:
+
+    with pytest.raises(FileFormatException):
         scan_invoice(client, invoice)
-    except FileFormatException:
-        assert True
-    except:
-        assert False
 
 
 def test_scan_invoice_with_bad_image(client):
     fp = BytesIO(b'\x00' * 6 + b'JFIF')
     invoice = Invoice(fp=fp)
-    response = client.scan_invoice(invoice=invoice)
-    assert response.detections == []
+    with pytest.raises(requests.HTTPError):
+        client.scan_invoice(invoice=invoice)
