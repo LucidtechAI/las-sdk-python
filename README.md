@@ -31,5 +31,5 @@ $ pip install tox
 ### Run tests
 
 ```bash
-$ tox
+$ tox tests/test_config.cfg
 ```
