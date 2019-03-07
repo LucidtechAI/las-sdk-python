@@ -1,3 +1,9 @@
+import logging
+
 from .client import Client
-from .receipt import Receipt
-from .invoice import Invoice
+from .api import Api
+
+
+logger = logging.getLogger('las')
+logger.addHandler(logging.NullHandler())
+logger.setLevel(logging.INFO)
