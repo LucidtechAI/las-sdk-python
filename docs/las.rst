@@ -12,18 +12,10 @@ las.client module
     :undoc-members:
     :show-inheritance:
 
-las.invoice module
+las.api module
 ------------------
 
-.. automodule:: las.invoice
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-las.receipt module
-------------------
-
-.. automodule:: las.receipt
+.. automodule:: las.api
     :members:
     :undoc-members:
     :show-inheritance:

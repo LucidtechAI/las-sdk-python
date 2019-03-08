@@ -33,3 +33,9 @@ $ pip install tox
 ```bash
 $ tox tests/test_config.cfg
 ```
+
+### Create docs
+
+```bash
+$ tox -e docs .docsout
+```
