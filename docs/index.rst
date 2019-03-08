@@ -1,20 +1,14 @@
-.. las-python-sdk documentation master file, created by
-   sphinx-quickstart on Sat Mar  3 19:24:38 2018.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
+==========================================================
+Welcome to Lucidtech AI Services Python SDK documentation!
+==========================================================
 
-Welcome to las-python-sdk's documentation!
-==========================================
+Lucidtech offers REST APIs for extracting key value information from documents. Lucidtech AI Services Python SDK is a
+wrapper around the REST APIs for Python developers.
+
 
 .. toctree::
-   :maxdepth: 2
-   :caption: Contents:
+  :maxdepth: 1
+  :hidden:
 
-
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
+  quickstart
+  reference

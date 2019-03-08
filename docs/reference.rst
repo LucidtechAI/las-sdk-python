@@ -1,8 +1,7 @@
-las package
-===========
+=========
+Reference
+=========
 
-Submodules
-----------
 
 las.client module
 -----------------
@@ -13,7 +12,7 @@ las.client module
     :show-inheritance:
 
 las.api module
-------------------
+--------------
 
 .. automodule:: las.api
     :members:
@@ -22,18 +21,9 @@ las.api module
 
 
 las.credentials module
-------------------
+----------------------
 
 .. automodule:: las.credentials
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-
-Module contents
----------------
-
-.. automodule:: las
     :members:
     :undoc-members:
     :show-inheritance:

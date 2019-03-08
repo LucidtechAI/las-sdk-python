@@ -107,7 +107,7 @@ class Api(Client):
         :param consent_id: An identifier to mark the owner of the document handle
         :type consent_id: str
         :return: Prediction on document
-        :rtype: dict
+        :rtype: Prediction
         :raises InvalidCredentialsException: If the credentials are invalid
         :raises requests.exception.RequestException: If error was raised by requests
         """
