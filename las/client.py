@@ -47,15 +47,18 @@ class InvalidCredentialsException(ClientException):
 
 
 class Client:
-    """a low level Client object stores configuration state and allows you to invoke
-    api methods from Lucidtech AI Services.
+    """a low level client to invoke api methods from Lucidtech AI Services.
 
-    :param str endpoint: Domain endpoint of the api
+    :param endpoint: Domain endpoint of the api, e.g. https://<prefix>.api.lucidtech.ai/<version>
+    :type endpoint: str
+    :param credentials: Credentials to use, instance of :py:class:`~las.Credentials`
+    :type credentials: Credentials
 
     """
-    def __init__(self, endpoint: str):
+    def __init__(self, endpoint: str, credentials=None):
         self.endpoint = endpoint
-        self.auth = AWSSignatureV4(Credentials())
+        credentials = credentials or Credentials()
+        self.auth = AWSSignatureV4(credentials)
 
     def _create_signing_headers(self, method: str, path: str, body: bytes):
         uri = urlparse(f'{self.endpoint}{path}')
@@ -86,6 +89,7 @@ class Client:
         :raises InvalidCredentialsException: If the credentials are invalid
         :raises requests.exception.RequestException: If error was raised by requests
         """
+
         body = json.dumps({'contentType': content_type, 'consentId': consent_id}).encode()
         uri, headers = self._create_signing_headers('POST', '/documents', body)
 
@@ -118,6 +122,7 @@ class Client:
         :rtype: str
         :raises requests.exception.RequestException: If error was raised by requests
         """
+
         body = pathlib.Path(document_path).read_bytes()
         headers = {'Content-Type': content_type}
         put_document_response = requests.put(presigned_url, data=body, headers=headers)
@@ -141,6 +146,7 @@ class Client:
         :raises InvalidCredentialsException: If the credentials are invalid
         :raises requests.exception.RequestException: If error was raised by requests
         """
+
         body = json.dumps({'documentId': document_id, 'modelName': model_name}).encode()
         uri, headers = self._create_signing_headers('POST', '/predictions', body)
 

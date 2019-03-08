@@ -62,6 +62,14 @@ class Prediction(dict):
 
 
 class Api(Client):
+    """a high level client to invoke api methods from Lucidtech AI Services.
+
+    :param endpoint: Domain endpoint of the api, e.g. https://<prefix>.api.lucidtech.ai/<version>
+    :type endpoint: str
+    :param credentials: Credentials to use, instance of :py:class:`~las.Credentials`
+    :type credentials: Credentials
+
+    """
     def _upload_document(self, document_path: str, content_type: str, consent_id: str) -> str:
         post_documents_response = self.post_documents(content_type, consent_id)
         document_id = post_documents_response['documentId']
@@ -85,6 +93,25 @@ class Api(Client):
             raise FileFormatException
 
     def predict(self, document_path: str, model_name: str, consent_id: str = None) -> Prediction:
+        """Run inference and create prediction on document, this method takes care of creating and uploaded document
+        as well as running inference to create prediction on document.
+
+        >>> from las import Api
+        >>> api = Api(endpoint='<api endpoint>')
+        >>> api.predict(document_path='document.jpeg', model_name='invoice')
+
+        :param document_path: Path to document to run inference on
+        :type document_path: str
+        :param model_name: The name of the model to use for inference
+        :type model_name: str
+        :param consent_id: An identifier to mark the owner of the document handle
+        :type consent_id: str
+        :return: Prediction on document
+        :rtype: dict
+        :raises InvalidCredentialsException: If the credentials are invalid
+        :raises requests.exception.RequestException: If error was raised by requests
+        """
+
         content_type = self._get_content_type(document_path)
         consent_id = consent_id or str(uuid4())
         document_id = self._upload_document(document_path, content_type, consent_id)

@@ -21,6 +21,15 @@ las.api module
     :show-inheritance:
 
 
+las.credentials module
+------------------
+
+.. automodule:: las.credentials
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+
 Module contents
 ---------------
 
