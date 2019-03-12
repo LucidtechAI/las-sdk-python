@@ -18,7 +18,6 @@ class AWSSignatureV4:
         self.aws_access_key = credentials.access_key_id
         self.aws_secret_key = credentials.secret_access_key
         self.aws_api_key = credentials.api_key
-        self.aws_session_token = None
 
     def sign_headers(self, uri: ParseResult, method: str, body: bytes = None) -> dict:
         if not body:
@@ -35,7 +34,7 @@ class AWSSignatureV4:
         req_digest = hashlib.sha256(canonical_request).hexdigest()
         cred_scope = self.get_credential_scope(datestamp)
         string_to_sign = self.get_sign_string(amz_date, cred_scope, req_digest)
-        signing_key = self.get_signature_key(self.aws_secret_key, datestamp)
+        signing_key = self.get_signature_key(datestamp)
 
         signature = hmac.new(signing_key, string_to_sign, hashlib.sha256).hexdigest()
 
@@ -45,8 +44,7 @@ class AWSSignatureV4:
             api_key=self.aws_api_key,
             signature=signature,
             credential_scope=cred_scope,
-            signed_headers=headers,
-            session_token=self.aws_session_token
+            signed_headers=headers
         )
 
         return auth_header
@@ -63,10 +61,9 @@ class AWSSignatureV4:
             -> Tuple[bytes, Iterable[str]]:
         canonical_querystring = self.get_canonical_querystring(uri.query)
 
-        header_keys = ('host', 'x-amz-date', 'x-amz-security-token', 'x-api-key')
-        header_values = (uri.netloc, amz_date, self.aws_session_token, self.aws_api_key)
+        header_keys = ('host', 'x-amz-date', 'x-api-key')
+        header_values = (uri.netloc, amz_date, self.aws_api_key)
         headers = dict(zip(header_keys, header_values))
-        headers = {k: v for k, v in headers.items() if v}
 
         header_parts = (f'{k}:{v}\n' for k, v in headers.items())
         payload_hash = hashlib.sha256(body).hexdigest()
@@ -82,11 +79,11 @@ class AWSSignatureV4:
         # TODO: Fixme.
         return querystring
 
-    def get_signature_key(self, secret_key: str, datestamp: str) -> str:
+    def get_signature_key(self, datestamp: str) -> str:
         def sign(key, msg):
             return hmac.new(key, msg.encode('utf-8'), hashlib.sha256).digest()
 
-        signature = ('AWS4' + secret_key).encode('utf-8')
+        signature = ('AWS4' + self.aws_secret_key).encode('utf-8')
         for part in (datestamp, self.region, self.service, 'aws4_request'):
             signature = sign(signature, part)
 
@@ -94,7 +91,7 @@ class AWSSignatureV4:
 
     @classmethod
     def build_auth_header(cls, amz_date: str, access_key: str, api_key: str, signature: str,
-                          credential_scope: str, signed_headers: Iterable[str], session_token: str) -> dict:
+                          credential_scope: str, signed_headers: Iterable[str]) -> dict:
         auth = {
             'Credential': f'{access_key}/{credential_scope}',
             'SignedHeaders': ';'.join(signed_headers),
@@ -106,7 +103,6 @@ class AWSSignatureV4:
 
         headers = {
             'x-amz-date': amz_date,
-            'x-amz-security-token': session_token,
             'x-api-key': api_key,
             'Authorization': f'{cls.ALGORITHM} {auth_string}'
         }
