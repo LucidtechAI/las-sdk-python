@@ -22,6 +22,25 @@ def params(cfg):
     return partial(config.get, 'default')
 
 
+def split_and_strip(s, delimiter=','):
+    return [i.strip() for i in s.split(delimiter)]
+
+
+@pytest.fixture(scope='module')
+def model_names(params):
+    return split_and_strip(params('model_names'))
+
+
+@pytest.fixture(scope='module')
+def document_paths(params):
+    return split_and_strip(params('document_paths'))
+
+
+@pytest.fixture(scope='module')
+def document_mime_types(params):
+    return split_and_strip(params('document_mime_types'))
+
+
 @pytest.fixture(scope='module')
 def endpoint(params):
     return params('endpoint')

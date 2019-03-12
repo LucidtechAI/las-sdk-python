@@ -7,6 +7,7 @@ from backoff import on_exception, expo
 from requests.exceptions import RequestException
 from json.decoder import JSONDecodeError
 from urllib.parse import urlparse
+from typing import List, Dict
 
 from .auth import AWSSignatureV4
 from .credentials import Credentials
@@ -159,3 +160,63 @@ class Client:
         response = _json_decode(post_predictions_response)
         return response
 
+    @on_exception(expo, RequestException, max_tries=3, giveup=_fatal_code)
+    def post_document_id(self, document_id: str, feedback: List[Dict[str, str]]) -> dict:
+        """Post feedback to the REST API, calls the POST /documents/{documentId} endpoint.
+        Posting feedback means posting the ground truth data for the particular document.
+        This enables the API to learn from past mistakes
+
+        >>> from las import Client
+        >>> client = Client(endpoint='<api endpoint>')
+        >>> feedback = [{'label': 'total_amount', 'value': '156.00'}, {'label': 'invoice_date', 'value': '2018-10-23'}]
+        >>> client.post_document_id(document_id='<document id>', feedback=feedback)
+
+        :param document_id: The document id to run inference and create a prediction on
+        :type document_id: str
+        :param feedback: A list of feedback items
+        :type feedback: List[Dict[str, str]]
+        :return: Feedback response from REST API
+        :rtype: dict
+        :raises InvalidCredentialsException: If the credentials are invalid
+        :raises requests.exception.RequestException: If error was raised by requests
+        """
+
+        body = json.dumps({'feedback': feedback}).encode()
+        uri, headers = self._create_signing_headers('POST', f'/documents/{document_id}', body)
+
+        post_document_id_response = requests.post(
+            url=uri.geturl(),
+            headers=headers,
+            data=body
+        )
+
+        response = _json_decode(post_document_id_response)
+        return response
+
+    @on_exception(expo, RequestException, max_tries=3, giveup=_fatal_code)
+    def delete_consent_id(self, consent_id: str) -> dict:
+        """Delete documents with this consent_id, calls the DELETE /consent/{consentId} endpoint.
+
+        >>> from las import Client
+        >>> client = Client(endpoint='<api endpoint>')
+        >>> client.delete_consent_id('<consent id>')
+
+        :param consent_id: Delete documents with this consent_id
+        :type consent_id: str
+        :return: Feedback response from REST API
+        :rtype: dict
+        :raises InvalidCredentialsException: If the credentials are invalid
+        :raises requests.exception.RequestException: If error was raised by requests
+        """
+
+        body = json.dumps({}).encode()
+        uri, headers = self._create_signing_headers('DELETE', f'/consents/{consent_id}', body)
+
+        delete_consent_id_consent = requests.delete(
+            url=uri.geturl(),
+            headers=headers,
+            data=body
+        )
+
+        response = _json_decode(delete_consent_id_consent)
+        return response

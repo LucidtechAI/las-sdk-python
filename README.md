@@ -18,7 +18,16 @@ $ pip install lucidtech-las
 - Only one receipt or invoice per document is supported
 - Supported file formats are: jpeg, png, gif, bmp, pdf
 
-### TBD
+### Quick start
+
+```python
+import json
+from las import Api
+
+api = Api('<api key>')
+prediction = api.predict('document.pdf', model_name='invoice')
+print(json.dumps(prediction, indent=2))
+```
 
 ## Contributing
 
