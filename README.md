@@ -2,7 +2,7 @@
 
 ## Documentation
 
-[Link to docs](https://docs.lucidtech.ai/python/index.html)
+[Link to docs](https://docs.lucidtech.ai/python/v1/index.html)
 
 ## Installation
 
@@ -16,7 +16,7 @@ $ pip install lucidtech-las
 
 - Documents must be in upright position
 - Only one receipt or invoice per document is supported
-- Supported file formats are: jpeg, png, gif, bmp, pdf
+- Supported file formats are: jpeg, pdf
 
 ### Quick start
 
