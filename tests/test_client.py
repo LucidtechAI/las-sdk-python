@@ -43,7 +43,7 @@ def consent_id(request, client: Client):
     yield consent_id
 
 
-def test_delete_consent_id(client: Client, consent_id):
+def test_delete_consent_id(client: Client, consent_id: str):
     delete_consent_id_response = client.delete_consent_id(consent_id)
 
     assert 'consentId' in delete_consent_id_response, 'Missing consentId in response'
