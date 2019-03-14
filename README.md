@@ -24,7 +24,7 @@ $ pip install lucidtech-las
 import json
 from las import Api
 
-api = Api('<api key>')
+api = Api('<api endpoint>')
 prediction = api.predict('document.pdf', model_name='invoice')
 print(json.dumps(prediction, indent=2))
 ```
