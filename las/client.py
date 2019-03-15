@@ -203,7 +203,7 @@ class Client:
 
         :param consent_id: Delete documents with this consent_id
         :type consent_id: str
-        :return: Feedback response from REST API
+        :return: Delete consent id response from REST API
         :rtype: dict
         :raises InvalidCredentialsException: If the credentials are invalid
         :raises requests.exception.RequestException: If error was raised by requests
