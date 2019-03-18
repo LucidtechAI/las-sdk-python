@@ -3,10 +3,11 @@ import imghdr
 import logging
 
 from uuid import uuid4
+from typing import List
 
 from ._extrahdr import extra_what
 from .client import Client
-from .prediction import Prediction
+from .prediction import Prediction, Field
 
 
 logger = logging.getLogger('las')
@@ -49,8 +50,9 @@ class ApiClient(Client):
             raise FileFormatException
 
     def predict(self, document_path: str, model_name: str, consent_id: str = None) -> Prediction:
-        """Run inference and create prediction on document, this method takes care of creating and uploaded document
-        as well as running inference to create prediction on document.
+        """Run inference and create prediction on document.
+        This method takes care of creating and uploading a document specified by document_path
+        as well as running inference using model specified by model_name to create prediction on the document.
 
         >>> from las import ApiClient
         >>> api_client = ApiClient(endpoint='<api endpoint>')
@@ -73,3 +75,25 @@ class ApiClient(Client):
         document_id = self._upload_document(document_path, content_type, consent_id)
         prediction_response = self.post_predictions(document_id, model_name)
         return Prediction(document_id, consent_id, model_name, prediction_response)
+
+    def send_feedback(self, document_id: str, feedback: List[Field]) -> dict:
+        """Send feedback to the model.
+        This method takes care of sending feedback related to document specified by document_id.
+        Feedback consists of ground truth values for the document specified as a list of Field instances
+
+        >>> from las import ApiClient
+        >>> api_client = ApiClient(endpoint='<api endpoint>')
+        >>> feedback = [Field(label='total_amount', value='120.00'), Field(label='purchase_date', value='2019-03-10')]
+        >>> api_client.send_feedback('<document id>', feedback)
+
+        :param document_id: The document id of the document that will receive the feedback
+        :type document_id: str
+        :param feedback: A list of :py:class:`~las.Field` representing the ground truth values for the document
+        :type feedback: List[Field]
+        :return: Feedback response
+        :rtype: dict
+        :raises InvalidCredentialsException: If the credentials are invalid
+        :raises requests.exception.RequestException: If error was raised by requests
+        """
+
+        return self.post_document_id(document_id, feedback)

@@ -7,12 +7,12 @@ class Field(dict):
         return self['label']
 
     @property
-    def confidence(self):
-        return self['confidence']
-
-    @property
     def value(self):
         return self['value']
+
+    @property
+    def confidence(self):
+        return self.get('confidence')
 
 
 class Prediction(dict):

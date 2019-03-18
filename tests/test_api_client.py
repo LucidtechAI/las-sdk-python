@@ -1,8 +1,11 @@
-from las import ApiClient
+import pytest
+
+from las import ApiClient, Client, Field
 from typing import Iterable
+from uuid import uuid4
 
 
-def test_prediction(api_client: ApiClient, document_paths: Iterable[str], model_names: Iterable[str]):
+def test_predict(api_client: ApiClient, document_paths: Iterable[str], model_names: Iterable[str]):
     for document_path, model_name in zip(document_paths, model_names):
         prediction = api_client.predict(document_path, model_name=model_name)
 
@@ -17,3 +20,20 @@ def test_prediction(api_client: ApiClient, document_paths: Iterable[str], model_
             assert field.confidence, 'Missing confidence in field'
             assert 0.0 <= field.confidence <= 1.0, 'Confidence not between 0 and 1'
             assert type(field.value) == str, 'Value is not str'
+
+
+@pytest.fixture(scope='function', params=['image/jpeg', 'application/pdf'])
+def document_id(request, client: Client):
+    consent_id = str(uuid4())
+    post_documents_response = client.post_documents(request.param, consent_id)
+    yield post_documents_response['documentId']
+
+
+def test_send_feedback(api_client: ApiClient, document_id: str):
+    feedback = [Field(label='total_amount', value='120.00'), Field(label='purchase_date', value='2019-03-10')]
+    response = api_client.send_feedback(document_id, feedback)
+
+    assert 'feedback' in response, 'Missing feedback in response'
+    assert 'documentId' in response, 'Missing documentId in response'
+    assert 'consentId' in response, 'Missing consentId in response'
+
