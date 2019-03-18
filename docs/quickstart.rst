@@ -16,10 +16,10 @@ Suppose we have credentials with access to the demo api and we wish to run infer
 
     import json
 
-    from las import Api
+    from las import ApiClient
 
-    api = Api('https://demo.api.lucidtech.ai/v1')
-    prediction = api.predict('document.jpeg', 'invoice')
+    api_client = ApiClient('https://demo.api.lucidtech.ai/v1')
+    prediction = api_client.predict('document.jpeg', 'invoice')
     print(json.dumps(prediction, indent=2))
 
 

@@ -8,16 +8,13 @@ from typing import Tuple, Iterable
 from .credentials import Credentials
 
 
-class AWSSignatureV4:
+class Authorization:
     ALGORITHM = 'AWS4-HMAC-SHA256'
 
     def __init__(self, credentials: Credentials):
         self.region = 'eu-west-1'
         self.service = 'execute-api'
-
-        self.aws_access_key = credentials.access_key_id
-        self.aws_secret_key = credentials.secret_access_key
-        self.aws_api_key = credentials.api_key
+        self.credentials = credentials
 
     def sign_headers(self, uri: ParseResult, method: str, body: bytes = None) -> dict:
         if not body:
@@ -40,8 +37,8 @@ class AWSSignatureV4:
 
         auth_header = self.build_auth_header(
             amz_date=amz_date,
-            access_key=self.aws_access_key,
-            api_key=self.aws_api_key,
+            access_key=self.credentials.access_key_id,
+            api_key=self.credentials.api_key,
             signature=signature,
             credential_scope=cred_scope,
             signed_headers=headers
@@ -62,7 +59,7 @@ class AWSSignatureV4:
         canonical_querystring = self.get_canonical_querystring(uri.query)
 
         header_keys = ('host', 'x-amz-date', 'x-api-key')
-        header_values = (uri.netloc, amz_date, self.aws_api_key)
+        header_values = (uri.netloc, amz_date, self.credentials.api_key)
         headers = dict(zip(header_keys, header_values))
 
         header_parts = (f'{k}:{v}\n' for k, v in headers.items())
@@ -83,7 +80,7 @@ class AWSSignatureV4:
         def sign(key, msg):
             return hmac.new(key, msg.encode('utf-8'), hashlib.sha256).digest()
 
-        signature = ('AWS4' + self.aws_secret_key).encode('utf-8')
+        signature = ('AWS4' + self.credentials.secret_access_key).encode('utf-8')
         for part in (datestamp, self.region, self.service, 'aws4_request'):
             signature = sign(signature, part)
 

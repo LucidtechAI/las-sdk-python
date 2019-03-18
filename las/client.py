@@ -9,7 +9,7 @@ from json.decoder import JSONDecodeError
 from urllib.parse import urlparse
 from typing import List, Dict
 
-from .auth import AWSSignatureV4
+from .authorization import Authorization
 from .credentials import Credentials
 
 
@@ -59,12 +59,12 @@ class Client:
     def __init__(self, endpoint: str, credentials=None):
         self.endpoint = endpoint
         credentials = credentials or Credentials()
-        self.auth = AWSSignatureV4(credentials)
+        self.authorization = Authorization(credentials)
 
     def _create_signing_headers(self, method: str, path: str, body: bytes):
         uri = urlparse(f'{self.endpoint}{path}')
 
-        auth_headers = self.auth.sign_headers(
+        auth_headers = self.authorization.sign_headers(
             uri=uri,
             method=method,
             body=body

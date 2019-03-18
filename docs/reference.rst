@@ -14,7 +14,7 @@ las.client module
 las.api module
 --------------
 
-.. automodule:: las.api
+.. automodule:: las.api_client
     :members:
     :undoc-members:
     :show-inheritance:
