@@ -110,8 +110,7 @@ class Client:
 
         >>> from las import Client
         >>> client = Client(endpoint='<api endpoint>')
-        >>> client.put_document(document_path='document.jpeg', content_type='image/jpeg',
-        >>>                     presigned_url='<presigned url>')
+        >>> client.put_document(document_path='document.jpeg', content_type='image/jpeg', presigned_url='<presigned url>')
 
         :param document_path: Path to document to upload
         :type document_path: str

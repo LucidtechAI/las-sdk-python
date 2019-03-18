@@ -5,63 +5,19 @@ import logging
 from uuid import uuid4
 
 from ._extrahdr import extra_what
-from .client import Client, ClientException
+from .client import Client
+from .prediction import Prediction
 
 
 logger = logging.getLogger('las')
 
 
-class FileFormatException(ClientException):
+class FileFormatException(Client):
     """a FileFormatException is raised if the file format is not supported by the api."""
     pass
 
 
-class Field(dict):
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-
-    @property
-    def label(self):
-        return self['label']
-
-    @property
-    def confidence(self):
-        return self['confidence']
-
-    @property
-    def value(self):
-        return self['value']
-
-
-class Prediction(dict):
-    def __init__(self, document_id: str, consent_id: str, model_name: str, prediction_response: dict):
-        prediction = dict(
-            document_id=document_id,
-            consent_id=consent_id,
-            model_name=model_name,
-            fields=prediction_response['predictions']
-        )
-
-        super().__init__(**prediction)
-
-    @property
-    def document_id(self):
-        return self['document_id']
-
-    @property
-    def consent_id(self):
-        return self['consent_id']
-
-    @property
-    def model_name(self):
-        return self['model_name']
-
-    @property
-    def fields(self):
-        return [Field(**field) for field in self['fields']]
-
-
-class Api(Client):
+class ApiClient(Client):
     """a high level client to invoke api methods from Lucidtech AI Services.
 
     :param endpoint: Domain endpoint of the api, e.g. https://<prefix>.api.lucidtech.ai/<version>
@@ -96,9 +52,9 @@ class Api(Client):
         """Run inference and create prediction on document, this method takes care of creating and uploaded document
         as well as running inference to create prediction on document.
 
-        >>> from las import Api
-        >>> api = Api(endpoint='<api endpoint>')
-        >>> api.predict(document_path='document.jpeg', model_name='invoice')
+        >>> from las import ApiClient
+        >>> api_client = ApiClient(endpoint='<api endpoint>')
+        >>> api_client.predict(document_path='document.jpeg', model_name='invoice')
 
         :param document_path: Path to document to run inference on
         :type document_path: str

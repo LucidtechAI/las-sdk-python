@@ -1,10 +1,10 @@
-from las import Api
+from las import ApiClient
 from typing import Iterable
 
 
-def test_prediction(api: Api, document_paths: Iterable[str], model_names: Iterable[str]):
+def test_prediction(api_client: ApiClient, document_paths: Iterable[str], model_names: Iterable[str]):
     for document_path, model_name in zip(document_paths, model_names):
-        prediction = api.predict(document_path, model_name=model_name)
+        prediction = api_client.predict(document_path, model_name=model_name)
 
         assert prediction.document_id, 'Missing document_id in prediction'
         assert prediction.consent_id, 'Missing consent_id in prediction'

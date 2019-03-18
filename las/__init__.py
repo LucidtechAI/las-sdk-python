@@ -1,7 +1,7 @@
 import logging
 
+from .api_client import ApiClient
 from .client import Client
-from .api import Api
 from .credentials import Credentials
 
 

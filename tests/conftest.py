@@ -1,7 +1,7 @@
 import pytest
 import configparser
 
-from las import Client, Api
+from las import Client, ApiClient
 from functools import partial
 from os.path import expanduser
 
@@ -52,5 +52,5 @@ def client(endpoint):
 
 
 @pytest.fixture(scope='module')
-def api(endpoint):
-    return Api(endpoint)
+def api_client(endpoint):
+    return ApiClient(endpoint)
