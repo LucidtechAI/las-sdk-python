@@ -22,10 +22,10 @@ $ pip install lucidtech-las
 
 ```python
 import json
-from las import Api
+from las import ApiClient
 
-api = Api('<api endpoint>')
-prediction = api.predict('document.pdf', model_name='invoice')
+api_client = ApiClient('<api endpoint>')
+prediction = api_client.predict('document.pdf', model_name='invoice')
 print(json.dumps(prediction, indent=2))
 ```
 
