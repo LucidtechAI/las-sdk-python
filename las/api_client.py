@@ -7,7 +7,8 @@ from typing import List
 
 from ._extrahdr import extra_what
 from .client import Client
-from .prediction import Prediction, Field
+from .prediction import Prediction
+from .field import Field
 
 
 logger = logging.getLogger('las')
