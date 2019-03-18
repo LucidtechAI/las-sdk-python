@@ -37,3 +37,16 @@ def test_send_feedback(api_client: ApiClient, document_id: str):
     assert 'documentId' in response, 'Missing documentId in response'
     assert 'consentId' in response, 'Missing consentId in response'
 
+
+@pytest.fixture(scope='function', params=['image/jpeg', 'application/pdf'])
+def consent_id(request, client: Client):
+    consent_id = str(uuid4())
+    client.post_documents(request.param, consent_id)
+    yield consent_id
+
+
+def test_revoke_consent(api_client: ApiClient, consent_id: str):
+    response = api_client.delete_consent_id(consent_id)
+
+    assert 'consentId' in response, 'Missing consentId in response'
+    assert 'documentIds' in response, 'Missing documentIds in response'
