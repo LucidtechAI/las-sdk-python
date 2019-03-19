@@ -1,6 +1,7 @@
 import configparser
 
 from os.path import expanduser
+from typing import Tuple
 
 
 class MissingCredentials(Exception):
@@ -8,7 +9,7 @@ class MissingCredentials(Exception):
 
 
 class Credentials:
-    """Used to fetch and store credentials. One of 3 conditions must be met to successfully create credentials
+    """Used to fetch and store credentials. One of 3 conditions must be met to successfully create credentials.
 
     1. credentials_path is provided
     2. access_key_id, secret_access_key and api_key is provided
@@ -39,7 +40,7 @@ class Credentials:
             raise MissingCredentials
 
     @staticmethod
-    def _read_credentials(credentials_path):
+    def _read_credentials(credentials_path: str) -> Tuple[str, str, str]:
         config = configparser.ConfigParser()
         config.read(credentials_path)
         section = 'default'

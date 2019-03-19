@@ -72,9 +72,11 @@ class Authorization:
 
         return '\n'.join(request_components).encode('utf-8'), headers.keys()
 
+    # TODO: Implement AWS sig v4 canonical querystring
     def _get_canonical_querystring(self, querystring: str) -> str:
-        # TODO: Fixme.
-        return querystring
+        if querystring:
+            raise NotImplementedError('Creating canonical querystring is not implemented')
+        return ''
 
     def _get_signature_key(self, datestamp: str) -> str:
         def sign(key, msg):

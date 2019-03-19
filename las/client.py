@@ -37,18 +37,18 @@ def _json_decode(response):
 
 
 class ClientException(Exception):
-    """a ClientException is raised if the client refuses to
+    """A ClientException is raised if the client refuses to
     send request due to incorrect usage or bad request data."""
     pass
 
 
 class InvalidCredentialsException(ClientException):
-    """an InvalidCredentialsException is raised if api key, access key id or secret access key is invalid."""
+    """An InvalidCredentialsException is raised if api key, access key id or secret access key is invalid."""
     pass
 
 
 class Client:
-    """a low level client to invoke api methods from Lucidtech AI Services.
+    """A low level client to invoke api methods from Lucidtech AI Services.
 
     :param endpoint: Domain endpoint of the api, e.g. https://<prefix>.api.lucidtech.ai/<version>
     :type endpoint: str
@@ -61,21 +61,9 @@ class Client:
         credentials = credentials or Credentials()
         self.authorization = Authorization(credentials)
 
-    def _create_signing_headers(self, method: str, path: str, body: bytes):
-        uri = urlparse(f'{self.endpoint}{path}')
-
-        auth_headers = self.authorization.sign_headers(
-            uri=uri,
-            method=method,
-            body=body
-        )
-
-        headers = {**auth_headers, 'Content-Type': 'application/json'}
-        return uri, headers
-
     @on_exception(expo, RequestException, max_tries=3, giveup=_fatal_code)
     def post_documents(self, content_type: str, consent_id: str) -> dict:
-        """Creates a document handle, calls the POST /documents endpoint
+        """Creates a document handle, calls the POST /documents endpoint.
 
         >>> from las import Client
         >>> client = Client(endpoint='<api endpoint>')
@@ -106,7 +94,7 @@ class Client:
     @staticmethod
     @on_exception(expo, RequestException, max_tries=3, giveup=_fatal_code)
     def put_document(document_path: str, content_type: str, presigned_url: str) -> str:
-        """Convenience method for putting a document to presigned url
+        """Convenience method for putting a document to presigned url.
 
         >>> from las import Client
         >>> client = Client(endpoint='<api endpoint>')
@@ -131,7 +119,7 @@ class Client:
 
     @on_exception(expo, RequestException, max_tries=3, giveup=_fatal_code)
     def post_predictions(self, document_id: str, model_name: str) -> dict:
-        """Run inference and create a prediction, calls the POST /predictions endpoint
+        """Run inference and create a prediction, calls the POST /predictions endpoint.
 
         >>> from las import Client
         >>> client = Client(endpoint='<api endpoint>')
@@ -163,7 +151,7 @@ class Client:
     def post_document_id(self, document_id: str, feedback: List[Dict[str, str]]) -> dict:
         """Post feedback to the REST API, calls the POST /documents/{documentId} endpoint.
         Posting feedback means posting the ground truth data for the particular document.
-        This enables the API to learn from past mistakes
+        This enables the API to learn from past mistakes.
 
         >>> from las import Client
         >>> client = Client(endpoint='<api endpoint>')
@@ -219,3 +207,15 @@ class Client:
 
         response = _json_decode(delete_consent_id_consent)
         return response
+
+    def _create_signing_headers(self, method: str, path: str, body: bytes):
+        uri = urlparse(f'{self.endpoint}{path}')
+
+        auth_headers = self.authorization.sign_headers(
+            uri=uri,
+            method=method,
+            body=body
+        )
+
+        headers = {**auth_headers, 'Content-Type': 'application/json'}
+        return uri, headers
