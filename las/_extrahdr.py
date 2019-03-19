@@ -1,7 +1,16 @@
 from os import PathLike
 
 
-def what(file, h=None):
+def extra_what(file, h=None):
+    """Code mostly copied from imghdr.what"""
+    tests = []
+
+    def test_pdf(h, f):
+        if b'PDF' in h[0:10]:
+            return 'pdf'
+
+    tests.append(test_pdf)
+
     f = None
     try:
         if h is None:
@@ -17,16 +26,6 @@ def what(file, h=None):
             if res:
                 return res
     finally:
-        if f: f.close()
+        if f:
+            f.close()
     return None
-
-
-tests = []
-
-
-def test_pdf(h, f):
-    if b'PDF' in h[0:10]:
-        return 'pdf'
-
-
-tests.append(test_pdf)

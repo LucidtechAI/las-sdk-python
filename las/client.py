@@ -1,19 +1,19 @@
 import requests
-import imghdr
+import json
+import pathlib
 import logging
 
 from backoff import on_exception, expo
-from io import BytesIO
-from ._extrahdr import what
 from requests.exceptions import RequestException
 from json.decoder import JSONDecodeError
-from concurrent.futures import ThreadPoolExecutor
-from functools import partial
+from urllib.parse import urlparse
+from typing import List, Dict
+
+from .authorization import Authorization
+from .credentials import Credentials
 
 
 logger = logging.getLogger('las')
-logger.addHandler(logging.NullHandler())
-logger.setLevel(logging.INFO)
 
 
 def _fatal_code(e):
@@ -31,241 +31,191 @@ def _json_decode(response):
         logger.error('Error in response. Returned {}'.format(response.text))
 
         if response.status_code == 403 and 'Forbidden' in response.json().values():
-            raise InvalidAPIKeyException('API key provided is not valid')
+            raise InvalidCredentialsException('Credentials provided is not valid')
 
         raise e
 
 
 class ClientException(Exception):
-    """a ClientException is raised if the client refuses to
+    """A ClientException is raised if the client refuses to
     send request due to incorrect usage or bad request data."""
     pass
 
 
-class LimitExceededException(ClientException):
-    """a LimitExceededException is raised if the number of
-    transactions or receipts exceeds the limit"""
+class InvalidCredentialsException(ClientException):
+    """An InvalidCredentialsException is raised if api key, access key id or secret access key is invalid."""
     pass
-
-
-class FileFormatException(ClientException):
-    """a FileFormatException is raised if the file format
-    is not supported by the api."""
-    pass
-
-
-class InvalidAPIKeyException(ClientException):
-    """an InvalidAPIKeyException is raised if api key is invalid."""
-    pass
-
-
-class _Response:
-    def __init__(self, requests_response):
-        self.requests_response = requests_response
-        self.status_code = requests_response.status_code
-
-
-class ScanResponse(_Response):
-    """a ScanResponse object contains the result of a successful call
-    to the scan api. Do not create this object on your own, the
-    :py:class:`~las.client.Client` object will do that for you.
-
-    :param requests.Response requests_response: A requests response object.
-    :param detections: A list of detections done on the document.
-    :type detections: list(dict)
-
-    """
-    def __init__(self, requests_response):
-        super().__init__(requests_response)
-        self.detections = _json_decode(requests_response)
-
-
-class MatchResponse(_Response):
-    """a MatchResponse object contains the result of a successful call
-    to the matching api. Do not create this object on your own, the
-    :py:class:`~las.client.Client` object will do that for you.
-
-    :param requests.Response requests_response: A requests response object.
-    :param matched_transactions: A dictionary of matched transaction ids to receipt ids.
-    :type matched_transactions: dict(str, str)
-    :param unmatched_transactions: A list of unmatched transaction ids.
-    :type unmatched_transactions: list(str)
-    :param predictions: A dictionary of receipt ids to predictions
-    :type predictions: dict(str, list)
-
-    """
-    def __init__(self, requests_response):
-        super().__init__(requests_response)
-        decoded = _json_decode(requests_response)
-        self.matched_transactions = decoded['matchedTransactions']
-        self.unmatched_transactions = decoded['unmatchedTransactions']
-        self.predictions = decoded['predictions']
 
 
 class Client:
-    """a Client object stores configuration state and allows you to invoke
-    api methods from Lucidtech AI Services.
+    """A low level client to invoke api methods from Lucidtech AI Services.
 
-    :param str api_key: Your api key
-    :param str base_endpoint: Domain endpoint of the api
-    :param str stage: Version of the api
+    :param endpoint: Domain endpoint of the api, e.g. https://<prefix>.api.lucidtech.ai/<version>
+    :type endpoint: str
+    :param credentials: Credentials to use, instance of :py:class:`~las.Credentials`
+    :type credentials: Credentials
 
     """
-    def __init__(self, api_key, base_endpoint='https://api.lucidtech.ai', stage='v0'):
-        self.api_key = api_key
-        self.base_endpoint = base_endpoint
-        self.stage = stage
+    def __init__(self, endpoint: str, credentials=None):
+        self.endpoint = endpoint
+        credentials = credentials or Credentials()
+        self.authorization = Authorization(credentials)
 
     @on_exception(expo, RequestException, max_tries=3, giveup=_fatal_code)
-    def scan_receipt(self, receipt, **kwargs):
-        """Scan receipt.
+    def post_documents(self, content_type: str, consent_id: str) -> dict:
+        """Creates a document handle, calls the POST /documents endpoint.
 
-        >>> from las import Client, Receipt
-        >>> client = Client(api_key='<api key>')
-        >>> receipt = Receipt(url='https://example.com/receipt.jpeg')
-        >>> response = client.scan_receipt(receipt)
+        >>> from las import Client
+        >>> client = Client(endpoint='<api endpoint>')
+        >>> client.post_documents('image/jpeg', consent_id='foobar')
 
-        :param Receipt receipt: The receipt to scan
-        :param dict kwargs: Additional keyword arguments to the scan call
-        :return: The results of the scan
-        :rtype: ScanResponse
-        :raises FileFormatException: If the receipt file format is not supported by the api
-        :raises InvalidAPIKeyException: If the api key is invalid
-
+        :param content_type: A mime type for the document handle
+        :type content_type: str
+        :param consent_id: An identifier to mark the owner of the document handle
+        :type consent_id: str
+        :return: Document handle id and pre-signed upload url
+        :rtype: dict
+        :raises InvalidCredentialsException: If the credentials are invalid
+        :raises requests.exception.RequestException: If error was raised by requests
         """
-        headers = {
-            'x-api-key': self.api_key,
-            'Content-Type': 'application/json'
-        }
 
-        document_id = self._upload_document(receipt, 'EU')
-        payload = {'documentId': document_id, **kwargs}
-        endpoint = '/'.join([self.base_endpoint, self.stage, 'receipts'])
-        response = requests.post(endpoint, headers=headers, json=payload)
-        return ScanResponse(response)
+        body = json.dumps({'contentType': content_type, 'consentId': consent_id}).encode()
+        uri, headers = self._create_signing_headers('POST', '/documents', body)
 
+        post_documents_response = requests.post(
+            url=uri.geturl(),
+            headers=headers,
+            data=body
+        )
+
+        response = _json_decode(post_documents_response)
+        return response
+
+    @staticmethod
     @on_exception(expo, RequestException, max_tries=3, giveup=_fatal_code)
-    def scan_invoice(self, invoice, **kwargs):
-        """Scan invoice.
+    def put_document(document_path: str, content_type: str, presigned_url: str) -> str:
+        """Convenience method for putting a document to presigned url.
 
-        >>> from las import Client, Invoice
-        >>> client = Client(api_key='<api key>')
-        >>> invoice = Invoice(url='https://example.com/invoice.jpeg')
-        >>> response = client.scan_invoice(invoice)
+        >>> from las import Client
+        >>> client = Client(endpoint='<api endpoint>')
+        >>> client.put_document(document_path='document.jpeg', content_type='image/jpeg', presigned_url='<presigned url>')
 
-        :param Invoice invoice: The invoice to scan
-        :param dict kwargs: Additional keyword arguments to the scan call
-        :return: The results of the scan
-        :rtype: ScanResponse
-        :raises FileFormatException: If the receipt file format is not supported by the api
-        :raises InvalidAPIKeyException: If the api key is invalid
-
+        :param document_path: Path to document to upload
+        :type document_path: str
+        :param content_type: Mime type of document to upload. Same as provided to :py:func:`~las.Client.post_documents`
+        :type content_type: str
+        :param presigned_url: Presigned upload url from :py:func:`~las.Client.post_documents`
+        :type presigned_url: str
+        :return: Response from put operation
+        :rtype: str
+        :raises requests.exception.RequestException: If error was raised by requests
         """
-        headers = {
-            'x-api-key': self.api_key,
-            'Content-Type': 'application/json'
-        }
 
-        document_id = self._upload_document(invoice, 'EU')
-        payload = {'documentId': document_id, **kwargs}
-        endpoint = '/'.join([self.base_endpoint, self.stage, 'invoices'])
-        response = requests.post(endpoint, headers=headers, json=payload)
-        return ScanResponse(response)
+        body = pathlib.Path(document_path).read_bytes()
+        headers = {'Content-Type': content_type}
+        put_document_response = requests.put(presigned_url, data=body, headers=headers)
+        put_document_response.raise_for_status()
+        return put_document_response.content.decode()
 
     @on_exception(expo, RequestException, max_tries=3, giveup=_fatal_code)
-    def match_receipts(self, transactions, receipts, matching_fields, matching_strategy=None, num_upload_threads=10):
-        """Matches transactions and receipts
+    def post_predictions(self, document_id: str, model_name: str) -> dict:
+        """Run inference and create a prediction, calls the POST /predictions endpoint.
 
-        >>> from las import Client, Receipt
-        >>> client = Client(api_key='<api key>')
-        >>> transactions = {'t1': {'total': '100.34', 'date': '2018-03-04'}}
-        >>> receipts = {'r1': Receipt(url='https://example.com/receipt.jpeg')}
-        >>> matching_fields = ['total', 'date']
-        >>> matching_strategy = {'total': 'maximumDeviation': '2.00'}
-        >>> response = client.match_receipts(transactions, receipts, matching_fields, matching_strategy)
+        >>> from las import Client
+        >>> client = Client(endpoint='<api endpoint>')
+        >>> client.post_predictions(document_id='<document id>', model_name='invoice')
 
-        :param transactions: A dictionary of transaction ids to transaction data
-        :type transactions: dict(str, dict)
-        :param receipts: A dictionary of receipt ids to :py:class:`~las.receipt.Receipt` objects
-        :type receipts: dict(str, Receipt)
-        :param matching_fields: A list of all the fields to check for matching
-        :type matching_fields: list(str)
-        :param matching_strategy: A dictionary of fields to matching strategies for that field
-        :type matching_strategy: dict(str, dict) or None
-        :param num_upload_threads: A number specifying maximum allowed threads for uploading receipts
-        :type num_upload_threads: int
-        :return: The results of the matching
-        :rtype: MatchResponse
-        :raises FileFormatException: If the receipt file format is not supported by the api
-        :raises InvalidAPIKeyException: If the api key is invalid
-        :raises LimitExceededException: If number of transactions exceeds 100 or number of receipts exceeds 15
-        :raises ClientException: If transactions or receipts is empty or None
+        :param document_id: The document id to run inference and create a prediction on
+        :type document_id: str
+        :param model_name: The name of the model to use for inference
+        :type model_name: str
+        :return: Prediction on document
+        :rtype: dict
+        :raises InvalidCredentialsException: If the credentials are invalid
+        :raises requests.exception.RequestException: If error was raised by requests
         """
-        if not transactions:
-            raise ClientException('"transactions" cannot be empty or None')
 
-        if not receipts:
-            raise ClientException('"receipts" cannot be empty or None')
+        body = json.dumps({'documentId': document_id, 'modelName': model_name}).encode()
+        uri, headers = self._create_signing_headers('POST', '/predictions', body)
 
-        if len(transactions) > 100:
-            raise LimitExceededException('Exceeded maximum of 100 transactions per request')
+        post_predictions_response = requests.post(
+            url=uri.geturl(),
+            headers=headers,
+            data=body
+        )
 
-        if len(receipts) > 15:
-            raise LimitExceededException('Exceeded maximum of 15 receipts per request')
-
-        matching_strategy = matching_strategy or {}
-        max_workers = min(len(receipts), num_upload_threads)
-        with ThreadPoolExecutor(max_workers=max_workers) as executor:
-            receipt_handles = {}
-            upload_document = partial(self._upload_document, region='EU')
-            for k, r in zip(receipts.keys(), executor.map(upload_document, receipts.values())):
-                receipt_handles[k] = r
-
-        body = {
-            'receipts': receipt_handles,
-            'transactions': transactions,
-            'matchingFields': matching_fields,
-            'matchingStrategy': matching_strategy
-        }
-
-        headers = {
-            'x-api-key': self.api_key,
-            'Content-Type': 'application/json'
-        }
-
-        endpoint = '/'.join([self.base_endpoint, self.stage, 'receipts', 'match'])
-        response = requests.post(endpoint, json=body, headers=headers)
-        return MatchResponse(response)
+        response = _json_decode(post_predictions_response)
+        return response
 
     @on_exception(expo, RequestException, max_tries=3, giveup=_fatal_code)
-    def _upload_document(self, document, region):
-        supported_formats = {
-            'jpeg': 'image/jpeg',
-            'png': 'image/png',
-            'bmp': 'image/bmp',
-            'gif': 'image/gif',
-            'tiff': 'image/tiff',
-            'pdf': 'application/pdf'
-        }
+    def post_document_id(self, document_id: str, feedback: List[Dict[str, str]]) -> dict:
+        """Post feedback to the REST API, calls the POST /documents/{documentId} endpoint.
+        Posting feedback means posting the ground truth data for the particular document.
+        This enables the API to learn from past mistakes.
 
-        fp = BytesIO(document.content)
-        fmt = imghdr.what(fp) or what(fp)
+        >>> from las import Client
+        >>> client = Client(endpoint='<api endpoint>')
+        >>> feedback = [{'label': 'total_amount', 'value': '156.00'}, {'label': 'invoice_date', 'value': '2018-10-23'}]
+        >>> client.post_document_id(document_id='<document id>', feedback=feedback)
 
-        if fmt in supported_formats:
-            headers = {'x-api-key': self.api_key}
-            endpoint = '/'.join([self.base_endpoint, self.stage, 'documents'])
-            payload = {'documentType': supported_formats[fmt], 'region': region}
-            response = requests.put(endpoint, headers=headers, json=payload)
-            decoded = _json_decode(response)
+        :param document_id: The document id to run inference and create a prediction on
+        :type document_id: str
+        :param feedback: A list of feedback items
+        :type feedback: List[Dict[str, str]]
+        :return: Feedback response from REST API
+        :rtype: dict
+        :raises InvalidCredentialsException: If the credentials are invalid
+        :raises requests.exception.RequestException: If error was raised by requests
+        """
 
-            upload_url = decoded['uploadUrl']
-            document_id = decoded['documentId']
-            headers = {'Content-Type': supported_formats[fmt]}
-            response = requests.put(upload_url, headers=headers, data=document.content)
-            response.raise_for_status()
+        body = json.dumps({'feedback': feedback}).encode()
+        uri, headers = self._create_signing_headers('POST', f'/documents/{document_id}', body)
 
-            return document_id
-        elif fmt:
-            raise FileFormatException('File format {} not supported'.format(fmt))
-        else:
-            raise FileFormatException('File format not recognized')
+        post_document_id_response = requests.post(
+            url=uri.geturl(),
+            headers=headers,
+            data=body
+        )
+
+        response = _json_decode(post_document_id_response)
+        return response
+
+    @on_exception(expo, RequestException, max_tries=3, giveup=_fatal_code)
+    def delete_consent_id(self, consent_id: str) -> dict:
+        """Delete documents with this consent_id, calls the DELETE /consent/{consentId} endpoint.
+
+        >>> from las import Client
+        >>> client = Client(endpoint='<api endpoint>')
+        >>> client.delete_consent_id('<consent id>')
+
+        :param consent_id: Delete documents with this consent_id
+        :type consent_id: str
+        :return: Delete consent id response from REST API
+        :rtype: dict
+        :raises InvalidCredentialsException: If the credentials are invalid
+        :raises requests.exception.RequestException: If error was raised by requests
+        """
+
+        body = json.dumps({}).encode()
+        uri, headers = self._create_signing_headers('DELETE', f'/consents/{consent_id}', body)
+
+        delete_consent_id_consent = requests.delete(
+            url=uri.geturl(),
+            headers=headers,
+            data=body
+        )
+
+        response = _json_decode(delete_consent_id_consent)
+        return response
+
+    def _create_signing_headers(self, method: str, path: str, body: bytes):
+        uri = urlparse(f'{self.endpoint}{path}')
+
+        auth_headers = self.authorization.sign_headers(
+            uri=uri,
+            method=method,
+            body=body
+        )
+
+        headers = {**auth_headers, 'Content-Type': 'application/json'}
+        return uri, headers

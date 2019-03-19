@@ -1,7 +1,7 @@
 import pytest
 import configparser
 
-from las import Client
+from las import Client, ApiClient
 from functools import partial
 from os.path import expanduser
 
@@ -19,24 +19,38 @@ def cfg(request):
 def params(cfg):
     config = configparser.ConfigParser()
     config.read(cfg)
-    return partial(config.get, 'match_receipts')
+    return partial(config.get, 'default')
+
+
+def split_and_strip(s, delimiter=','):
+    return [i.strip() for i in s.split(delimiter)]
 
 
 @pytest.fixture(scope='module')
-def api_key(params):
-    return params('api_key')
+def model_names(params):
+    return split_and_strip(params('model_names'))
 
 
 @pytest.fixture(scope='module')
-def base_endpoint(params):
-    return params('base_endpoint')
+def document_paths(params):
+    return split_and_strip(params('document_paths'))
 
 
 @pytest.fixture(scope='module')
-def stage(params):
-    return params('stage')
+def document_mime_types(params):
+    return split_and_strip(params('document_mime_types'))
 
 
 @pytest.fixture(scope='module')
-def client(api_key, base_endpoint, stage):
-    return Client(api_key, base_endpoint, stage)
+def endpoint(params):
+    return params('endpoint')
+
+
+@pytest.fixture(scope='module')
+def client(endpoint):
+    return Client(endpoint)
+
+
+@pytest.fixture(scope='module')
+def api_client(endpoint):
+    return ApiClient(endpoint)

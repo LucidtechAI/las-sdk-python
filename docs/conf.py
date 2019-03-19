@@ -19,8 +19,8 @@ sys.path.insert(0, os.path.abspath('..'))
 
 # -- Project information -----------------------------------------------------
 
-project = 'las-python-sdk'
-copyright = '2018, Lucidtech AS'
+project = 'Lucidtech AI Services Python SDK'
+copyright = '2019, Lucidtech AS'
 author = 'Lucidtech AS'
 
 # The short X.Y version
