@@ -6,14 +6,14 @@ from uuid import uuid4
 from typing import List
 
 from ._extrahdr import extra_what
-from .client import Client
+from .client import Client, ClientException
 from .prediction import Prediction, Field
 
 
 logger = logging.getLogger('las')
 
 
-class FileFormatException(Client):
+class FileFormatException(ClientException):
     """A FileFormatException is raised if the file format is not supported by the api."""
     pass
 
@@ -45,6 +45,8 @@ class ApiClient(Client):
         :return: Prediction on document
         :rtype: Prediction
         :raises InvalidCredentialsException: If the credentials are invalid
+        :raises TooManyRequestsException: If limit of requests per second is reached
+        :raises LimitExceededException: If limit of total requests per month is reached
         :raises requests.exception.RequestException: If error was raised by requests
         """
 
@@ -71,6 +73,8 @@ class ApiClient(Client):
         :return: Feedback response
         :rtype: dict
         :raises InvalidCredentialsException: If the credentials are invalid
+        :raises TooManyRequestsException: If limit of requests per second is reached
+        :raises LimitExceededException: If limit of total requests per month is reached
         :raises requests.exception.RequestException: If error was raised by requests
         """
 
@@ -90,6 +94,8 @@ class ApiClient(Client):
         :return: Revoke consent response
         :rtype: dict
         :raises InvalidCredentialsException: If the credentials are invalid
+        :raises TooManyRequestsException: If limit of requests per second is reached
+        :raises LimitExceededException: If limit of total requests per month is reached
         :raises requests.exception.RequestException: If error was raised by requests
         """
         return self.delete_consent_id(consent_id)

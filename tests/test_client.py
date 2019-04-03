@@ -1,8 +1,11 @@
 import pytest
+import requests
 
 from las import Client
+from las.client import TooManyRequestsException, InvalidCredentialsException, LimitExceededException
 from typing import Iterable
 from uuid import uuid4
+from unittest.mock import patch, Mock
 
 
 def test_post_documents(client: Client, document_mime_types: Iterable[str]):
@@ -48,3 +51,84 @@ def test_delete_consent_id(client: Client, consent_id: str):
 
     assert 'consentId' in delete_consent_id_response, 'Missing consentId in response'
     assert 'documentIds' in delete_consent_id_response, 'Missing documentIds in response'
+
+
+@patch('requests.post')
+@patch('requests.delete')
+def test_invalid_credentials(delete_mock, post_mock, client: Client):
+    raise_for_status = Mock(side_effect=requests.HTTPError())
+
+    too_many_requests_mock = Mock(
+        json=Mock(return_value={'message': 'Forbidden'}),
+        raise_for_status=raise_for_status,
+        status_code=403
+    )
+
+    delete_mock.return_value = too_many_requests_mock
+    post_mock.return_value = too_many_requests_mock
+
+    with pytest.raises(InvalidCredentialsException):
+        client.post_documents('image/jpeg', 'foobar')
+
+    with pytest.raises(InvalidCredentialsException):
+        client.post_predictions('foobar', 'invoice')
+
+    with pytest.raises(InvalidCredentialsException):
+        client.post_document_id('foobar', [{'foo': 'bar'}])
+
+    with pytest.raises(InvalidCredentialsException):
+        client.delete_consent_id('foobar')
+
+
+@patch('requests.post')
+@patch('requests.delete')
+def test_too_many_requests(delete_mock, post_mock, client: Client):
+    raise_for_status = Mock(side_effect=requests.HTTPError())
+
+    too_many_requests_mock = Mock(
+        json=Mock(return_value={'message': 'Too Many Requests'}),
+        raise_for_status=raise_for_status,
+        status_code=429
+    )
+
+    delete_mock.return_value = too_many_requests_mock
+    post_mock.return_value = too_many_requests_mock
+
+    with pytest.raises(TooManyRequestsException):
+        client.post_documents('image/jpeg', 'foobar')
+
+    with pytest.raises(TooManyRequestsException):
+        client.post_predictions('foobar', 'invoice')
+
+    with pytest.raises(TooManyRequestsException):
+        client.post_document_id('foobar', [{'foo': 'bar'}])
+
+    with pytest.raises(TooManyRequestsException):
+        client.delete_consent_id('foobar')
+
+
+@patch('requests.post')
+@patch('requests.delete')
+def test_limit_exceeded(delete_mock, post_mock, client: Client):
+    raise_for_status = Mock(side_effect=requests.HTTPError())
+
+    too_many_requests_mock = Mock(
+        json=Mock(return_value={'message': 'Limit Exceeded'}),
+        raise_for_status=raise_for_status,
+        status_code=429
+    )
+
+    delete_mock.return_value = too_many_requests_mock
+    post_mock.return_value = too_many_requests_mock
+
+    with pytest.raises(LimitExceededException):
+        client.post_documents('image/jpeg', 'foobar')
+
+    with pytest.raises(LimitExceededException):
+        client.post_predictions('foobar', 'invoice')
+
+    with pytest.raises(LimitExceededException):
+        client.post_document_id('foobar', [{'foo': 'bar'}])
+
+    with pytest.raises(LimitExceededException):
+        client.delete_consent_id('foobar')

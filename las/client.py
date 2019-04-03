@@ -31,7 +31,13 @@ def _json_decode(response):
         logger.error('Error in response. Returned {}'.format(response.text))
 
         if response.status_code == 403 and 'Forbidden' in response.json().values():
-            raise InvalidCredentialsException('Credentials provided is not valid')
+            raise InvalidCredentialsException('Credentials provided is not valid.')
+
+        if response.status_code == 429 and 'Too Many Requests' in response.json().values():
+            raise TooManyRequestsException('You have reached the limit of requests per second.')
+
+        if response.status_code == 429 and 'Limit Exceeded' in response.json().values():
+            raise LimitExceededException('You have reached the limit of total requests per month.')
 
         raise e
 
@@ -44,6 +50,18 @@ class ClientException(Exception):
 
 class InvalidCredentialsException(ClientException):
     """An InvalidCredentialsException is raised if api key, access key id or secret access key is invalid."""
+    pass
+
+
+class TooManyRequestsException(ClientException):
+    """A TooManyRequestsException is raised if you have reached the number of requests per second limit
+    associated with your credentials."""
+    pass
+
+
+class LimitExceededException(ClientException):
+    """A LimitExceededException is raised if you have reached the limit of total requests per month
+    associated with your credentials."""
     pass
 
 
@@ -61,6 +79,7 @@ class Client:
         credentials = credentials or Credentials()
         self.authorization = Authorization(credentials)
 
+    @on_exception(expo, TooManyRequestsException, max_tries=4)
     @on_exception(expo, RequestException, max_tries=3, giveup=_fatal_code)
     def post_documents(self, content_type: str, consent_id: str) -> dict:
         """Creates a document handle, calls the POST /documents endpoint.
@@ -76,6 +95,8 @@ class Client:
         :return: Document handle id and pre-signed upload url
         :rtype: dict
         :raises InvalidCredentialsException: If the credentials are invalid
+        :raises TooManyRequestsException: If limit of requests per second is reached
+        :raises LimitExceededException: If limit of total requests per month is reached
         :raises requests.exception.RequestException: If error was raised by requests
         """
 
@@ -117,6 +138,7 @@ class Client:
         put_document_response.raise_for_status()
         return put_document_response.content.decode()
 
+    @on_exception(expo, TooManyRequestsException, max_tries=4)
     @on_exception(expo, RequestException, max_tries=3, giveup=_fatal_code)
     def post_predictions(self, document_id: str, model_name: str) -> dict:
         """Run inference and create a prediction, calls the POST /predictions endpoint.
@@ -132,6 +154,8 @@ class Client:
         :return: Prediction on document
         :rtype: dict
         :raises InvalidCredentialsException: If the credentials are invalid
+        :raises TooManyRequestsException: If limit of requests per second is reached
+        :raises LimitExceededException: If limit of total requests per month is reached
         :raises requests.exception.RequestException: If error was raised by requests
         """
 
@@ -147,6 +171,7 @@ class Client:
         response = _json_decode(post_predictions_response)
         return response
 
+    @on_exception(expo, TooManyRequestsException, max_tries=4)
     @on_exception(expo, RequestException, max_tries=3, giveup=_fatal_code)
     def post_document_id(self, document_id: str, feedback: List[Dict[str, str]]) -> dict:
         """Post feedback to the REST API, calls the POST /documents/{documentId} endpoint.
@@ -165,6 +190,8 @@ class Client:
         :return: Feedback response from REST API
         :rtype: dict
         :raises InvalidCredentialsException: If the credentials are invalid
+        :raises TooManyRequestsException: If limit of requests per second is reached
+        :raises LimitExceededException: If limit of total requests per month is reached
         :raises requests.exception.RequestException: If error was raised by requests
         """
 
@@ -180,6 +207,7 @@ class Client:
         response = _json_decode(post_document_id_response)
         return response
 
+    @on_exception(expo, TooManyRequestsException, max_tries=4)
     @on_exception(expo, RequestException, max_tries=3, giveup=_fatal_code)
     def delete_consent_id(self, consent_id: str) -> dict:
         """Delete documents with this consent_id, calls the DELETE /consent/{consentId} endpoint.
@@ -193,6 +221,8 @@ class Client:
         :return: Delete consent id response from REST API
         :rtype: dict
         :raises InvalidCredentialsException: If the credentials are invalid
+        :raises TooManyRequestsException: If limit of requests per second is reached
+        :raises LimitExceededException: If limit of total requests per month is reached
         :raises requests.exception.RequestException: If error was raised by requests
         """
 
