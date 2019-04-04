@@ -1,6 +1,8 @@
 import pytest
+import tempfile
 
 from las import ApiClient, Client, Field
+from las.api_client import FileFormatException
 from typing import Iterable
 from uuid import uuid4
 
@@ -50,3 +52,10 @@ def test_revoke_consent(api_client: ApiClient, consent_id: str):
 
     assert 'consentId' in response, 'Missing consentId in response'
     assert 'documentIds' in response, 'Missing documentIds in response'
+
+
+def test_invalid_file_format(api_client: ApiClient, model_names: Iterable[str]):
+    for model_name in model_names:
+        with tempfile.NamedTemporaryFile() as fp:
+            with pytest.raises(FileFormatException):
+                api_client.predict(fp.name, model_name=model_name)
