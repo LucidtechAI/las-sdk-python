@@ -114,7 +114,7 @@ class Client:
 
     @staticmethod
     @on_exception(expo, RequestException, max_tries=3, giveup=_fatal_code)
-    def put_document(document_path: str, content_type: str, presigned_url: str) -> str:
+    def put_document(document_path: str, content_type: str, presigned_url: str, use_kms: bool = False) -> str:
         """Convenience method for putting a document to presigned url.
 
         >>> from las import Client
@@ -128,6 +128,9 @@ class Client:
         :type content_type: str
         :param presigned_url: Presigned upload url from :py:func:`~las.Client.post_documents`
         :type presigned_url: str
+        :param use_kms: Adds KMS header to the request to S3. Set to true if your API using KMS default encryption on
+        the data bucket
+        :type use_kms: bool
         :return: Response from put operation
         :rtype: str
         :raises requests.exception.RequestException: If error was raised by requests
@@ -135,6 +138,9 @@ class Client:
 
         body = pathlib.Path(document_path).read_bytes()
         headers = {'Content-Type': content_type}
+        if use_kms:
+            headers.update({'x-amz-server-side-encryption': 'aws:kms'})
+
         put_document_response = requests.put(presigned_url, data=body, headers=headers)
         put_document_response.raise_for_status()
         return put_document_response.content.decode()

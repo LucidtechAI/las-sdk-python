@@ -27,7 +27,7 @@ class ApiClient(Client):
     :type credentials: Credentials
 
     """
-    def predict(self, document_path: str, model_name: str, consent_id: str = None) -> Prediction:
+    def predict(self, document_path: str, model_name: str, consent_id: str = None, use_kms: bool = False) -> Prediction:
         """Run inference and create prediction on document.
         This method takes care of creating and uploading a document specified by document_path.
         as well as running inference using model specified by model_name to create prediction on the document.
@@ -42,6 +42,9 @@ class ApiClient(Client):
         :type model_name: str
         :param consent_id: An identifier to mark the owner of the document handle
         :type consent_id: str
+        :param use_kms: Adds KMS header to the request to S3. Set to true if your API using KMS default encryption on
+        the data bucket
+        :type use_kms: bool
         :return: Prediction on document
         :rtype: Prediction
         :raises InvalidCredentialsException: If the credentials are invalid
@@ -52,7 +55,7 @@ class ApiClient(Client):
 
         content_type = self._get_content_type(document_path)
         consent_id = consent_id or str(uuid4())
-        document_id = self._upload_document(document_path, content_type, consent_id)
+        document_id = self._upload_document(document_path, content_type, consent_id, use_kms)
         prediction_response = self.post_predictions(document_id, model_name)
         return Prediction(document_id, consent_id, model_name, prediction_response)
 
@@ -100,11 +103,11 @@ class ApiClient(Client):
         """
         return self.delete_consent_id(consent_id)
 
-    def _upload_document(self, document_path: str, content_type: str, consent_id: str) -> str:
+    def _upload_document(self, document_path: str, content_type: str, consent_id: str, use_kms: bool = False) -> str:
         post_documents_response = self.post_documents(content_type, consent_id)
         document_id = post_documents_response['documentId']
         presigned_url = post_documents_response['uploadUrl']
-        self.put_document(document_path, content_type, presigned_url)
+        self.put_document(document_path, content_type, presigned_url, use_kms)
         return document_id
 
     @staticmethod
