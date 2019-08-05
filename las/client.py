@@ -76,8 +76,7 @@ class Client:
     """
     def __init__(self, endpoint: str, credentials=None):
         self.endpoint = endpoint
-        credentials = credentials or Credentials()
-        self.authorization = Authorization(credentials)
+        self.credentials = credentials or Credentials()
 
     @on_exception(expo, TooManyRequestsException, max_tries=4)
     @on_exception(expo, RequestException, max_tries=3, giveup=_fatal_code)
@@ -248,11 +247,9 @@ class Client:
     def _create_signing_headers(self, method: str, path: str, body: bytes):
         uri = urlparse(f'{self.endpoint}{path}')
 
-        auth_headers = self.authorization.sign_headers(
-            uri=uri,
-            method=method,
-            body=body
-        )
-
+        auth_headers = {
+            'Authorization': f'Bearer {self.credentials.access_token}',
+            'X-Api-Key': self.credentials.api_key
+        }
         headers = {**auth_headers, 'Content-Type': 'application/json'}
         return uri, headers

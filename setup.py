@@ -11,7 +11,7 @@ with open('README.md') as fp:
 
 setup(
     name='lucidtech-las',
-    version='1.0.1',
+    version='2.0.0',
     description='Python SDK for Lucidtech AI Services',
     long_description=readme,
     license='Apache 2.0',
@@ -23,7 +23,7 @@ setup(
     packages=['las'],
     install_requires=install_requires,
     classifiers=[
-        'Development Status :: 3 - Alpha',
+        'Development Status :: 3 - Beta',
         'Intended Audience :: Developers',
         'License :: OSI Approved :: Apache Software License',
         'Operating System :: OS Independent',
