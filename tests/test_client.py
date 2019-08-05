@@ -1,5 +1,6 @@
 import pytest
 import requests
+import pathlib
 
 from las import Client
 from las.client import TooManyRequestsException, InvalidCredentialsException, LimitExceededException
@@ -8,12 +9,12 @@ from uuid import uuid4
 from unittest.mock import patch, Mock
 
 
-def test_post_documents(client: Client, document_mime_types: Iterable[str]):
-    for document_mime_type in document_mime_types:
+def test_post_documents(client: Client, document_paths: Iterable[str], document_mime_types: Iterable[str]):
+    for document_path, document_mime_type in zip(document_paths, document_mime_types):
         consent_id = str(uuid4())
-        post_documents_response = client.post_documents(document_mime_type, consent_id)
+        content = pathlib.Path(document_path).read_bytes()
+        post_documents_response = client.post_documents(content, document_mime_type, consent_id)
 
-        assert 'uploadUrl' in post_documents_response, 'Missing uploadUrl in response'
         assert 'documentId' in post_documents_response, 'Missing documentId in response'
         assert 'consentId' in post_documents_response, 'Missing consentId in response'
         assert 'contentType' in post_documents_response, 'Missing contentType in response'

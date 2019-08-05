@@ -3,13 +3,13 @@ import json
 import pathlib
 import logging
 
+from base64 import b64encode
 from backoff import on_exception, expo
 from requests.exceptions import RequestException
 from json.decoder import JSONDecodeError
 from urllib.parse import urlparse
 from typing import List, Dict
 
-from .authorization import Authorization
 from .credentials import Credentials
 
 
@@ -80,7 +80,7 @@ class Client:
 
     @on_exception(expo, TooManyRequestsException, max_tries=4)
     @on_exception(expo, RequestException, max_tries=3, giveup=_fatal_code)
-    def post_documents(self, content_type: str, consent_id: str) -> dict:
+    def post_documents(self, content: bytes, content_type: str, consent_id: str) -> dict:
         """Creates a document handle, calls the POST /documents endpoint.
 
         >>> from las import Client
@@ -99,7 +99,12 @@ class Client:
         :raises requests.exception.RequestException: If error was raised by requests
         """
 
-        body = json.dumps({'contentType': content_type, 'consentId': consent_id}).encode()
+        base64_content = b64encode(content).decode()
+        body = json.dumps({
+            'content': base64_content,
+            'contentType': content_type,
+            'consentId': consent_id
+        }).encode()
         uri, headers = self._create_signing_headers('POST', '/documents', body)
 
         post_documents_response = requests.post(
