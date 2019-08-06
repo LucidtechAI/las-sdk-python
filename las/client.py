@@ -80,6 +80,113 @@ class Client:
 
     @on_exception(expo, TooManyRequestsException, max_tries=4)
     @on_exception(expo, RequestException, max_tries=3, giveup=_fatal_code)
+    def patch_task_id(self, task_id: str, task_result: dict) -> dict:
+        """Creates a document handle, calls the POST /documents endpoint.
+
+        >>> from las import Client
+        >>> client = Client(endpoint='<api endpoint>')
+        >>> client.post_documents('image/jpeg', consent_id='foobar')
+
+        :param content_type: A mime type for the document handle
+        :type content_type: str
+        :param consent_id: An identifier to mark the owner of the document handle
+        :type consent_id: str
+        :return: Document handle id and pre-signed upload url
+        :rtype: dict
+        :raises InvalidCredentialsException: If the credentials are invalid
+        :raises TooManyRequestsException: If limit of requests per second is reached
+        :raises LimitExceededException: If limit of total requests per month is reached
+        :raises requests.exception.RequestException: If error was raised by requests
+        """
+
+        body = json.dumps({
+            'taskResult': task_result,
+        }).encode()
+        uri, headers = self._create_signing_headers('PATCH', f'/tasks/{task_id}', body)
+
+        post_documents_response = requests.patch(
+            url=uri.geturl(),
+            headers=headers,
+            data=body
+        )
+
+        response = _json_decode(post_documents_response)
+        return response
+
+    @on_exception(expo, TooManyRequestsException, max_tries=4)
+    @on_exception(expo, RequestException, max_tries=3, giveup=_fatal_code)
+    def post_tasks(self, activity_arn: str) -> dict:
+        """Creates a document handle, calls the POST /documents endpoint.
+
+        >>> from las import Client
+        >>> client = Client(endpoint='<api endpoint>')
+        >>> client.post_documents('image/jpeg', consent_id='foobar')
+
+        :param content_type: A mime type for the document handle
+        :type content_type: str
+        :param consent_id: An identifier to mark the owner of the document handle
+        :type consent_id: str
+        :return: Document handle id and pre-signed upload url
+        :rtype: dict
+        :raises InvalidCredentialsException: If the credentials are invalid
+        :raises TooManyRequestsException: If limit of requests per second is reached
+        :raises LimitExceededException: If limit of total requests per month is reached
+        :raises requests.exception.RequestException: If error was raised by requests
+        """
+
+        body = json.dumps({
+            'activityArn': activity_arn,
+        }).encode()
+        uri, headers = self._create_signing_headers('POST', '/tasks', body)
+
+        post_documents_response = requests.post(
+            url=uri.geturl(),
+            headers=headers,
+            data=body
+        )
+
+        response = _json_decode(post_documents_response)
+        return response
+
+    @on_exception(expo, TooManyRequestsException, max_tries=4)
+    @on_exception(expo, RequestException, max_tries=3, giveup=_fatal_code)
+    def post_processes(self, state_machine_arn: str, input_data: dict) -> dict:
+        """Creates a document handle, calls the POST /documents endpoint.
+
+        >>> from las import Client
+        >>> client = Client(endpoint='<api endpoint>')
+        >>> client.post_documents('image/jpeg', consent_id='foobar')
+
+        :param content_type: A mime type for the document handle
+        :type content_type: str
+        :param consent_id: An identifier to mark the owner of the document handle
+        :type consent_id: str
+        :return: Document handle id and pre-signed upload url
+        :rtype: dict
+        :raises InvalidCredentialsException: If the credentials are invalid
+        :raises TooManyRequestsException: If limit of requests per second is reached
+        :raises LimitExceededException: If limit of total requests per month is reached
+        :raises requests.exception.RequestException: If error was raised by requests
+        """
+
+        body = json.dumps({
+            'stateMachineArn': state_machine_arn,
+            'inputData': input_data
+        }).encode()
+        print(body)
+        uri, headers = self._create_signing_headers('POST', '/processes', body)
+
+        post_documents_response = requests.post(
+            url=uri.geturl(),
+            headers=headers,
+            data=body
+        )
+
+        response = _json_decode(post_documents_response)
+        return response
+
+    @on_exception(expo, TooManyRequestsException, max_tries=4)
+    @on_exception(expo, RequestException, max_tries=3, giveup=_fatal_code)
     def post_documents(self, content: bytes, content_type: str, consent_id: str) -> dict:
         """Creates a document handle, calls the POST /documents endpoint.
 

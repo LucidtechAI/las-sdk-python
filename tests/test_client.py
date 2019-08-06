@@ -20,6 +20,30 @@ def test_post_documents(client: Client, document_paths: Iterable[str], document_
         assert 'contentType' in post_documents_response, 'Missing contentType in response'
 
 
+def test_post_processes(client: Client, state_machine_arn: str):
+    post_processes_response = client.post_processes(state_machine_arn, {})
+    assert 'executionArn' in post_processes_response, 'Missing executionArn in response'
+
+
+def test_post_tasks(client: Client, state_machine_arn: str, activity_arn: str):
+    client.post_processes(state_machine_arn, {})
+    post_tasks_response = client.post_tasks(activity_arn)
+    assert 'taskId' in post_tasks_response, 'Missing taskId in response'
+    assert 'taskToken' in post_tasks_response, 'Missing taskToken in response'
+    assert 'taskData' in post_tasks_response, 'Missing taskData in response'
+
+
+def test_patch_task_id(client: Client, state_machine_arn: str, activity_arn: str):
+    client.post_processes(state_machine_arn, {'foo': 'bar'})
+    post_tasks_response = client.post_tasks(activity_arn)
+    task_id = post_tasks_response['taskId']
+    task_result = {'message': 'Hello world!'}
+    patch_task_id_response = client.patch_task_id(task_id, task_result)
+    assert 'taskId' in patch_task_id_response, 'Missing taskId in response'
+    assert 'taskResult' in patch_task_id_response, 'Missing taskResult in response'
+    assert 'taskData' in patch_task_id_response, 'Missing taskData in response'
+
+
 @pytest.fixture(scope='function', params=['image/jpeg', 'application/pdf'])
 def document_id(request, client: Client):
     consent_id = str(uuid4())
