@@ -102,7 +102,7 @@ class Client:
         body = json.dumps({
             'taskResult': task_result,
         }).encode()
-        uri, headers = self._create_signing_headers('PATCH', f'/tasks/{task_id}', body)
+        uri, headers = self._create_signing_headers(f'/tasks/{task_id}')
 
         post_documents_response = requests.patch(
             url=uri.geturl(),
@@ -137,7 +137,7 @@ class Client:
         body = json.dumps({
             'activityArn': activity_arn,
         }).encode()
-        uri, headers = self._create_signing_headers('POST', '/tasks', body)
+        uri, headers = self._create_signing_headers('/tasks')
 
         post_documents_response = requests.post(
             url=uri.geturl(),
@@ -174,7 +174,7 @@ class Client:
             'inputData': input_data
         }).encode()
         print(body)
-        uri, headers = self._create_signing_headers('POST', '/processes', body)
+        uri, headers = self._create_signing_headers('/processes')
 
         post_documents_response = requests.post(
             url=uri.geturl(),
@@ -212,7 +212,7 @@ class Client:
             'contentType': content_type,
             'consentId': consent_id
         }).encode()
-        uri, headers = self._create_signing_headers('POST', '/documents', body)
+        uri, headers = self._create_signing_headers('/documents')
 
         post_documents_response = requests.post(
             url=uri.geturl(),
@@ -291,6 +291,35 @@ class Client:
 
     @on_exception(expo, TooManyRequestsException, max_tries=4)
     @on_exception(expo, RequestException, max_tries=3, giveup=_fatal_code)
+    def get_document_id(self, document_id: str) -> dict:
+        """Get document from the REST API, calls the GET /documents/{documentId} endpoint.
+
+        >>> from las import Client
+        >>> client = Client(endpoint='<api endpoint>')
+        >>> client.get_document_id(document_id='<document id>')
+
+        :param document_id: The document id to run inference and create a prediction on
+        :type document_id: str
+        :return: Document response from REST API
+        :rtype: dict
+        :raises InvalidCredentialsException: If the credentials are invalid
+        :raises TooManyRequestsException: If limit of requests per second is reached
+        :raises LimitExceededException: If limit of total requests per month is reached
+        :raises requests.exception.RequestException: If error was raised by requests
+        """
+
+        uri, headers = self._create_signing_headers(f'/documents/{document_id}')
+
+        get_document_id_response = requests.get(
+            url=uri.geturl(),
+            headers=headers
+        )
+
+        response = _json_decode(get_document_id_response)
+        return response
+
+    @on_exception(expo, TooManyRequestsException, max_tries=4)
+    @on_exception(expo, RequestException, max_tries=3, giveup=_fatal_code)
     def post_document_id(self, document_id: str, feedback: List[Dict[str, str]]) -> dict:
         """Post feedback to the REST API, calls the POST /documents/{documentId} endpoint.
         Posting feedback means posting the ground truth data for the particular document.
@@ -356,7 +385,7 @@ class Client:
         response = _json_decode(delete_consent_id_consent)
         return response
 
-    def _create_signing_headers(self, method: str, path: str, body: bytes):
+    def _create_signing_headers(self, path: str):
         uri = urlparse(f'{self.endpoint}{path}')
 
         auth_headers = {
