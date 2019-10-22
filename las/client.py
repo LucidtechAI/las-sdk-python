@@ -150,18 +150,45 @@ class Client:
 
     @on_exception(expo, TooManyRequestsException, max_tries=4)
     @on_exception(expo, RequestException, max_tries=3, giveup=_fatal_code)
-    def post_processes(self, state_machine_arn: str, input_data: dict) -> dict:
-        """Creates a document handle, calls the POST /documents endpoint.
+    def get_processes(self) -> dict:
+        """Get processes, calls the GET /processes endpoint.
 
         >>> from las import Client
         >>> client = Client(endpoint='<api endpoint>')
-        >>> client.post_documents('image/jpeg', consent_id='foobar')
+        >>> client.get_processes()
 
-        :param content_type: A mime type for the document handle
-        :type content_type: str
-        :param consent_id: An identifier to mark the owner of the document handle
-        :type consent_id: str
-        :return: Document handle id and pre-signed upload url
+        :return: Processes
+        :rtype: dict
+        :raises InvalidCredentialsException: If the credentials are invalid
+        :raises TooManyRequestsException: If limit of requests per second is reached
+        :raises LimitExceededException: If limit of total requests per month is reached
+        :raises requests.exception.RequestException: If error was raised by requests
+        """
+
+        uri, headers = self._create_signing_headers('/processes')
+
+        get_documents_response = requests.get(
+            url=uri.geturl(),
+            headers=headers
+        )
+
+        response = _json_decode(get_documents_response)
+        return response
+
+    @on_exception(expo, TooManyRequestsException, max_tries=4)
+    @on_exception(expo, RequestException, max_tries=3, giveup=_fatal_code)
+    def post_processes(self, state_machine_arn: str, input_data: dict) -> dict:
+        """Creates a new process, calls the POST /processes endpoint.
+
+        >>> from las import Client
+        >>> client = Client(endpoint='<api endpoint>')
+        >>> client.post_processes('<state machine arn>', input_data={})
+
+        :param state_machine_arn: State machine arn
+        :type state_machine_arn: str
+        :param input_data: Input to process
+        :type input_data: dict
+        :return: Process data
         :rtype: dict
         :raises InvalidCredentialsException: If the credentials are invalid
         :raises TooManyRequestsException: If limit of requests per second is reached
