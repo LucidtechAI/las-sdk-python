@@ -150,7 +150,7 @@ class Client:
 
     @on_exception(expo, TooManyRequestsException, max_tries=4)
     @on_exception(expo, RequestException, max_tries=3, giveup=_fatal_code)
-    def get_processes(self) -> dict:
+    def get_processes(self, max_results=None, status=None, next_token=None) -> dict:
         """Get processes, calls the GET /processes endpoint.
 
         >>> from las import Client
@@ -166,10 +166,17 @@ class Client:
         """
 
         uri, headers = self._create_signing_headers('/processes')
+        params = {
+            'maxResults': max_results,
+            'status': status,
+            'nextToken': next_token
+        }
+        params = {k: v for k, v in params.items() if v}
 
         get_documents_response = requests.get(
             url=uri.geturl(),
-            headers=headers
+            headers=headers,
+            params=params
         )
 
         response = _json_decode(get_documents_response)
