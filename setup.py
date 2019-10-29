@@ -11,7 +11,7 @@ with open('README.md') as fp:
 
 setup(
     name='lucidtech-las',
-    version='1.0.1',
+    version='1.0.2',
     description='Python SDK for Lucidtech AI Services',
     long_description=readme,
     license='Apache 2.0',

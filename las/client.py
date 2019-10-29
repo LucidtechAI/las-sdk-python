@@ -7,7 +7,7 @@ from backoff import on_exception, expo
 from requests.exceptions import RequestException
 from json.decoder import JSONDecodeError
 from urllib.parse import urlparse
-from typing import List, Dict
+from typing import List, Dict, Any
 
 from .authorization import Authorization
 from .credentials import Credentials
@@ -147,7 +147,7 @@ class Client:
 
     @on_exception(expo, TooManyRequestsException, max_tries=4)
     @on_exception(expo, RequestException, max_tries=3, giveup=_fatal_code)
-    def post_predictions(self, document_id: str, model_name: str) -> dict:
+    def post_predictions(self, document_id: str, model_name: str, extras: Dict[str, Any] = None) -> dict:
         """Run inference and create a prediction, calls the POST /predictions endpoint.
 
         >>> from las import Client
@@ -158,6 +158,8 @@ class Client:
         :type document_id: str
         :param model_name: The name of the model to use for inference
         :type model_name: str
+        :param extras: Extra information to add to json body
+        :type extras: Dict[str, Any]
         :return: Prediction on document
         :rtype: dict
         :raises InvalidCredentialsException: If the credentials are invalid
@@ -166,7 +168,11 @@ class Client:
         :raises requests.exception.RequestException: If error was raised by requests
         """
 
-        body = json.dumps({'documentId': document_id, 'modelName': model_name}).encode()
+        body = json.dumps({k: v for k, v in {
+            'documentId': document_id,
+            'modelName': model_name,
+            **(extras or {})
+        }.items() if v}).encode()
         uri, headers = self._create_signing_headers('POST', '/predictions', body)
 
         post_predictions_response = requests.post(

@@ -3,7 +3,7 @@ import imghdr
 import logging
 
 from uuid import uuid4
-from typing import List
+from typing import List, Dict, Any
 
 from ._extrahdr import extra_what
 from .client import Client, ClientException
@@ -27,7 +27,8 @@ class ApiClient(Client):
     :type credentials: Credentials
 
     """
-    def predict(self, document_path: str, model_name: str, consent_id: str = None, use_kms: bool = False) -> Prediction:
+    def predict(self, document_path: str, model_name: str, consent_id: str = None, use_kms: bool = False,
+                extras: Dict[str, Any] = None) -> Prediction:
         """Run inference and create prediction on document.
         This method takes care of creating and uploading a document specified by document_path.
         as well as running inference using model specified by model_name to create prediction on the document.
@@ -45,6 +46,8 @@ class ApiClient(Client):
         :param use_kms: Adds KMS header to the request to S3. Set to true if your API using KMS default encryption on
         the data bucket
         :type use_kms: bool
+        :param extras: Extra information to add to json body
+        :type extras: Dict[str, Any]
         :return: Prediction on document
         :rtype: Prediction
         :raises InvalidCredentialsException: If the credentials are invalid
@@ -56,7 +59,7 @@ class ApiClient(Client):
         content_type = self._get_content_type(document_path)
         consent_id = consent_id or str(uuid4())
         document_id = self._upload_document(document_path, content_type, consent_id, use_kms)
-        prediction_response = self.post_predictions(document_id, model_name)
+        prediction_response = self.post_predictions(document_id, model_name, extras)
         return Prediction(document_id, consent_id, model_name, prediction_response)
 
     def send_feedback(self, document_id: str, feedback: List[Field]) -> dict:
