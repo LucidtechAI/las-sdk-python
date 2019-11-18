@@ -150,6 +150,38 @@ class Client:
 
     @on_exception(expo, TooManyRequestsException, max_tries=4)
     @on_exception(expo, RequestException, max_tries=3, giveup=_fatal_code)
+    def get_data(self, category=None) -> dict:
+        """Get processes, calls the GET /processes endpoint.
+
+        >>> from las import Client
+        >>> client = Client(endpoint='<api endpoint>')
+        >>> client.get_processes()
+
+        :return: Processes
+        :rtype: dict
+        :raises InvalidCredentialsException: If the credentials are invalid
+        :raises TooManyRequestsException: If limit of requests per second is reached
+        :raises LimitExceededException: If limit of total requests per month is reached
+        :raises requests.exception.RequestException: If error was raised by requests
+        """
+
+        uri, headers = self._create_signing_headers('/data')
+        params = {
+            'category': category
+        }
+        params = {k: v for k, v in params.items() if v}
+
+        get_documents_response = requests.get(
+            url=uri.geturl(),
+            headers=headers,
+            params=params
+        )
+
+        response = _json_decode(get_documents_response)
+        return response
+
+    @on_exception(expo, TooManyRequestsException, max_tries=4)
+    @on_exception(expo, RequestException, max_tries=3, giveup=_fatal_code)
     def get_processes(self, max_results=None, status=None, next_token=None) -> dict:
         """Get processes, calls the GET /processes endpoint.
 
@@ -312,7 +344,7 @@ class Client:
         """
 
         body = json.dumps({'documentId': document_id, 'modelName': model_name}).encode()
-        uri, headers = self._create_signing_headers('POST', '/predictions', body)
+        uri, headers = self._create_signing_headers('/predictions')
 
         post_predictions_response = requests.post(
             url=uri.geturl(),
@@ -377,7 +409,7 @@ class Client:
         """
 
         body = json.dumps({'feedback': feedback}).encode()
-        uri, headers = self._create_signing_headers('POST', f'/documents/{document_id}', body)
+        uri, headers = self._create_signing_headers(f'/documents/{document_id}')
 
         post_document_id_response = requests.post(
             url=uri.geturl(),
@@ -408,7 +440,7 @@ class Client:
         """
 
         body = json.dumps({}).encode()
-        uri, headers = self._create_signing_headers('DELETE', f'/consents/{consent_id}', body)
+        uri, headers = self._create_signing_headers(f'/consents/{consent_id}')
 
         delete_consent_id_consent = requests.delete(
             url=uri.geturl(),
