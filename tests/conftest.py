@@ -16,9 +16,14 @@ def cfg(request):
 
 
 @pytest.fixture(scope='module')
-def params(cfg):
+def config(cfg):
     config = configparser.ConfigParser()
     config.read(cfg)
+    return config
+
+
+@pytest.fixture(scope='module')
+def params(config):
     return partial(config.get, 'default')
 
 
@@ -54,3 +59,8 @@ def client(endpoint):
 @pytest.fixture(scope='module')
 def api_client(endpoint):
     return ApiClient(endpoint)
+
+
+@pytest.fixture(scope='module')
+def use_kms(config):
+    return config.getboolean('default', 'use_kms', fallback=False)

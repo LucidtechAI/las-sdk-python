@@ -7,9 +7,9 @@ from typing import Iterable
 from uuid import uuid4
 
 
-def test_predict(api_client: ApiClient, document_paths: Iterable[str], model_names: Iterable[str]):
+def test_predict(api_client: ApiClient, document_paths: Iterable[str], model_names: Iterable[str], use_kms: bool):
     for document_path, model_name in zip(document_paths, model_names):
-        prediction = api_client.predict(document_path, model_name=model_name)
+        prediction = api_client.predict(document_path, model_name=model_name, use_kms=use_kms)
 
         assert prediction.document_id, 'Missing document_id in prediction'
         assert prediction.consent_id, 'Missing consent_id in prediction'

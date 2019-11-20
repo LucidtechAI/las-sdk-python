@@ -7,7 +7,7 @@ from backoff import on_exception, expo
 from requests.exceptions import RequestException
 from json.decoder import JSONDecodeError
 from urllib.parse import urlparse
-from typing import List, Dict
+from typing import List, Dict, Any
 
 from .authorization import Authorization
 from .credentials import Credentials
@@ -114,7 +114,7 @@ class Client:
 
     @staticmethod
     @on_exception(expo, RequestException, max_tries=3, giveup=_fatal_code)
-    def put_document(document_path: str, content_type: str, presigned_url: str) -> str:
+    def put_document(document_path: str, content_type: str, presigned_url: str, use_kms: bool = False) -> str:
         """Convenience method for putting a document to presigned url.
 
         >>> from las import Client
@@ -128,6 +128,9 @@ class Client:
         :type content_type: str
         :param presigned_url: Presigned upload url from :py:func:`~las.Client.post_documents`
         :type presigned_url: str
+        :param use_kms: Adds KMS header to the request to S3. Set to true if your API is using KMS encryption on
+        the data bucket
+        :type use_kms: bool
         :return: Response from put operation
         :rtype: str
         :raises requests.exception.RequestException: If error was raised by requests
@@ -135,13 +138,16 @@ class Client:
 
         body = pathlib.Path(document_path).read_bytes()
         headers = {'Content-Type': content_type}
+        if use_kms:
+            headers.update({'x-amz-server-side-encryption': 'aws:kms'})
+
         put_document_response = requests.put(presigned_url, data=body, headers=headers)
         put_document_response.raise_for_status()
         return put_document_response.content.decode()
 
     @on_exception(expo, TooManyRequestsException, max_tries=4)
     @on_exception(expo, RequestException, max_tries=3, giveup=_fatal_code)
-    def post_predictions(self, document_id: str, model_name: str) -> dict:
+    def post_predictions(self, document_id: str, model_name: str, extras: Dict[str, Any] = None) -> dict:
         """Run inference and create a prediction, calls the POST /predictions endpoint.
 
         >>> from las import Client
@@ -152,6 +158,8 @@ class Client:
         :type document_id: str
         :param model_name: The name of the model to use for inference
         :type model_name: str
+        :param extras: Extra information to add to json body
+        :type extras: Dict[str, Any]
         :return: Prediction on document
         :rtype: dict
         :raises InvalidCredentialsException: If the credentials are invalid
@@ -160,7 +168,11 @@ class Client:
         :raises requests.exception.RequestException: If error was raised by requests
         """
 
-        body = json.dumps({'documentId': document_id, 'modelName': model_name}).encode()
+        body = json.dumps({k: v for k, v in {
+            'documentId': document_id,
+            'modelName': model_name,
+            **(extras or {})
+        }.items() if v}).encode()
         uri, headers = self._create_signing_headers('POST', '/predictions', body)
 
         post_predictions_response = requests.post(
