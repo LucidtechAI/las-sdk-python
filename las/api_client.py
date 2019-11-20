@@ -43,7 +43,7 @@ class ApiClient(Client):
         :type model_name: str
         :param consent_id: An identifier to mark the owner of the document handle
         :type consent_id: str
-        :param use_kms: Adds KMS header to the request to S3. Set to true if your API using KMS default encryption on
+        :param use_kms: Adds KMS header to the request to S3. Set to true if your API is using KMS encryption on
         the data bucket
         :type use_kms: bool
         :param extras: Extra information to add to json body
