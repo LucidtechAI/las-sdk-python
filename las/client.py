@@ -128,7 +128,7 @@ class Client:
         :type content_type: str
         :param presigned_url: Presigned upload url from :py:func:`~las.Client.post_documents`
         :type presigned_url: str
-        :param use_kms: Adds KMS header to the request to S3. Set to true if your API using KMS default encryption on
+        :param use_kms: Adds KMS header to the request to S3. Set to true if your API is using KMS encryption on
         the data bucket
         :type use_kms: bool
         :return: Response from put operation
