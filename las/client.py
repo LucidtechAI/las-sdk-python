@@ -253,7 +253,7 @@ class Client:
 
     @on_exception(expo, TooManyRequestsException, max_tries=4)
     @on_exception(expo, RequestException, max_tries=3, giveup=_fatal_code)
-    def post_documents(self, content: bytes, content_type: str, consent_id: str) -> dict:
+    def post_documents(self, content: bytes, content_type: str, consent_id: str, batch_id: str = None) -> dict:
         """Creates a document handle, calls the POST /documents endpoint.
 
         >>> from las import Client
@@ -276,7 +276,8 @@ class Client:
         body = json.dumps({
             'content': base64_content,
             'contentType': content_type,
-            'consentId': consent_id
+            'consentId': consent_id,
+            'batchId': batch_id
         }).encode()
         uri, headers = self._create_signing_headers('/documents')
 
@@ -482,7 +483,6 @@ class Client:
         :raises LimitExceededException: If limit of total requests per month is reached
         :raises requests.exception.RequestException: If error was raised by requests
         """
-
         body = json.dumps(data).encode()
         uri, headers = self._create_signing_headers(f'/data')
 
@@ -495,7 +495,40 @@ class Client:
         response = _json_decode(put_data)
         return response
 
-    def _create_signing_headers(self, path: str):
+    @on_exception(expo, TooManyRequestsException, max_tries=4)
+    @on_exception(expo, RequestException, max_tries=3, giveup=_fatal_code)
+    def post_batches(self, description: str) -> dict:
+        """Creates a batch handle, calls the POST /batches endpoint.
+
+        >>> from las import Client
+        >>> client = Client(endpoint='<api endpoint>')
+        >>> client.post_batches(description='Data from clients obtained during fall 2019')
+
+        :param description: A short description og the batch you intend to create
+        :type description: str
+        :return: batch handle id and pre-signed upload url
+        :rtype: dict
+        :raises InvalidCredentialsException: If the credentials are invalid
+        :raises TooManyRequestsException: If limit of requests per second is reached
+        :raises LimitExceededException: If limit of total requests per month is reached
+        :raises requests.exception.RequestException: If error was raised by requests
+        """
+
+        body = json.dumps({
+            'description': description
+        }).encode()
+        uri, headers = self._create_signing_headers('/batches')
+
+        post_batches_response = requests.post(
+            url=uri.geturl(),
+            headers=headers,
+            data=body
+        )
+
+        response = _json_decode(post_batches_response)
+        return response
+
+    def _create_signing_headers(self, path:  str):
         uri = urlparse(f'{self.endpoint}{path}')
 
         auth_headers = {
