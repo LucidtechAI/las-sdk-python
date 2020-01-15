@@ -8,7 +8,7 @@ from backoff import on_exception, expo
 from requests.exceptions import RequestException
 from json.decoder import JSONDecodeError
 from urllib.parse import urlparse
-from typing import List, Dict
+from typing import List, Dict, Optional
 
 from .credentials import Credentials
 
@@ -324,7 +324,8 @@ class Client:
 
     @on_exception(expo, TooManyRequestsException, max_tries=4)
     @on_exception(expo, RequestException, max_tries=3, giveup=_fatal_code)
-    def post_predictions(self, document_id: str, model_name: str) -> dict:
+    def post_predictions(self, document_id: str, model_name: str,
+                         max_pages: Optional[int], auto_rotate: Optional[bool]) -> dict:
         """Run inference and create a prediction, calls the POST /predictions endpoint.
 
         >>> from las import Client
@@ -335,6 +336,11 @@ class Client:
         :type document_id: str
         :param model_name: The name of the model to use for inference
         :type model_name: str
+        :param max_pages: Maximum number of pages to run predictions on
+        :type model_name: int
+        :param auto_rotate: Whether or not to let the API try different rotations on the document when running
+        predictions
+        :type model_name: bool
         :return: Prediction on document
         :rtype: dict
         :raises InvalidCredentialsException: If the credentials are invalid
@@ -343,7 +349,14 @@ class Client:
         :raises requests.exception.RequestException: If error was raised by requests
         """
 
-        body = json.dumps({'documentId': document_id, 'modelName': model_name}).encode()
+        payload = {
+            'documentId': document_id,
+            'modelName': model_name,
+            'maxPages': max_pages,
+            'autoRotate': auto_rotate
+        }
+        payload = {k: v for k, v in payload.items() if v}
+        body = json.dumps(payload).encode()
         uri, headers = self._create_signing_headers('/predictions')
 
         post_predictions_response = requests.post(
@@ -449,6 +462,37 @@ class Client:
         )
 
         response = _json_decode(delete_consent_id_consent)
+        return response
+
+    @on_exception(expo, TooManyRequestsException, max_tries=4)
+    @on_exception(expo, RequestException, max_tries=3, giveup=_fatal_code)
+    def put_data(self, data: dict) -> dict:
+        """Put custom data to API.
+
+        >>> from las import Client
+        >>> client = Client(endpoint='<api endpoint>')
+        >>> client.put_data({'foo': 'bar'})
+
+        :param data: Dict to put
+        :type data: dict
+        :return: Put data response from REST API
+        :rtype: dict
+        :raises InvalidCredentialsException: If the credentials are invalid
+        :raises TooManyRequestsException: If limit of requests per second is reached
+        :raises LimitExceededException: If limit of total requests per month is reached
+        :raises requests.exception.RequestException: If error was raised by requests
+        """
+
+        body = json.dumps(data).encode()
+        uri, headers = self._create_signing_headers(f'/data')
+
+        put_data = requests.put(
+            url=uri.geturl(),
+            headers=headers,
+            data=body
+        )
+
+        response = _json_decode(put_data)
         return response
 
     def _create_signing_headers(self, path: str):
