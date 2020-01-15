@@ -273,12 +273,13 @@ class Client:
         """
 
         base64_content = b64encode(content).decode()
-        body = json.dumps({
+        body = {
             'content': base64_content,
             'contentType': content_type,
             'consentId': consent_id,
             'batchId': batch_id
-        }).encode()
+        }
+        body = json.dumps({k: v for k, v in body.items() if v})
         uri, headers = self._create_signing_headers('/documents')
 
         post_documents_response = requests.post(
