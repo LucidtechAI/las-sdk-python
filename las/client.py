@@ -74,9 +74,9 @@ class Client:
     :type credentials: Credentials
 
     """
-    def __init__(self, endpoint: str, credentials=None):
-        self.endpoint = endpoint
+    def __init__(self, credentials=None):
         self.credentials = credentials or Credentials()
+        self.endpoint = self.credentials.api_endpoint
 
     @on_exception(expo, TooManyRequestsException, max_tries=4)
     @on_exception(expo, RequestException, max_tries=3, giveup=_fatal_code)

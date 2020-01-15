@@ -30,25 +30,29 @@ class Credentials:
     :type auth_endpoint: str
 
     """
-    def __init__(self, credentials_path=None, client_id=None, client_secret=None, api_key=None, auth_endpoint=None):
+    def __init__(self, credentials_path=None, client_id=None, client_secret=None,
+                 api_key=None, auth_endpoint=None, api_endpoint=None):
         self._token = (None, None)
 
-        if any([not client_id, not client_secret, not api_key, not auth_endpoint]):
+        if any([not client_id, not client_secret, not api_key, not auth_endpoint, not api_endpoint]):
             if not credentials_path:
                 credentials_path = expanduser('~/.lucidtech/credentials.cfg')
 
-            client_id, client_secret, api_key, auth_endpoint = self._read_credentials(credentials_path)
+            client_id, client_secret, api_key, auth_endpoint, api_endpoint \
+                = self._read_credentials(credentials_path)
 
         self.client_id = client_id
         self.client_secret = client_secret
         self.api_key = api_key
         self.auth_endpoint = auth_endpoint
+        self.api_endpoint = api_endpoint
 
-        if any([not self.client_id, not self.client_secret, not self.api_key, not self.auth_endpoint]):
+        if any([not self.client_id, not self.client_secret, not self.api_key,
+                not self.auth_endpoint, not self.api_endpoint]):
             raise MissingCredentials
 
     @staticmethod
-    def _read_credentials(credentials_path: str) -> Tuple[str, str, str, str]:
+    def _read_credentials(credentials_path: str) -> Tuple[str, str, str, str, str]:
         config = configparser.ConfigParser()
         config.read(credentials_path)
         section = 'default'
@@ -57,8 +61,9 @@ class Credentials:
         client_secret = config.get(section, 'client_secret')
         api_key = config.get(section, 'api_key')
         auth_endpoint = config.get(section, 'auth_endpoint')
+        api_endpoint = config.get(section, 'api_endpoint')
 
-        return client_id, client_secret, api_key, auth_endpoint
+        return client_id, client_secret, api_key, auth_endpoint, api_endpoint
 
     @property
     def access_token(self) -> str:
