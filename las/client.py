@@ -291,6 +291,40 @@ class Client:
         response = _json_decode(post_documents_response)
         return response
 
+    @on_exception(expo, TooManyRequestsException, max_tries=4)
+    @on_exception(expo, RequestException, max_tries=3, giveup=_fatal_code)
+    def get_documents(self, batch_id: str) -> dict:
+        """Get document from the REST API, calls the GET /documents endpoint.
+
+        >>> from las import Client
+        >>> client = Client(endpoint='<api endpoint>')
+        >>> client.get_documents(batch_id='<batch id>')
+
+        :param batch_id: The batch id that contains the documents of interest
+        :type batch_id: str
+        :return: Documents from REST API contained in batch <batch id>
+        :rtype: dict
+        :raises InvalidCredentialsException: If the credentials are invalid
+        :raises TooManyRequestsException: If limit of requests per second is reached
+        :raises LimitExceededException: If limit of total requests per month is reached
+        :raises requests.exception.RequestException: If error was raised by requests
+        """
+
+        uri, headers = self._create_signing_headers(f'/documents')
+        body = {
+            'batchId': batch_id
+        }
+        body = json.dumps({k: v for k, v in body.items() if v})
+
+        get_documents_response = requests.get(
+            url=uri.geturl(),
+            headers=headers,
+            body=body
+        )
+
+        response = _json_decode(get_documents_response)
+        return response
+
     @staticmethod
     @on_exception(expo, RequestException, max_tries=3, giveup=_fatal_code)
     def put_document(document_path: str, content_type: str, presigned_url: str, use_kms: bool = False) -> str:
