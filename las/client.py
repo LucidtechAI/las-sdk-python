@@ -316,7 +316,6 @@ class Client:
         }
         params = {k: v for k, v in params.items() if v}
 
-        print(params)
         get_documents_response = requests.get(
             url=uri.geturl(),
             headers=headers,
