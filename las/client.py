@@ -310,16 +310,17 @@ class Client:
         :raises requests.exception.RequestException: If error was raised by requests
         """
 
-        uri, headers = self._create_signing_headers(f'/documents')
-        body = {
+        uri, headers = self._create_signing_headers('/documents')
+        params = {
             'batchId': batch_id
         }
-        body = json.dumps({k: v for k, v in body.items() if v})
+        params = {k: v for k, v in params.items() if v}
 
+        print(params)
         get_documents_response = requests.get(
             url=uri.geturl(),
             headers=headers,
-            body=body
+            params=params
         )
 
         response = _json_decode(get_documents_response)
