@@ -253,7 +253,8 @@ class Client:
 
     @on_exception(expo, TooManyRequestsException, max_tries=4)
     @on_exception(expo, RequestException, max_tries=3, giveup=_fatal_code)
-    def post_documents(self, content: bytes, content_type: str, consent_id: str, batch_id: str = None) -> dict:
+    def post_documents(self, content: bytes, content_type: str, consent_id: str,
+                       batch_id: str = None, feedback: List[Dict[str, str]] = None) -> dict:
         """Creates a document handle, calls the POST /documents endpoint.
 
         >>> from las import Client
@@ -277,7 +278,8 @@ class Client:
             'content': base64_content,
             'contentType': content_type,
             'consentId': consent_id,
-            'batchId': batch_id
+            'batchId': batch_id,
+            'feedback': feedback
         }
         body = json.dumps({k: v for k, v in body.items() if v})
         uri, headers = self._create_signing_headers('/documents')
@@ -561,6 +563,39 @@ class Client:
         )
 
         response = _json_decode(post_batches_response)
+        return response
+
+    @on_exception(expo, TooManyRequestsException, max_tries=4)
+    @on_exception(expo, RequestException, max_tries=3, giveup=_fatal_code)
+    def patch_user_id(self, user_id: str, consent_hash: str) -> dict:
+        """Creates a batch handle, calls the POST /batches endpoint.
+
+        >>> from las import Client
+        >>> client = Client(endpoint='<api endpoint>')
+        >>> client.post_batches(description='Data from clients obtained during fall 2019')
+
+        :param description: A short description og the batch you intend to create
+        :type description: str
+        :return: batch handle id and pre-signed upload url
+        :rtype: dict
+        :raises InvalidCredentialsException: If the credentials are invalid
+        :raises TooManyRequestsException: If limit of requests per second is reached
+        :raises LimitExceededException: If limit of total requests per month is reached
+        :raises requests.exception.RequestException: If error was raised by requests
+        """
+
+        body = json.dumps({
+            'consentHash': consent_hash
+        }).encode()
+        uri, headers = self._create_signing_headers(f'/users/{user_id}')
+
+        patch_user_response = requests.patch(
+            url=uri.geturl(),
+            headers=headers,
+            data=body
+        )
+
+        response = _json_decode(patch_user_response)
         return response
 
     def _create_signing_headers(self, path:  str):
