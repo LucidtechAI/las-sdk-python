@@ -598,6 +598,35 @@ class Client:
         response = _json_decode(patch_user_response)
         return response
 
+    @on_exception(expo, TooManyRequestsException, max_tries=4)
+    @on_exception(expo, RequestException, max_tries=3, giveup=_fatal_code)
+    def get_user_id(self, user_id: str) -> dict:
+        """Creates a batch handle, calls the POST /batches endpoint.
+
+        >>> from las import Client
+        >>> client = Client(endpoint='<api endpoint>')
+        >>> client.post_batches(description='Data from clients obtained during fall 2019')
+
+        :param description: A short description og the batch you intend to create
+        :type description: str
+        :return: batch handle id and pre-signed upload url
+        :rtype: dict
+        :raises InvalidCredentialsException: If the credentials are invalid
+        :raises TooManyRequestsException: If limit of requests per second is reached
+        :raises LimitExceededException: If limit of total requests per month is reached
+        :raises requests.exception.RequestException: If error was raised by requests
+        """
+
+        uri, headers = self._create_signing_headers(f'/users/{user_id}')
+
+        get_user_response = requests.get(
+            url=uri.geturl(),
+            headers=headers
+        )
+
+        response = _json_decode(get_user_response)
+        return response
+
     def _create_signing_headers(self, path:  str):
         uri = urlparse(f'{self.endpoint}{path}')
 
