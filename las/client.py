@@ -295,7 +295,7 @@ class Client:
 
     @on_exception(expo, TooManyRequestsException, max_tries=4)
     @on_exception(expo, RequestException, max_tries=3, giveup=_fatal_code)
-    def get_documents(self, batch_id: str) -> dict:
+    def get_documents(self, batch_id: Optional[str] = None, consent_id: Optional[str] = None) -> dict:
         """Get document from the REST API, calls the GET /documents endpoint.
 
         >>> from las import Client
@@ -314,7 +314,8 @@ class Client:
 
         uri, headers = self._create_signing_headers('/documents')
         params = {
-            'batchId': batch_id
+            'batchId': batch_id,
+            'consentId': consent_id
         }
         params = {k: v for k, v in params.items() if v}
 
