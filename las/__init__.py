@@ -5,6 +5,13 @@ from .client import Client
 from .credentials import Credentials
 from .prediction import Prediction, Field
 
+__all__ = [
+    ApiClient,
+    Client,
+    Credentials,
+    Prediction,
+    Field,
+]
 
 logger = logging.getLogger('las')
 logger.addHandler(logging.NullHandler())
