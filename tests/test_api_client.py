@@ -7,6 +7,7 @@ from typing import Iterable
 from uuid import uuid4
 
 
+@pytest.mark.skip('')
 def test_predict(api_client: ApiClient, document_paths: Iterable[str], model_names: Iterable[str], use_kms: bool):
     for document_path, model_name in zip(document_paths, model_names):
         prediction = api_client.predict(document_path, model_name=model_name, use_kms=use_kms)

@@ -1,0 +1,41 @@
+name: las-sdk-python
+
+on:
+  pull_request:
+    branch:
+      - master
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+    strategy:
+      max-parallel: 4
+      matrix:
+        python-version: [3.6, 3.7, 3.8]
+
+    steps:
+    - uses: actions/checkout@v1
+
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v1
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install -r requirements.ci.txt
+
+    - name: Lint with flake8
+      run: |
+        flake8 --config=tox.ini .
+
+    - name: Run tests
+      env:
+        LAS_ACCESS_KEY_ID: ${{ secrets.LAS_ACCESS_KEY_ID }}
+        LAS_SECRET_ACCESS_KEY: ${{ secrets.LAS_SECRET_ACCESS_KEY }}
+        LAS_API_KEY: ${{ secrets.LAS_API_KEY }}
+      run: |
+        pytest --cfg=./tests/test_config.cfg
