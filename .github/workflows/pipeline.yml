@@ -28,7 +28,6 @@ jobs:
     - name: Lint with flake8
       run: |
         flake8 --config=tox.ini .
-        # pycodestyle --config=tox.ini .
 
     - name: Run tests
       env:
