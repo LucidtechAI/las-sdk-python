@@ -1,6 +1,9 @@
 name: las-sdk-python
 
-on: [push]
+on:
+  pull_request:
+    branch:
+      - master
 
 jobs:
   build:
