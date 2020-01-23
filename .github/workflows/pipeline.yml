@@ -27,4 +27,12 @@ jobs:
 
     - name: Lint with flake8
       run: |
-        tox -e lint
+        flake8 .
+
+    - name: Run tests
+      env:
+        LAS_ACCESS_KEY_ID: ${{ secrets.LAS_ACCESS_KEY_ID }}
+        LAS_SECRET_ACCESS_KEY: ${{ secrets.LAS_SECRET_ACCESS_KEY }}
+        LAS_API_KEY: ${{ secrets.LAS_API_KEY }}
+      run: |
+        pytest --cfg=./tests/test_config.cfg
