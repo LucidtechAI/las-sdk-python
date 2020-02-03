@@ -115,6 +115,110 @@ class Client:
 
         return _json_decode(response)
 
+    def patch_task_id(self, task_id: str, task_result: dict) -> dict:
+        """Add a result to task, calls the PATCH /tasks/{task_id} endpoint.
+
+        >>> from las import Client
+        >>> client = Client(endpoint='<api endpoint>')
+        >>> client.post_documents('image/jpeg', consent_id='foobar')
+
+        :param content_type: A mime type for the document handle
+        :type content_type: str
+        :param consent_id: An identifier to mark the owner of the document handle
+        :type consent_id: str
+        :return: Document handle id and pre-signed upload url
+        :rtype: dict
+        :raises InvalidCredentialsException: If the credentials are invalid
+        :raises TooManyRequestsException: If limit of requests per second is reached
+        :raises LimitExceededException: If limit of total requests per month is reached
+        :raises requests.exception.RequestException: If error was raised by requests
+        """
+
+        return self._make_request(requests.patch, f'/tasks/{task_id}', body={'taskResult': task_result})
+
+    def post_tasks(self, activity_arn: str) -> dict:
+        """Calls the POST /tasks endpoint.
+
+        >>> from las import Client
+        >>> client = Client(endpoint='<api endpoint>')
+        >>> client.post_documents('image/jpeg', consent_id='foobar')
+
+        :param content_type: A mime type for the document handle
+        :type content_type: str
+        :param consent_id: An identifier to mark the owner of the document handle
+        :type consent_id: str
+        :return: Document handle id and pre-signed upload url
+        :rtype: dict
+        :raises InvalidCredentialsException: If the credentials are invalid
+        :raises TooManyRequestsException: If limit of requests per second is reached
+        :raises LimitExceededException: If limit of total requests per month is reached
+        :raises requests.exception.RequestException: If error was raised by requests
+        """
+        return self._make_request(requests.post, '/tasks', body={'activityArn': activity_arn})
+
+    def get_data(self, category=None) -> dict:
+        """Get data, calls the GET /data endpoint.
+
+        >>> from las import Client
+        >>> client = Client(endpoint='<api endpoint>')
+        >>> client.get_processes()
+
+        :return: Processes
+        :rtype: dict
+        :raises InvalidCredentialsException: If the credentials are invalid
+        :raises TooManyRequestsException: If limit of requests per second is reached
+        :raises LimitExceededException: If limit of total requests per month is reached
+        :raises requests.exception.RequestException: If error was raised by requests
+        """
+        return self._make_request(requests.get, '/data', params={'category': category})
+
+    def get_processes(self, max_results=None, status=None, next_token=None) -> dict:
+        """Get processes, calls the GET /processes endpoint.
+
+        >>> from las import Client
+        >>> client = Client(endpoint='<api endpoint>')
+        >>> client.get_processes()
+
+        :return: Processes
+        :rtype: dict
+        :raises InvalidCredentialsException: If the credentials are invalid
+        :raises TooManyRequestsException: If limit of requests per second is reached
+        :raises LimitExceededException: If limit of total requests per month is reached
+        :raises requests.exception.RequestException: If error was raised by requests
+        """
+
+        params = {
+            'maxResults': max_results,
+            'status': status,
+            'nextToken': next_token
+        }
+        return self._make_request(requests.get, '/processes', params=dictstrip(params))
+
+    def post_processes(self, state_machine_arn: str, input_data: dict) -> dict:
+        """Creates a new process, calls the POST /processes endpoint.
+
+        >>> from las import Client
+        >>> client = Client(endpoint='<api endpoint>')
+        >>> client.post_processes('<state machine arn>', input_data={})
+
+        :param state_machine_arn: State machine arn
+        :type state_machine_arn: str
+        :param input_data: Input to process
+        :type input_data: dict
+        :return: Process data
+        :rtype: dict
+        :raises InvalidCredentialsException: If the credentials are invalid
+        :raises TooManyRequestsException: If limit of requests per second is reached
+        :raises LimitExceededException: If limit of total requests per month is reached
+        :raises requests.exception.RequestException: If error was raised by requests
+        """
+        return self._make_request(
+            requests.post, '/processes', body={
+                'stateMachineArn': state_machine_arn,
+                'inputData': input_data
+            }
+        )
+
     def post_documents(self, content: bytes, content_type: str, consent_id: str,
                        batch_id: str = None, feedback: List[Dict[str, str]] = None) -> dict:
         """Creates a document handle, calls the POST /documents endpoint.
@@ -255,6 +359,24 @@ class Client:
         :raises requests.exception.RequestException: If error was raised by requests
         """
         return self._make_request(requests.delete, f'/consents/{consent_id}', body={})
+
+    def put_data(self, data: dict) -> dict:
+        """Put custom data to API.
+
+        >>> from las import Client
+        >>> client = Client(endpoint='<api endpoint>')
+        >>> client.put_data({'foo': 'bar'})
+
+        :param data: Dict to put
+        :type data: dict
+        :return: Put data response from REST API
+        :rtype: dict
+        :raises InvalidCredentialsException: If the credentials are invalid
+        :raises TooManyRequestsException: If limit of requests per second is reached
+        :raises LimitExceededException: If limit of total requests per month is reached
+        :raises requests.exception.RequestException: If error was raised by requests
+        """
+        return self._make_request(requests.put, '/data', body=data)
 
     def post_batches(self, description: str) -> dict:
         """Creates a batch handle, calls the POST /batches endpoint.
