@@ -227,11 +227,17 @@ class Client:
         >>> client = Client(endpoint='<api endpoint>')
         >>> client.post_documents('image/jpeg', consent_id='foobar')
 
+        :param content: The contents to POST
+        :type content: bytes
         :param content_type: A mime type for the document handle
         :type content_type: str
         :param consent_id: An identifier to mark the owner of the document handle
         :type consent_id: str
-        :return: Document handle id and pre-signed upload url
+        :param batch_id: The batch to put the document in
+        :type batch_id: str
+        :param feedback: A list of feedback items {label: value} representing the ground truth values for the document
+        :type feedback: List[Dict[str, str]]
+        :return: Document handle id
         :rtype: dict
         :raises InvalidCredentialsException: If the credentials are invalid
         :raises TooManyRequestsException: If limit of requests per second is reached
@@ -257,6 +263,8 @@ class Client:
 
         :param batch_id: The batch id that contains the documents of interest
         :type batch_id: str
+        :param consent_id: An identifier to mark the owner of the document handle
+        :type consent_id: str
         :return: Documents from REST API contained in batch <batch id>
         :rtype: dict
         :raises InvalidCredentialsException: If the credentials are invalid
@@ -330,7 +338,7 @@ class Client:
 
         :param document_id: The document id to run inference and create a prediction on
         :type document_id: str
-        :param feedback: A list of feedback items
+        :param feedback: A list of feedback items {label: value} representing the ground truth values for the document
         :type feedback: List[Dict[str, str]]
         :return: Feedback response from REST API
         :rtype: dict
@@ -385,7 +393,7 @@ class Client:
         >>> client = Client(endpoint='<api endpoint>')
         >>> client.post_batches(description='Data from clients obtained during fall 2019')
 
-        :param description: A short description og the batch you intend to create
+        :param description: A short description of the batch you intend to create
         :type description: str
         :return: batch handle id and pre-signed upload url
         :rtype: dict
@@ -403,8 +411,10 @@ class Client:
         >>> client = Client(endpoint='<api endpoint>')
         >>> client.post_batches(description='Data from clients obtained during fall 2019')
 
-        :param description: A short description of the batch you intend to create
-        :type description: str
+        :param user_id: The user_id to modify consent hash for
+        :type user_id: str
+        :param consent_hash: The consent_hash to set
+        :type consent_hash: str
         :return: batch handle id and pre-signed upload url
         :rtype: dict
         :raises InvalidCredentialsException: If the credentials are invalid
@@ -421,8 +431,8 @@ class Client:
         >>> client = Client(endpoint='<api endpoint>')
         >>> client.post_batches(description='Data from clients obtained during fall 2019')
 
-        :param description: A short description og the batch you intend to create
-        :type description: str
+        :param user_id: The user_id to get consent hash for
+        :type user_id: str
         :return: batch handle id and pre-signed upload url
         :rtype: dict
         :raises InvalidCredentialsException: If the credentials are invalid
@@ -432,36 +442,3 @@ class Client:
         """
 
         return self._make_request(requests.get, f'/users/{user_id}')
-
-    @staticmethod
-    @on_exception(expo, RequestException, max_tries=3, giveup=_fatal_code)
-    def put_document(document_path: str, content_type: str, presigned_url: str, use_kms: bool = False) -> str:
-        """Convenience method for putting a document to presigned url.
-
-        >>> from las import Client
-        >>> client = Client(endpoint='<api endpoint>')
-        >>> client.put_document(document_path='document.jpeg', content_type='image/jpeg',
-        >>> presigned_url='<presigned url>')
-
-        :param document_path: Path to document to upload
-        :type document_path: str
-        :param content_type: Mime type of document to upload. Same as provided to :py:func:`~las.Client.post_documents`
-        :type content_type: str
-        :param presigned_url: Presigned upload url from :py:func:`~las.Client.post_documents`
-        :type presigned_url: str
-        :param use_kms: Adds KMS header to the request to S3. Set to true if your API using KMS default encryption on
-        the data bucket
-        :type use_kms: bool
-        :return: Response from put operation
-        :rtype: str
-        :raises requests.exception.RequestException: If error was raised by requests
-        """
-
-        body = pathlib.Path(document_path).read_bytes()
-        headers = {'Content-Type': content_type}
-        if use_kms:
-            headers.update({'x-amz-server-side-encryption': 'aws:kms'})
-
-        put_document_response = requests.put(presigned_url, data=body, headers=headers)
-        put_document_response.raise_for_status()
-        return put_document_response.content.decode()
