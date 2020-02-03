@@ -171,8 +171,8 @@ class Client:
 
         return self._make_request(requests.get, '/documents', params={'batchId': batch_id, 'consentId': consent_id})
 
-    def post_predictions(self, document_id: str, model_name: str,
-                         max_pages: Optional[int], auto_rotate: Optional[bool]) -> dict:
+    def post_predictions(self, document_id: str, model_name: str, max_pages: Optional[int] = None,
+                         auto_rotate: Optional[bool] = None) -> dict:
         """Run inference and create a prediction, calls the POST /predictions endpoint.
 
         >>> from las import Client
