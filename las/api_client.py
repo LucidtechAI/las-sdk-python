@@ -20,7 +20,7 @@ class FileFormatException(ClientException):
 
 class ApiClient(Client):
     """A high level client to invoke api methods from Lucidtech AI Services."""
-    def predict(self, document_path: str, model_name: str, consent_id: str = '') -> Prediction:
+    def predict(self, document_path: str, model_name: str, consent_id: str = "LT_DEFAULT_CONSENT_ID") -> Prediction:
         """Run inference and create prediction on document.
         This method takes care of creating and uploading a document specified by document_path.
         as well as running inference using model specified by model_name to create prediction on the document.
@@ -44,7 +44,6 @@ class ApiClient(Client):
         """
 
         content_type = self._get_content_type(document_path)
-        consent_id = consent_id or str(uuid4())
         document = pathlib.Path(document_path).read_bytes()
         document_id = self.post_documents(document, content_type, consent_id)
         prediction_response = self.post_predictions(document_id, model_name)
