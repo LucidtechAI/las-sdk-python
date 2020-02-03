@@ -19,15 +19,8 @@ class FileFormatException(ClientException):
 
 
 class ApiClient(Client):
-    """A high level client to invoke api methods from Lucidtech AI Services.
-
-    :param endpoint: Domain endpoint of the api, e.g. https://<prefix>.api.lucidtech.ai/<version>
-    :type endpoint: str
-    :param credentials: Credentials to use, instance of :py:class:`~las.Credentials`
-    :type credentials: Credentials
-
-    """
-    def predict(self, document_path: str, model_name: str, consent_id: str = None, use_kms: bool = False) -> Prediction:
+    """A high level client to invoke api methods from Lucidtech AI Services."""
+    def predict(self, document_path: str, model_name: str, consent_id: str = '', use_kms: bool = False) -> Prediction:
         """Run inference and create prediction on document.
         This method takes care of creating and uploading a document specified by document_path.
         as well as running inference using model specified by model_name to create prediction on the document.

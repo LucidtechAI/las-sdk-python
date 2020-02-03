@@ -66,15 +66,12 @@ class LimitExceededException(ClientException):
 
 
 class Client:
-    """A low level client to invoke api methods from Lucidtech AI Services.
-
-    :param endpoint: Domain endpoint of the api, e.g. https://<prefix>.api.lucidtech.ai/<version>
-    :type endpoint: str
-    :param credentials: Credentials to use, instance of :py:class:`~las.Credentials`
-    :type credentials: Credentials
-
-    """
+    """A low level client to invoke api methods from Lucidtech AI Services."""
     def __init__(self, credentials=None):
+        """:param endpoint: Domain endpoint of the api, e.g. https://<prefix>.api.lucidtech.ai/<version>
+        :type endpoint: str
+        :param credentials: Credentials to use, instance of :py:class:`~las.Credentials`
+        :type credentials: Credentials"""
         self.credentials = credentials or Credentials()
         self.endpoint = self.credentials.api_endpoint
 
