@@ -112,10 +112,11 @@ class Client:
             headers=headers,
             **kwargs
         )
+
         return _json_decode(response)
 
     def patch_task_id(self, task_id: str, task_result: dict) -> dict:
-        """Creates a document handle, calls the POST /documents endpoint.
+        """Add a result to task, calls the PATCH /tasks/{task_id} endpoint.
 
         >>> from las import Client
         >>> client = Client(endpoint='<api endpoint>')
@@ -136,7 +137,7 @@ class Client:
         return self._make_request(requests.patch, f'/tasks/{task_id}', body={'taskResult': task_result})
 
     def post_tasks(self, activity_arn: str) -> dict:
-        """Creates a document handle, calls the POST /documents endpoint.
+        """Calls the POST /tasks endpoint.
 
         >>> from las import Client
         >>> client = Client(endpoint='<api endpoint>')
@@ -156,7 +157,7 @@ class Client:
         return self._make_request(requests.post, '/tasks', body={'activityArn': activity_arn})
 
     def get_data(self, category=None) -> dict:
-        """Get processes, calls the GET /processes endpoint.
+        """Get data, calls the GET /data endpoint.
 
         >>> from las import Client
         >>> client = Client(endpoint='<api endpoint>')
@@ -266,8 +267,6 @@ class Client:
 
         return self._make_request(requests.get, '/documents', params={'batchId': batch_id, 'consentId': consent_id})
 
-    @on_exception(expo, TooManyRequestsException, max_tries=4)
-    @on_exception(expo, RequestException, max_tries=3, giveup=_fatal_code)
     def post_predictions(self, document_id: str, model_name: str,
                          max_pages: Optional[int], auto_rotate: Optional[bool]) -> dict:
         """Run inference and create a prediction, calls the POST /predictions endpoint.
@@ -319,8 +318,6 @@ class Client:
         """
         return self._make_request(requests.get, f'/documents/{document_id}')
 
-    @on_exception(expo, TooManyRequestsException, max_tries=4)
-    @on_exception(expo, RequestException, max_tries=3, giveup=_fatal_code)
     def post_document_id(self, document_id: str, feedback: List[Dict[str, str]]) -> dict:
         """Post feedback to the REST API, calls the POST /documents/{documentId} endpoint.
         Posting feedback means posting the ground truth data for the particular document.
@@ -346,7 +343,7 @@ class Client:
         return self._make_request(requests.post, f'/documents/{document_id}', body={'feedback': feedback})
 
     def delete_consent_id(self, consent_id: str) -> dict:
-        """Delete documents with this consent_id, calls the DELETE /consent/{consentId} endpoint.
+        """Delete documents with this consent_id, calls the DELETE /consents/{consentId} endpoint.
 
         >>> from las import Client
         >>> client = Client(endpoint='<api endpoint>')
@@ -400,7 +397,7 @@ class Client:
         return self._make_request(requests.post, '/batches', body={'description': description})
 
     def patch_user_id(self, user_id: str, consent_hash: str) -> dict:
-        """Creates a batch handle, calls the POST /batches endpoint.
+        """Modifies consent hash for a user, calls the PATCH /users/{user_id} endpoint.
 
         >>> from las import Client
         >>> client = Client(endpoint='<api endpoint>')
@@ -418,7 +415,7 @@ class Client:
         return self._make_request(requests.patch, f'/users/{user_id}', body={'consentHash': consent_hash})
 
     def get_user_id(self, user_id: str) -> dict:
-        """Creates a batch handle, calls the POST /batches endpoint.
+        """Gets consent hash and user_id for a given user_id, calls the GET /users/{user_id} endpoint.
 
         >>> from las import Client
         >>> client = Client(endpoint='<api endpoint>')
