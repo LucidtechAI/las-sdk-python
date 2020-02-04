@@ -1,10 +1,9 @@
 import pytest
 import tempfile
 
-from las import ApiClient, Client, Field
+from las import ApiClient, Field
 from las.api_client import FileFormatException
 from typing import Iterable
-from uuid import uuid4
 
 
 def test_predict(api_client: ApiClient, document_paths: Iterable[str], model_names: Iterable[str]):
