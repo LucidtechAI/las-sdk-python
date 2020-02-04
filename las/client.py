@@ -8,7 +8,7 @@ from backoff import on_exception, expo
 from requests.exceptions import RequestException
 from json.decoder import JSONDecodeError
 from urllib.parse import urlparse
-from typing import List, Dict, Optional, Callable
+from typing import List, Dict, Optional, Callable, Any
 
 from .credentials import Credentials
 
@@ -172,7 +172,8 @@ class Client:
         return self._make_request(requests.get, '/documents', params={'batchId': batch_id, 'consentId': consent_id})
 
     def post_predictions(self, document_id: str, model_name: str,
-                         max_pages: Optional[int] = None, auto_rotate: Optional[bool] = None) -> dict:
+                         max_pages: Optional[int] = None, auto_rotate: Optional[bool] = None,
+                         extras: Dict[str, Any] = None) -> dict:
         """Run inference and create a prediction, calls the POST /predictions endpoint.
 
         >>> from las import Client
@@ -188,6 +189,8 @@ class Client:
         :param auto_rotate: Whether or not to let the API try different rotations on the document when running
         predictions
         :type model_name: bool
+        :param extras: Extra information to add to json body
+        :type extras: Dict[str, Any]
         :return: Prediction on document
         :rtype: dict
         :raises InvalidCredentialsException: If the credentials are invalid
@@ -200,7 +203,8 @@ class Client:
             'documentId': document_id,
             'modelName': model_name,
             'maxPages': max_pages,
-            'autoRotate': auto_rotate
+            'autoRotate': auto_rotate,
+            **(extras or {})
         }
         return self._make_request(requests.post, '/predictions', body=dictstrip(body))
 

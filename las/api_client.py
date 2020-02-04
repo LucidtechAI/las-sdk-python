@@ -2,7 +2,8 @@ import pathlib
 import imghdr
 import logging
 
-from typing import List
+from uuid import uuid4
+from typing import List, Dict, Any
 
 from ._extrahdr import extra_what
 from .client import Client, ClientException
@@ -19,7 +20,8 @@ class FileFormatException(ClientException):
 
 class ApiClient(Client):
     """A high level client to invoke api methods from Lucidtech AI Services."""
-    def predict(self, document_path: str, model_name: str, consent_id: str = "LT_DEFAULT_CONSENT_ID") -> Prediction:
+    def predict(self, document_path: str, model_name: str,
+                consent_id: str = "LT_DEFAULT_CONSENT_ID", extras: Dict[str, Any] = None) -> Prediction:
         """Run inference and create prediction on document.
         This method takes care of creating and uploading a document specified by document_path.
         as well as running inference using model specified by model_name to create prediction on the document.
@@ -34,6 +36,8 @@ class ApiClient(Client):
         :type model_name: str
         :param consent_id: An identifier to mark the owner of the document handle
         :type consent_id: str
+        :param extras: Extra information to add to json body
+        :type extras: Dict[str, Any]
         :return: Prediction on document
         :rtype: Prediction
         :raises InvalidCredentialsException: If the credentials are invalid

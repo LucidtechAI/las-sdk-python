@@ -14,6 +14,7 @@ setup(
     version='2.0.0',
     description='Python SDK for Lucidtech AI Services',
     long_description=readme,
+    long_description_content_type='text/markdown',
     license='Apache 2.0',
     platforms='Posix; MacOS X; Windows',
     author='Lucidtech',
