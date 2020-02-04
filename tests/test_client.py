@@ -64,13 +64,6 @@ def test_post_document_id(client: Client, document_id: str):
     assert 'consentId' in post_document_id_response, 'Missing consentId in response'
 
 
-@pytest.fixture(scope='function', params=['image/jpeg', 'application/pdf'])
-def consent_id(request, client: Client):
-    consent_id = str(uuid4())
-    client.post_documents(request.param, consent_id)
-    yield consent_id
-
-
 def test_delete_consent_id(client: Client, consent_id: str):
     delete_consent_id_response = client.delete_consent_id(consent_id)
 
@@ -80,7 +73,7 @@ def test_delete_consent_id(client: Client, consent_id: str):
 
 @patch('requests.post')
 @patch('requests.delete')
-def test_invalid_credentials(delete_mock, post_mock, client: Client):
+def test_invalid_credentials(delete_mock, post_mock, typed_content, client: Client):
     raise_for_status = Mock(side_effect=requests.HTTPError())
 
     too_many_requests_mock = Mock(
@@ -92,8 +85,10 @@ def test_invalid_credentials(delete_mock, post_mock, client: Client):
     delete_mock.return_value = too_many_requests_mock
     post_mock.return_value = too_many_requests_mock
 
+    content, mime_type = typed_content
+
     with pytest.raises(InvalidCredentialsException):
-        client.post_documents('image/jpeg', 'foobar')
+        client.post_documents(content, mime_type, 'foobar')
 
     with pytest.raises(InvalidCredentialsException):
         client.post_predictions('foobar', 'invoice')
@@ -107,7 +102,7 @@ def test_invalid_credentials(delete_mock, post_mock, client: Client):
 
 @patch('requests.post')
 @patch('requests.delete')
-def test_too_many_requests(delete_mock, post_mock, client: Client):
+def test_too_many_requests(delete_mock, post_mock, typed_content, client: Client):
     raise_for_status = Mock(side_effect=requests.HTTPError())
 
     too_many_requests_mock = Mock(
@@ -119,8 +114,10 @@ def test_too_many_requests(delete_mock, post_mock, client: Client):
     delete_mock.return_value = too_many_requests_mock
     post_mock.return_value = too_many_requests_mock
 
+    content, mime_type = typed_content
+
     with pytest.raises(TooManyRequestsException):
-        client.post_documents('image/jpeg', 'foobar')
+        client.post_documents(content, mime_type, 'foobar')
 
     with pytest.raises(TooManyRequestsException):
         client.post_predictions('foobar', 'invoice')
@@ -134,7 +131,7 @@ def test_too_many_requests(delete_mock, post_mock, client: Client):
 
 @patch('requests.post')
 @patch('requests.delete')
-def test_limit_exceeded(delete_mock, post_mock, client: Client):
+def test_limit_exceeded(delete_mock, post_mock, typed_content, client: Client):
     raise_for_status = Mock(side_effect=requests.HTTPError())
 
     too_many_requests_mock = Mock(
@@ -146,8 +143,10 @@ def test_limit_exceeded(delete_mock, post_mock, client: Client):
     delete_mock.return_value = too_many_requests_mock
     post_mock.return_value = too_many_requests_mock
 
+    content, mime_type = typed_content
+
     with pytest.raises(LimitExceededException):
-        client.post_documents('image/jpeg', 'foobar')
+        client.post_documents(content, mime_type, 'foobar')
 
     with pytest.raises(LimitExceededException):
         client.post_predictions('foobar', 'invoice')
