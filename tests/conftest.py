@@ -54,13 +54,13 @@ def endpoint(params):
 
 
 @pytest.fixture(scope='module')
-def client(endpoint):
-    return Client(endpoint)
+def client():
+    return Client()
 
 
 @pytest.fixture(scope='module')
-def api_client(endpoint):
-    return ApiClient(endpoint)
+def api_client():
+    return ApiClient()
 
 
 @pytest.fixture(scope='module')
@@ -76,3 +76,28 @@ def state_machine_arn(params):
 @pytest.fixture(scope='module')
 def activity_arn(params):
     return params('activity_arn')
+
+
+@pytest.fixture(scope='function', params=[('tests/example.jpeg', 'image/jpeg')])
+def typed_content(request):
+    document_path, mime_type = request.param
+    content = pathlib.Path(document_path).read_bytes()
+    return content, mime_type
+
+
+@pytest.fixture(scope='function')
+def document_and_consent_id(typed_content, client: Client):
+    content, mime_type = typed_content
+    consent_id = str(uuid4())
+    post_documents_response = client.post_documents(content, mime_type, consent_id)
+    yield post_documents_response['documentId'], consent_id
+
+
+@pytest.fixture(scope='function')
+def document_id(document_and_consent_id):
+    yield document_and_consent_id[0]
+
+
+@pytest.fixture(scope='function')
+def consent_id(document_and_consent_id):
+    yield document_and_consent_id[1]
