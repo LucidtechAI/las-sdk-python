@@ -98,4 +98,3 @@ class Credentials:
 
         response_data = response.json()
         return response_data['access_token'], time.time() + response_data['expires_in']
-

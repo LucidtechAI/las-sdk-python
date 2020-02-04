@@ -1,6 +1,5 @@
 import requests
 import json
-import pathlib
 import logging
 
 from base64 import b64encode

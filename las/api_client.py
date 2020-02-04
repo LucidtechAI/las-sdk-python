@@ -2,7 +2,6 @@ import pathlib
 import imghdr
 import logging
 
-from uuid import uuid4
 from typing import List, Dict, Any
 
 from ._extrahdr import extra_what
