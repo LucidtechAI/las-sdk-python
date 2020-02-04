@@ -2,7 +2,6 @@ import pathlib
 import imghdr
 import logging
 
-from uuid import uuid4
 from typing import List
 
 from ._extrahdr import extra_what
@@ -45,7 +44,8 @@ class ApiClient(Client):
 
         content_type = self._get_content_type(document_path)
         document = pathlib.Path(document_path).read_bytes()
-        document_id = self.post_documents(document, content_type, consent_id)
+        response = self.post_documents(document, content_type, consent_id)
+        document_id = response['documentId']
         prediction_response = self.post_predictions(document_id, model_name)
         return Prediction(document_id, consent_id, model_name, prediction_response)
 

@@ -80,7 +80,7 @@ class Client:
         self.credentials = credentials or Credentials()
         self.endpoint = self.credentials.api_endpoint
 
-    def _create_signing_headers(self, path:  str):
+    def _create_signing_headers(self, path: str):
         uri = urlparse(f'{self.endpoint}{path}')
 
         auth_headers = {
@@ -276,7 +276,7 @@ class Client:
         return self._make_request(requests.get, '/documents', params={'batchId': batch_id, 'consentId': consent_id})
 
     def post_predictions(self, document_id: str, model_name: str,
-                         max_pages: Optional[int], auto_rotate: Optional[bool]) -> dict:
+                         max_pages: Optional[int] = None, auto_rotate: Optional[bool] = None) -> dict:
         """Run inference and create a prediction, calls the POST /predictions endpoint.
 
         >>> from las import Client
