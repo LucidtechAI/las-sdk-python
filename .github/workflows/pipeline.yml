@@ -30,7 +30,8 @@ jobs:
 
     - name: Lint with flake8
       run: |
-        flake8 --config=tox.ini .
+        flake8 --config=tox.ini las tests
+        mypy --config-file=tox.ini las tests
 
     - name: Run tests
       env:

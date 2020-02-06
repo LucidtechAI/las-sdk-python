@@ -1,9 +1,8 @@
 import datetime
 import hashlib
 import hmac
-
+from typing import Iterable, Tuple
 from urllib.parse import ParseResult
-from typing import Tuple, Iterable
 
 from .credentials import Credentials
 
