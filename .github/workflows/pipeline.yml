@@ -12,7 +12,7 @@ jobs:
     strategy:
       max-parallel: 4
       matrix:
-        python-version: [3.6, 3.7, 3.8]
+        python-version: [3.8]
 
     steps:
     - uses: actions/checkout@v1
@@ -33,10 +33,10 @@ jobs:
         flake8 --config=tox.ini las tests
         mypy --config-file=tox.ini las tests
 
-    - name: Run tests
-      env:
-        LAS_ACCESS_KEY_ID: ${{ secrets.LAS_ACCESS_KEY_ID }}
-        LAS_SECRET_ACCESS_KEY: ${{ secrets.LAS_SECRET_ACCESS_KEY }}
-        LAS_API_KEY: ${{ secrets.LAS_API_KEY }}
+    - name: Install tox
       run: |
-        pytest --cfg=./tests/test_config.cfg
+        pip install tox
+
+    - name: Run tests
+      run: |
+        make test
