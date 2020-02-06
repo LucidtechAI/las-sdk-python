@@ -1,11 +1,14 @@
-import pytest
 import configparser
 import pathlib
-from uuid import uuid4
-
-from las import Client, ApiClient
+import string
 from functools import partial
 from os.path import expanduser
+from random import choice, randint
+from uuid import uuid4
+
+import pytest
+
+from las import ApiClient, Client
 
 
 def pytest_addoption(parser):
@@ -85,9 +88,15 @@ def typed_content(request):
     return content, mime_type
 
 
+@pytest.fixture
+def mime_type():
+    return 'image/jpeg'
+
+
 @pytest.fixture(scope='function')
-def document_and_consent_id(typed_content, client: Client):
-    content, mime_type = typed_content
+def document_and_consent_id(monkeypatch, mime_type, client: Client, content):
+    monkeypatch.setattr(pathlib.Path, 'read_bytes', lambda _: content)
+
     consent_id = str(uuid4())
     post_documents_response = client.post_documents(content, mime_type, consent_id)
     yield post_documents_response['documentId'], consent_id
@@ -101,3 +110,11 @@ def document_id(document_and_consent_id):
 @pytest.fixture(scope='function')
 def consent_id(document_and_consent_id):
     yield document_and_consent_id[1]
+
+
+@pytest.fixture(scope='function')
+def content():
+    """
+    Yields a random bytestring with a length varying from 100 to 1000
+    """
+    yield ''.join(choice(string.ascii_uppercase + string.digits) for _ in range(randint(100, 1000))).encode()
