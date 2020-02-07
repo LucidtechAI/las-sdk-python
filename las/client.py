@@ -72,9 +72,7 @@ class LimitExceededException(ClientException):
 class Client:
     """A low level client to invoke api methods from Lucidtech AI Services."""
     def __init__(self, credentials=None):
-        """:param endpoint: Domain endpoint of the api, e.g. https://<prefix>.api.lucidtech.ai/<version>
-        :type endpoint: str
-        :param credentials: Credentials to use, instance of :py:class:`~las.Credentials`
+        """:param credentials: Credentials to use, instance of :py:class::`~las.Credentials`
         :type credentials: Credentials"""
         self.credentials = credentials or Credentials()
         self.endpoint = self.credentials.api_endpoint
@@ -184,8 +182,7 @@ class Client:
         :type model_name: str
         :param max_pages: Maximum number of pages to run predictions on
         :type model_name: int
-        :param auto_rotate: Whether or not to let the API try different rotations on the document when running
-        predictions
+        :param auto_rotate: Whether or not to let the API try different rotations on the document when running predictions
         :type model_name: bool
         :param extras: Extra information to add to json body
         :type extras: Dict[str, Any]

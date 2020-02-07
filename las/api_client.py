@@ -79,7 +79,7 @@ class ApiClient(Client):
     def revoke_consent(self, consent_id: str) -> dict:
         """Revoke consent and deleting all documents associated with consent_id.
         Consent id is a parameter that is provided by the user upon making a prediction on a document.
-        See :py:func: `~las.ApiClient.predict`.
+        See :py:meth:`las.ApiClient.predict`.
 
         >>> from las import ApiClient
         >>> api_client = ApiClient(endpoint='<api endpoint>')

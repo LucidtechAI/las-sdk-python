@@ -23,6 +23,7 @@ setup(
     url='https://github.com/LucidtechAI/las-sdk-python',
     packages=['las'],
     install_requires=install_requires,
+    extras_require={'doc': ['sphinx', 'sphinx-markdown-builder']},
     classifiers=[
         'Development Status :: 3 - Beta',
         'Intended Audience :: Developers',
