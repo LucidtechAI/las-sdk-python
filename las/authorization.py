@@ -32,11 +32,11 @@ class Authorization:
         string_to_sign = self._get_sign_string(amz_date, cred_scope, req_digest)
         signing_key = self._get_signature_key(datestamp)
 
-        signature = hmac.new(signing_key, string_to_sign, hashlib.sha256).hexdigest()
+        signature = hmac.new(signing_key.encode(), string_to_sign, hashlib.sha256).hexdigest()
 
         auth_header = self._build_auth_header(
             amz_date=amz_date,
-            access_key=self.credentials.access_key_id,
+            access_key=self.credentials.client_id,
             api_key=self.credentials.api_key,
             signature=signature,
             credential_scope=cred_scope,
@@ -81,7 +81,7 @@ class Authorization:
         def sign(key, msg):
             return hmac.new(key, msg.encode('utf-8'), hashlib.sha256).digest()
 
-        signature = ('AWS4' + self.credentials.secret_access_key).encode('utf-8')
+        signature = ('AWS4' + self.credentials.client_secret).encode('utf-8')
         for part in (datestamp, self.region, self.service, 'aws4_request'):
             signature = sign(signature, part)
 

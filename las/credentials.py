@@ -2,7 +2,7 @@ import configparser
 import os
 import time
 from os.path import exists, expanduser
-from typing import Optional, Tuple
+from typing import Optional, Tuple, List
 
 import requests
 from requests.auth import HTTPBasicAuth
@@ -58,22 +58,22 @@ class Credentials:
         self.api_endpoint = api_endpoint
 
     @staticmethod
-    def _read_from_environ() -> Tuple[Optional[str], ...]:
-        return tuple(os.environ.get(k) for k in [
+    def _read_from_environ() -> List[Optional[str]]:
+        return [os.environ.get(k) for k in (
             'LAS_CLIENT_ID',
             'LAS_CLIENT_SECRET',
             'LAS_API_KEY',
             'LAS_AUTH_ENDPOINT',
             'LAS_API_ENDPOINT'
-        ])
+        )]
 
     @staticmethod
-    def _read_from_file(credentials_path: str) -> Tuple[Optional[str], ...]:
+    def _read_from_file(credentials_path: str) -> List[Optional[str]]:
         if not credentials_path:
             credentials_path = expanduser('~/.lucidtech/credentials.cfg')
 
         if not exists(credentials_path):
-            return (None,) * 5
+            return [None] * 5
 
         config = configparser.ConfigParser()
         config.read(credentials_path)
@@ -85,7 +85,7 @@ class Credentials:
         auth_endpoint = config.get(section, 'auth_endpoint')
         api_endpoint = config.get(section, 'api_endpoint')
 
-        return client_id, client_secret, api_key, auth_endpoint, api_endpoint
+        return [client_id, client_secret, api_key, auth_endpoint, api_endpoint]
 
     @property
     def access_token(self) -> str:

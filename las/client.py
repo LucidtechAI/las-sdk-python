@@ -3,11 +3,11 @@ import json
 import logging
 
 from base64 import b64encode
-from backoff import on_exception, expo
+from backoff import on_exception, expo  # type: ignore
 from requests.exceptions import RequestException
 from json.decoder import JSONDecodeError
 from urllib.parse import urlparse
-from typing import List, Dict, Optional, Callable, Any
+from typing import Dict, Optional, Callable, Any, Sequence
 
 from .credentials import Credentials
 
@@ -97,13 +97,12 @@ class Client:
         """Make signed headers, use them to make a HTTP request of arbitrary form and return the result
         as decoded JSON. Optionally pass a payload to JSON-dump and parameters for the request call."""
 
-        kwargs = {'params': params}
+        kwargs: Dict[str, Any] = {'params': params}
 
         if body is not None:
             data = json.dumps(body)
-            if encode_body:  # TODO: read requests-doc to find out whether this is needed
-                data = data.encode()
-            kwargs['data'] = data
+            # TODO: read requests-doc to find out whether encoding is needed
+            kwargs['data'] = data.encode() if encode_body else data
 
         uri, headers = self._create_signing_headers(signing_path)
         response = requests_fn(
@@ -115,7 +114,7 @@ class Client:
         return _json_decode(response)
 
     def post_documents(self, content: bytes, content_type: str, consent_id: str,
-                       batch_id: str = None, feedback: List[Dict[str, str]] = None) -> dict:
+                       batch_id: str = None, feedback: Sequence[Dict[str, str]] = None) -> dict:
         """Creates a document handle, calls the POST /documents endpoint.
 
         >>> from las import Client
@@ -131,7 +130,7 @@ class Client:
         :param batch_id: The batch to put the document in
         :type batch_id: str
         :param feedback: A list of feedback items {label: value} representing the ground truth values for the document
-        :type feedback: List[Dict[str, str]]
+        :type feedback: Sequence[Dict[str, str]]
         :return: Document handle id
         :rtype: dict
         :raises InvalidCredentialsException: If the credentials are invalid
@@ -225,7 +224,7 @@ class Client:
         """
         return self._make_request(requests.get, f'/documents/{document_id}')
 
-    def post_document_id(self, document_id: str, feedback: List[Dict[str, str]]) -> dict:
+    def post_document_id(self, document_id: str, feedback: Sequence[Dict[str, str]]) -> dict:
         """Post feedback to the REST API, calls the POST /documents/{documentId} endpoint.
         Posting feedback means posting the ground truth data for the particular document.
         This enables the API to learn from past mistakes.
@@ -238,7 +237,7 @@ class Client:
         :param document_id: The document id to run inference and create a prediction on
         :type document_id: str
         :param feedback: A list of feedback items {label: value} representing the ground truth values for the document
-        :type feedback: List[Dict[str, str]]
+        :type feedback: Sequence[Dict[str, str]]
         :return: Feedback response from REST API
         :rtype: dict
         :raises InvalidCredentialsException: If the credentials are invalid
