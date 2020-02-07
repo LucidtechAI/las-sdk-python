@@ -8,7 +8,7 @@ lint:
 md_docs:
 	rm -rf $(TMPSPHINXDIR)
 	rm -rf docs/markdown
-	sphinx-apidoc -o $(TMPSPHINXDIR) las sphinx-apidoc --full
+	sphinx-apidoc  --full -o $(TMPSPHINXDIR) las sphinx-apidoc las/client.py las/api_client.py las/credentials.py las/prediction.py
 	make --directory $(TMPSPHINXDIR) markdown
 	mv $(TMPSPHINXDIR)/_build/markdown docs
 
