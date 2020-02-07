@@ -13,12 +13,11 @@ class MissingCredentials(Exception):
 
 
 class Credentials:
-    """Used to fetch and store credentials. One of 4 conditions must be met to successfully create credentials.
+    """Used to fetch and store credentials. One of 3 conditions must be met to successfully create credentials.
 
     1. credentials_path is provided
-    2. client_id, client_secret, api_key and auth_endpoint is provided
-    3. credentials is located in default path ~/.lucidtech/credentials.cfg
-    4. the following environment variables are present:
+    2. credentials is located in default path ~/.lucidtech/credentials.cfg
+    3. the following environment variables are present:
         - LAS_CLIENT_ID
         - LAS_CLIENT_SECRET
         - LAS_API_KEY

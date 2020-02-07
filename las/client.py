@@ -72,7 +72,7 @@ class LimitExceededException(ClientException):
 class Client:
     """A low level client to invoke api methods from Lucidtech AI Services."""
     def __init__(self, credentials=None):
-        """:param credentials: Credentials to use, instance of :py:class::`~las.Credentials`
+        """:param credentials: Credentials to use, instance of :py:class:`~las.Credentials`
         :type credentials: Credentials"""
         self.credentials = credentials or Credentials()
         self.endpoint = self.credentials.api_endpoint
@@ -131,10 +131,11 @@ class Client:
         :type feedback: Sequence[Dict[str, str]]
         :return: Document handle id
         :rtype: dict
-        :raises InvalidCredentialsException: If the credentials are invalid
-        :raises TooManyRequestsException: If limit of requests per second is reached
-        :raises LimitExceededException: If limit of total requests per month is reached
-        :raises requests.exception.RequestException: If error was raised by requests
+
+        :raises :py:class:`~las.InvalidCredentialsException`: If the credentials are invalid
+        :raises :py:class:`~las.TooManyRequestsException`: If limit of requests per second is reached
+        :raises :py:class:`~las.LimitExceededException`: If limit of total requests per month is reached
+        :raises :py:class:`requests.exception.RequestException`: If error was raised by requests
         """
 
         body = {
@@ -159,10 +160,11 @@ class Client:
         :type consent_id: str
         :return: Documents from REST API contained in batch <batch id>
         :rtype: dict
-        :raises InvalidCredentialsException: If the credentials are invalid
-        :raises TooManyRequestsException: If limit of requests per second is reached
-        :raises LimitExceededException: If limit of total requests per month is reached
-        :raises requests.exception.RequestException: If error was raised by requests
+
+        :raises :py:class:`~las.InvalidCredentialsException`: If the credentials are invalid
+        :raises :py:class:`~las.TooManyRequestsException`: If limit of requests per second is reached
+        :raises :py:class:`~las.LimitExceededException`: If limit of total requests per month is reached
+        :raises :py:class:`requests.exception.RequestException`: If error was raised by requests
         """
 
         return self._make_request(requests.get, '/documents', params={'batchId': batch_id, 'consentId': consent_id})
@@ -188,10 +190,11 @@ class Client:
         :type extras: Dict[str, Any]
         :return: Prediction on document
         :rtype: dict
-        :raises InvalidCredentialsException: If the credentials are invalid
-        :raises TooManyRequestsException: If limit of requests per second is reached
-        :raises LimitExceededException: If limit of total requests per month is reached
-        :raises requests.exception.RequestException: If error was raised by requests
+
+        :raises :py:class:`~las.InvalidCredentialsException`: If the credentials are invalid
+        :raises :py:class:`~las.TooManyRequestsException`: If limit of requests per second is reached
+        :raises :py:class:`~las.LimitExceededException`: If limit of total requests per month is reached
+        :raises :py:class:`requests.exception.RequestException`: If error was raised by requests
         """
 
         body = {
@@ -214,10 +217,11 @@ class Client:
         :type document_id: str
         :return: Document response from REST API
         :rtype: dict
-        :raises InvalidCredentialsException: If the credentials are invalid
-        :raises TooManyRequestsException: If limit of requests per second is reached
-        :raises LimitExceededException: If limit of total requests per month is reached
-        :raises requests.exception.RequestException: If error was raised by requests
+
+        :raises :py:class:`~las.InvalidCredentialsException`: If the credentials are invalid
+        :raises :py:class:`~las.TooManyRequestsException`: If limit of requests per second is reached
+        :raises :py:class:`~las.LimitExceededException`: If limit of total requests per month is reached
+        :raises :py:class:`requests.exception.RequestException`: If error was raised by requests
         """
         return self._make_request(requests.get, f'/documents/{document_id}')
 
@@ -237,10 +241,11 @@ class Client:
         :type feedback: Sequence[Dict[str, str]]
         :return: Feedback response from REST API
         :rtype: dict
-        :raises InvalidCredentialsException: If the credentials are invalid
-        :raises TooManyRequestsException: If limit of requests per second is reached
-        :raises LimitExceededException: If limit of total requests per month is reached
-        :raises requests.exception.RequestException: If error was raised by requests
+
+        :raises :py:class:`~las.InvalidCredentialsException`: If the credentials are invalid
+        :raises :py:class:`~las.TooManyRequestsException`: If limit of requests per second is reached
+        :raises :py:class:`~las.LimitExceededException`: If limit of total requests per month is reached
+        :raises :py:class:`requests.exception.RequestException`: If error was raised by requests
         """
 
         return self._make_request(requests.post, f'/documents/{document_id}', body={'feedback': feedback})
@@ -256,10 +261,11 @@ class Client:
         :type consent_id: str
         :return: Delete consent id response from REST API
         :rtype: dict
-        :raises InvalidCredentialsException: If the credentials are invalid
-        :raises TooManyRequestsException: If limit of requests per second is reached
-        :raises LimitExceededException: If limit of total requests per month is reached
-        :raises requests.exception.RequestException: If error was raised by requests
+
+        :raises :py:class:`~las.InvalidCredentialsException`: If the credentials are invalid
+        :raises :py:class:`~las.TooManyRequestsException`: If limit of requests per second is reached
+        :raises :py:class:`~las.LimitExceededException`: If limit of total requests per month is reached
+        :raises :py:class:`requests.exception.RequestException`: If error was raised by requests
         """
         return self._make_request(requests.delete, f'/consents/{consent_id}', body={})
 
@@ -274,10 +280,11 @@ class Client:
         :type description: str
         :return: batch handle id and pre-signed upload url
         :rtype: dict
-        :raises InvalidCredentialsException: If the credentials are invalid
-        :raises TooManyRequestsException: If limit of requests per second is reached
-        :raises LimitExceededException: If limit of total requests per month is reached
-        :raises requests.exception.RequestException: If error was raised by requests
+
+        :raises :py:class:`~las.InvalidCredentialsException`: If the credentials are invalid
+        :raises :py:class:`~las.TooManyRequestsException`: If limit of requests per second is reached
+        :raises :py:class:`~las.LimitExceededException`: If limit of total requests per month is reached
+        :raises :py:class:`requests.exception.RequestException`: If error was raised by requests
         """
         return self._make_request(requests.post, '/batches', body={'description': description})
 
@@ -294,10 +301,11 @@ class Client:
         :type consent_hash: str
         :return: batch handle id and pre-signed upload url
         :rtype: dict
-        :raises InvalidCredentialsException: If the credentials are invalid
-        :raises TooManyRequestsException: If limit of requests per second is reached
-        :raises LimitExceededException: If limit of total requests per month is reached
-        :raises requests.exception.RequestException: If error was raised by requests
+
+        :raises :py:class:`~las.InvalidCredentialsException`: If the credentials are invalid
+        :raises :py:class:`~las.TooManyRequestsException`: If limit of requests per second is reached
+        :raises :py:class:`~las.LimitExceededException`: If limit of total requests per month is reached
+        :raises :py:class:`requests.exception.RequestException`: If error was raised by requests
         """
         return self._make_request(requests.patch, f'/users/{user_id}', body={'consentHash': consent_hash})
 
@@ -312,10 +320,12 @@ class Client:
         :type user_id: str
         :return: batch handle id and pre-signed upload url
         :rtype: dict
-        :raises InvalidCredentialsException: If the credentials are invalid
-        :raises TooManyRequestsException: If limit of requests per second is reached
-        :raises LimitExceededException: If limit of total requests per month is reached
-        :raises requests.exception.RequestException: If error was raised by requests
+
+        :raises :py:class:`~las.InvalidCredentialsException`: If the credentials are invalid
+        :raises :py:class:`~las.TooManyRequestsException`: If limit of requests per second is reached
+        :raises :py:class:`~las.LimitExceededException`: If limit of total requests per month is reached
+        :raises :py:class:`requests.exception.RequestException`: If error was raised by requests
+
         """
 
         return self._make_request(requests.get, f'/users/{user_id}')

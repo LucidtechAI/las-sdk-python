@@ -39,10 +39,11 @@ class ApiClient(Client):
         :type extras: Dict[str, Any]
         :return: Prediction on document
         :rtype: Prediction
-        :raises InvalidCredentialsException: If the credentials are invalid
-        :raises TooManyRequestsException: If limit of requests per second is reached
-        :raises LimitExceededException: If limit of total requests per month is reached
-        :raises requests.exception.RequestException: If error was raised by requests
+
+        :raises :py:class:`~las.InvalidCredentialsException`: If the credentials are invalid
+        :raises :py:class:`~las.TooManyRequestsException`: If limit of requests per second is reached
+        :raises :py:class:`~las.LimitExceededException`: If limit of total requests per month is reached
+        :raises :py:class:`requests.exception.RequestException`: If error was raised by requests
         """
 
         content_type = self._get_content_type(document_path)
@@ -55,7 +56,7 @@ class ApiClient(Client):
     def send_feedback(self, document_id: str, feedback: List[Field]) -> dict:
         """Send feedback to the model.
         This method takes care of sending feedback related to document specified by document_id.
-        Feedback consists of ground truth values for the document specified as a list of Field instances.
+        Feedback consists of ground truth values for the document specified as a list of :py:class:`~las.Field` instances.
 
         >>> from las import ApiClient
         >>> api_client = ApiClient(endpoint='<api endpoint>')
@@ -68,10 +69,11 @@ class ApiClient(Client):
         :type feedback: List[Field]
         :return: Feedback response
         :rtype: dict
-        :raises InvalidCredentialsException: If the credentials are invalid
-        :raises TooManyRequestsException: If limit of requests per second is reached
-        :raises LimitExceededException: If limit of total requests per month is reached
-        :raises requests.exception.RequestException: If error was raised by requests
+
+        :raises :py:class:`~las.InvalidCredentialsException`: If the credentials are invalid
+        :raises :py:class:`~las.TooManyRequestsException`: If limit of requests per second is reached
+        :raises :py:class:`~las.LimitExceededException`: If limit of total requests per month is reached
+        :raises :py:class:`requests.exception.RequestException`: If error was raised by requests
         """
 
         return self.post_document_id(document_id, feedback)
@@ -89,10 +91,11 @@ class ApiClient(Client):
         :type consent_id: str
         :return: Revoke consent response
         :rtype: dict
-        :raises InvalidCredentialsException: If the credentials are invalid
-        :raises TooManyRequestsException: If limit of requests per second is reached
-        :raises LimitExceededException: If limit of total requests per month is reached
-        :raises requests.exception.RequestException: If error was raised by requests
+
+        :raises :py:class:`~las.InvalidCredentialsException`: If the credentials are invalid
+        :raises :py:class:`~las.TooManyRequestsException`: If limit of requests per second is reached
+        :raises :py:class:`~las.LimitExceededException`: If limit of total requests per month is reached
+        :raises :py:class:`requests.exception.RequestException`: If error was raised by requests
         """
         return self.delete_consent_id(consent_id)
 
