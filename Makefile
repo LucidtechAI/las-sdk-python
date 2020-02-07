@@ -5,10 +5,10 @@ TMPSPHINXDIR = tmp_sphinx
 lint:
 	tox -e lint
 
-docs:
+md_docs:
 	rm -rf $(TMPSPHINXDIR)
-	rm -rf docs
-	sphinx-apidoc -o $(TMPSPHINXDIR) . sphinx-apidoc --full
+	rm -rf docs/markdown
+	sphinx-apidoc -o $(TMPSPHINXDIR) las sphinx-apidoc --full
 	make --directory $(TMPSPHINXDIR) markdown
 	mv $(TMPSPHINXDIR)/_build/markdown docs
 

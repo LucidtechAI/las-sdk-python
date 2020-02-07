@@ -29,6 +29,7 @@ class ApiClient(Client):
         >>> api_client = ApiClient(endpoint='<api endpoint>')
         >>> api_client.predict(document_path='document.jpeg', model_name='invoice')
 
+
         :param document_path: Path to document to run inference on
         :type document_path: str
         :param model_name: The name of the model to use for inference
@@ -37,13 +38,10 @@ class ApiClient(Client):
         :type consent_id: str
         :param extras: Extra information to add to json body
         :type extras: Dict[str, Any]
+
         :return: Prediction on document
         :rtype: Prediction
-
-        :raises :py:class:`~las.InvalidCredentialsException`: If the credentials are invalid
-        :raises :py:class:`~las.TooManyRequestsException`: If limit of requests per second is reached
-        :raises :py:class:`~las.LimitExceededException`: If limit of total requests per month is reached
-        :raises :py:class:`requests.exception.RequestException`: If error was raised by requests
+        :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`, :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
         """
 
         content_type = self._get_content_type(document_path)
@@ -67,13 +65,10 @@ class ApiClient(Client):
         :type document_id: str
         :param feedback: A list of :py:class:`~las.Field` representing the ground truth values for the document
         :type feedback: List[Field]
+
         :return: Feedback response
         :rtype: dict
-
-        :raises :py:class:`~las.InvalidCredentialsException`: If the credentials are invalid
-        :raises :py:class:`~las.TooManyRequestsException`: If limit of requests per second is reached
-        :raises :py:class:`~las.LimitExceededException`: If limit of total requests per month is reached
-        :raises :py:class:`requests.exception.RequestException`: If error was raised by requests
+        :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`, :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
         """
 
         return self.post_document_id(document_id, feedback)
@@ -89,13 +84,10 @@ class ApiClient(Client):
 
         :param consent_id: Delete documents associated with this consent_id
         :type consent_id: str
+
         :return: Revoke consent response
         :rtype: dict
-
-        :raises :py:class:`~las.InvalidCredentialsException`: If the credentials are invalid
-        :raises :py:class:`~las.TooManyRequestsException`: If limit of requests per second is reached
-        :raises :py:class:`~las.LimitExceededException`: If limit of total requests per month is reached
-        :raises :py:class:`requests.exception.RequestException`: If error was raised by requests
+        :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`, :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
         """
         return self.delete_consent_id(consent_id)
 
