@@ -1,15 +1,21 @@
+import pathlib
+from typing import Iterable
+from unittest.mock import Mock, patch
+from uuid import uuid4
+
 import pytest
 import requests
-import pathlib
 
 from las import Client
-from las.client import TooManyRequestsException, InvalidCredentialsException, LimitExceededException
-from typing import Iterable
-from uuid import uuid4
-from unittest.mock import patch, Mock
+from las.client import InvalidCredentialsException, LimitExceededException, TooManyRequestsException
+
+pytestmark = pytest.mark.integration
 
 
-def test_post_documents(client: Client, document_paths: Iterable[str], document_mime_types: Iterable[str]):
+def test_post_documents(monkeypatch, client: Client, document_paths: Iterable[str], document_mime_types: Iterable[str],
+                        content):
+    monkeypatch.setattr(pathlib.Path, 'read_bytes', lambda _: content)
+
     for document_path, document_mime_type in zip(document_paths, document_mime_types):
         consent_id = str(uuid4())
         content = pathlib.Path(document_path).read_bytes()
