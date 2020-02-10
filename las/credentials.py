@@ -110,7 +110,7 @@ class Credentials:
         return access_token
 
     def _get_client_credentials(self) -> Tuple[str, int]:
-        url = f'https://{self.auth_endpoint}/oauth2/token?grant_type=client_credentials'
+        url = f'https://{self.auth_endpoint}/token?grant_type=client_credentials'
         headers = {'Content-Type': 'application/x-www-form-urlencoded'}
         auth = HTTPBasicAuth(self.client_id, self.client_secret)
 
