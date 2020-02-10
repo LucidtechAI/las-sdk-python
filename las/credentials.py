@@ -29,16 +29,10 @@ class Credentials:
     Note that all 5 variables must end up being set - if e.g. 4 environment variables are set, but not the fifth,
     all variables will be disregarded, and the credentials in the default path will be used.
 
+    :param creds: List of strings [LAS_CLIENT_ID, LAS_CLIENT_SECRET, LAS_API_KEY, LAS_AUTH_ENDPOINT, LAS_API_ENDPOINT]
+    :type creds: Optional[List[str]]
     :param credentials_path: Path to credentials file
-    :type credentials_path: str
-    :param client_id: Client Id
-    :type client_id: str
-    :param client_secret: Client Secret
-    :type client_secret: str
-    :param api_key: API key
-    :type api_key: str
-    :param auth_endpoint: Authorization endpoint
-    :type auth_endpoint: str
+    :type credentials_path: Optional[str]
 
     """
     def __init__(self, creds: Optional[List[str]] = None, credentials_path: Optional[str] = None):
