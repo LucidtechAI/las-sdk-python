@@ -66,16 +66,6 @@ def api_client():
     return ApiClient()
 
 
-@pytest.fixture(scope='module')
-def state_machine_arn(params):
-    return params('state_machine_arn')
-
-
-@pytest.fixture(scope='module')
-def activity_arn(params):
-    return params('activity_arn')
-
-
 @pytest.fixture(scope='function', params=[('tests/example.jpeg', 'image/jpeg')])
 def typed_content(request):
     document_path, mime_type = request.param
