@@ -1,6 +1,5 @@
 from setuptools import setup
 
-
 with open('requirements.txt') as fp:
     install_requires = fp.readlines()
 
@@ -14,6 +13,7 @@ setup(
     version='2.0.0',
     description='Python SDK for Lucidtech AI Services',
     long_description=readme,
+    long_description_content_type='text/markdown',
     license='Apache 2.0',
     platforms='Posix; MacOS X; Windows',
     author='Lucidtech',
@@ -22,6 +22,7 @@ setup(
     url='https://github.com/LucidtechAI/las-sdk-python',
     packages=['las'],
     install_requires=install_requires,
+    extras_require={'doc': ['sphinx', 'sphinx-markdown-builder']},
     classifiers=[
         'Development Status :: 3 - Beta',
         'Intended Audience :: Developers',

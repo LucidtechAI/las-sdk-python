@@ -1,13 +1,11 @@
-import pathlib
 import imghdr
 import logging
-
-from typing import List
+import pathlib
+from typing import Any, Dict, List
 
 from ._extrahdr import extra_what
 from .client import Client, ClientException
-from .prediction import Prediction, Field
-
+from .prediction import Field, Prediction
 
 logger = logging.getLogger('las')
 
@@ -19,7 +17,8 @@ class FileFormatException(ClientException):
 
 class ApiClient(Client):
     """A high level client to invoke api methods from Lucidtech AI Services."""
-    def predict(self, document_path: str, model_name: str, consent_id: str = "LT_DEFAULT_CONSENT_ID") -> Prediction:
+    def predict(self, document_path: str, model_name: str,
+                consent_id: str = "DEFAULT", extras: Dict[str, Any] = None) -> Prediction:
         """Run inference and create prediction on document.
         This method takes care of creating and uploading a document specified by document_path.
         as well as running inference using model specified by model_name to create prediction on the document.
@@ -28,18 +27,20 @@ class ApiClient(Client):
         >>> api_client = ApiClient(endpoint='<api endpoint>')
         >>> api_client.predict(document_path='document.jpeg', model_name='invoice')
 
+
         :param document_path: Path to document to run inference on
         :type document_path: str
         :param model_name: The name of the model to use for inference
         :type model_name: str
         :param consent_id: An identifier to mark the owner of the document handle
         :type consent_id: str
+        :param extras: Extra information to add to json body
+        :type extras: Dict[str, Any]
+
         :return: Prediction on document
         :rtype: Prediction
-        :raises InvalidCredentialsException: If the credentials are invalid
-        :raises TooManyRequestsException: If limit of requests per second is reached
-        :raises LimitExceededException: If limit of total requests per month is reached
-        :raises requests.exception.RequestException: If error was raised by requests
+        :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
+ :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
         """
 
         content_type = self._get_content_type(document_path)
@@ -52,7 +53,8 @@ class ApiClient(Client):
     def send_feedback(self, document_id: str, feedback: List[Field]) -> dict:
         """Send feedback to the model.
         This method takes care of sending feedback related to document specified by document_id.
-        Feedback consists of ground truth values for the document specified as a list of Field instances.
+        Feedback consists of ground truth values for the document specified as a list of\
+ :py:class:`~las.Field` instances.
 
         >>> from las import ApiClient
         >>> api_client = ApiClient(endpoint='<api endpoint>')
@@ -63,12 +65,11 @@ class ApiClient(Client):
         :type document_id: str
         :param feedback: A list of :py:class:`~las.Field` representing the ground truth values for the document
         :type feedback: List[Field]
+
         :return: Feedback response
         :rtype: dict
-        :raises InvalidCredentialsException: If the credentials are invalid
-        :raises TooManyRequestsException: If limit of requests per second is reached
-        :raises LimitExceededException: If limit of total requests per month is reached
-        :raises requests.exception.RequestException: If error was raised by requests
+        :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
+ :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
         """
 
         return self.post_document_id(document_id, feedback)
@@ -76,7 +77,7 @@ class ApiClient(Client):
     def revoke_consent(self, consent_id: str) -> dict:
         """Revoke consent and deleting all documents associated with consent_id.
         Consent id is a parameter that is provided by the user upon making a prediction on a document.
-        See :py:func: `~las.ApiClient.predict`.
+        See :py:meth:`~las.ApiClient.predict`.
 
         >>> from las import ApiClient
         >>> api_client = ApiClient(endpoint='<api endpoint>')
@@ -84,12 +85,11 @@ class ApiClient(Client):
 
         :param consent_id: Delete documents associated with this consent_id
         :type consent_id: str
+
         :return: Revoke consent response
         :rtype: dict
-        :raises InvalidCredentialsException: If the credentials are invalid
-        :raises TooManyRequestsException: If limit of requests per second is reached
-        :raises LimitExceededException: If limit of total requests per month is reached
-        :raises requests.exception.RequestException: If error was raised by requests
+        :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
+ :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
         """
         return self.delete_consent_id(consent_id)
 

@@ -1,17 +1,15 @@
-import requests
 import json
-import pathlib
 import logging
-
 from base64 import b64encode
-from backoff import on_exception, expo
-from requests.exceptions import RequestException
 from json.decoder import JSONDecodeError
+from typing import Any, Callable, Dict, Optional, Sequence
 from urllib.parse import urlparse
-from typing import List, Dict, Optional, Callable
+
+import requests
+from backoff import expo, on_exception  # type: ignore
+from requests.exceptions import RequestException
 
 from .credentials import Credentials
-
 
 logger = logging.getLogger('las')
 
@@ -73,9 +71,7 @@ class LimitExceededException(ClientException):
 class Client:
     """A low level client to invoke api methods from Lucidtech AI Services."""
     def __init__(self, credentials=None):
-        """:param endpoint: Domain endpoint of the api, e.g. https://<prefix>.api.lucidtech.ai/<version>
-        :type endpoint: str
-        :param credentials: Credentials to use, instance of :py:class:`~las.Credentials`
+        """:param credentials: Credentials to use, instance of :py:class:`~las.Credentials`
         :type credentials: Credentials"""
         self.credentials = credentials or Credentials()
         self.endpoint = self.credentials.api_endpoint
@@ -98,13 +94,12 @@ class Client:
         """Make signed headers, use them to make a HTTP request of arbitrary form and return the result
         as decoded JSON. Optionally pass a payload to JSON-dump and parameters for the request call."""
 
-        kwargs = {'params': params}
+        kwargs: Dict[str, Any] = {'params': params}
 
         if body is not None:
             data = json.dumps(body)
-            if encode_body:  # TODO: read requests-doc to find out whether this is needed
-                data = data.encode()
-            kwargs['data'] = data
+            # TODO: read requests-doc to find out whether encoding is needed
+            kwargs['data'] = data.encode() if encode_body else data
 
         uri, headers = self._create_signing_headers(signing_path)
         response = requests_fn(
@@ -220,7 +215,7 @@ class Client:
         )
 
     def post_documents(self, content: bytes, content_type: str, consent_id: str,
-                       batch_id: str = None, feedback: List[Dict[str, str]] = None) -> dict:
+                       batch_id: str = None, feedback: Sequence[Dict[str, str]] = None) -> dict:
         """Creates a document handle, calls the POST /documents endpoint.
 
         >>> from las import Client
@@ -236,13 +231,12 @@ class Client:
         :param batch_id: The batch to put the document in
         :type batch_id: str
         :param feedback: A list of feedback items {label: value} representing the ground truth values for the document
-        :type feedback: List[Dict[str, str]]
+        :type feedback: Sequence[Dict[str, str]]
         :return: Document handle id
         :rtype: dict
-        :raises InvalidCredentialsException: If the credentials are invalid
-        :raises TooManyRequestsException: If limit of requests per second is reached
-        :raises LimitExceededException: If limit of total requests per month is reached
-        :raises requests.exception.RequestException: If error was raised by requests
+
+        :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
+ :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
         """
 
         body = {
@@ -267,16 +261,16 @@ class Client:
         :type consent_id: str
         :return: Documents from REST API contained in batch <batch id>
         :rtype: dict
-        :raises InvalidCredentialsException: If the credentials are invalid
-        :raises TooManyRequestsException: If limit of requests per second is reached
-        :raises LimitExceededException: If limit of total requests per month is reached
-        :raises requests.exception.RequestException: If error was raised by requests
+
+        :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
+ :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
         """
 
         return self._make_request(requests.get, '/documents', params={'batchId': batch_id, 'consentId': consent_id})
 
     def post_predictions(self, document_id: str, model_name: str,
-                         max_pages: Optional[int] = None, auto_rotate: Optional[bool] = None) -> dict:
+                         max_pages: Optional[int] = None, auto_rotate: Optional[bool] = None,
+                         extras: Dict[str, Any] = None) -> dict:
         """Run inference and create a prediction, calls the POST /predictions endpoint.
 
         >>> from las import Client
@@ -289,22 +283,25 @@ class Client:
         :type model_name: str
         :param max_pages: Maximum number of pages to run predictions on
         :type model_name: int
-        :param auto_rotate: Whether or not to let the API try different rotations on the document when running
-        predictions
+        :param auto_rotate: Whether or not to let the API try different rotations on\
+ the document when running predictions
         :type model_name: bool
+        :param extras: Extra information to add to json body
+        :type extras: Dict[str, Any]
+
         :return: Prediction on document
         :rtype: dict
-        :raises InvalidCredentialsException: If the credentials are invalid
-        :raises TooManyRequestsException: If limit of requests per second is reached
-        :raises LimitExceededException: If limit of total requests per month is reached
-        :raises requests.exception.RequestException: If error was raised by requests
+
+        :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
+ :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
         """
 
         body = {
             'documentId': document_id,
             'modelName': model_name,
             'maxPages': max_pages,
-            'autoRotate': auto_rotate
+            'autoRotate': auto_rotate,
+            **(extras or {})
         }
         return self._make_request(requests.post, '/predictions', body=dictstrip(body))
 
@@ -319,14 +316,13 @@ class Client:
         :type document_id: str
         :return: Document response from REST API
         :rtype: dict
-        :raises InvalidCredentialsException: If the credentials are invalid
-        :raises TooManyRequestsException: If limit of requests per second is reached
-        :raises LimitExceededException: If limit of total requests per month is reached
-        :raises requests.exception.RequestException: If error was raised by requests
+
+        :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
+ :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
         """
         return self._make_request(requests.get, f'/documents/{document_id}')
 
-    def post_document_id(self, document_id: str, feedback: List[Dict[str, str]]) -> dict:
+    def post_document_id(self, document_id: str, feedback: Sequence[Dict[str, str]]) -> dict:
         """Post feedback to the REST API, calls the POST /documents/{documentId} endpoint.
         Posting feedback means posting the ground truth data for the particular document.
         This enables the API to learn from past mistakes.
@@ -339,13 +335,12 @@ class Client:
         :param document_id: The document id to run inference and create a prediction on
         :type document_id: str
         :param feedback: A list of feedback items {label: value} representing the ground truth values for the document
-        :type feedback: List[Dict[str, str]]
+        :type feedback: Sequence[Dict[str, str]]
         :return: Feedback response from REST API
         :rtype: dict
-        :raises InvalidCredentialsException: If the credentials are invalid
-        :raises TooManyRequestsException: If limit of requests per second is reached
-        :raises LimitExceededException: If limit of total requests per month is reached
-        :raises requests.exception.RequestException: If error was raised by requests
+
+        :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
+ :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
         """
 
         return self._make_request(requests.post, f'/documents/{document_id}', body={'feedback': feedback})
@@ -361,10 +356,9 @@ class Client:
         :type consent_id: str
         :return: Delete consent id response from REST API
         :rtype: dict
-        :raises InvalidCredentialsException: If the credentials are invalid
-        :raises TooManyRequestsException: If limit of requests per second is reached
-        :raises LimitExceededException: If limit of total requests per month is reached
-        :raises requests.exception.RequestException: If error was raised by requests
+
+        :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
+ :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
         """
         return self._make_request(requests.delete, f'/consents/{consent_id}', body={})
 
@@ -397,10 +391,8 @@ class Client:
         :type description: str
         :return: batch handle id and pre-signed upload url
         :rtype: dict
-        :raises InvalidCredentialsException: If the credentials are invalid
-        :raises TooManyRequestsException: If limit of requests per second is reached
-        :raises LimitExceededException: If limit of total requests per month is reached
-        :raises requests.exception.RequestException: If error was raised by requests
+
+        :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`, :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
         """
         return self._make_request(requests.post, '/batches', body={'description': description})
 
@@ -417,10 +409,9 @@ class Client:
         :type consent_hash: str
         :return: batch handle id and pre-signed upload url
         :rtype: dict
-        :raises InvalidCredentialsException: If the credentials are invalid
-        :raises TooManyRequestsException: If limit of requests per second is reached
-        :raises LimitExceededException: If limit of total requests per month is reached
-        :raises requests.exception.RequestException: If error was raised by requests
+
+        :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
+ :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
         """
         return self._make_request(requests.patch, f'/users/{user_id}', body={'consentHash': consent_hash})
 
@@ -435,10 +426,9 @@ class Client:
         :type user_id: str
         :return: batch handle id and pre-signed upload url
         :rtype: dict
-        :raises InvalidCredentialsException: If the credentials are invalid
-        :raises TooManyRequestsException: If limit of requests per second is reached
-        :raises LimitExceededException: If limit of total requests per month is reached
-        :raises requests.exception.RequestException: If error was raised by requests
+
+        :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
+ :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
         """
 
         return self._make_request(requests.get, f'/users/{user_id}')

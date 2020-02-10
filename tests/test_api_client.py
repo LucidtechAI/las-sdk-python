@@ -1,13 +1,19 @@
-import pytest
+import pathlib
 import tempfile
-
-from las import ApiClient, Client, Field
-from las.api_client import FileFormatException
 from typing import Iterable
-from uuid import uuid4
+
+import pytest
+
+from las import ApiClient, Field
+from las.api_client import FileFormatException
+
+pytestmark = pytest.mark.integration
 
 
-def test_predict(api_client: ApiClient, document_paths: Iterable[str], model_names: Iterable[str]):
+def test_predict(monkeypatch, api_client: ApiClient, document_paths: Iterable[str], model_names: Iterable[str],
+                 content: bytes):
+    monkeypatch.setattr(pathlib.Path, 'read_bytes', lambda _: content)
+
     for document_path, model_name in zip(document_paths, model_names):
         prediction = api_client.predict(document_path, model_name=model_name)
 
