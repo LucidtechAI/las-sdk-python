@@ -1,13 +1,11 @@
-import pathlib
 import imghdr
 import logging
-
-from typing import List, Dict, Any
+import pathlib
+from typing import Any, Dict, List
 
 from ._extrahdr import extra_what
 from .client import Client, ClientException
-from .prediction import Prediction, Field
-
+from .prediction import Field, Prediction
 
 logger = logging.getLogger('las')
 
@@ -41,7 +39,8 @@ class ApiClient(Client):
 
         :return: Prediction on document
         :rtype: Prediction
-        :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`, :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
+        :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
+ :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
         """
 
         content_type = self._get_content_type(document_path)
@@ -54,7 +53,8 @@ class ApiClient(Client):
     def send_feedback(self, document_id: str, feedback: List[Field]) -> dict:
         """Send feedback to the model.
         This method takes care of sending feedback related to document specified by document_id.
-        Feedback consists of ground truth values for the document specified as a list of :py:class:`~las.Field` instances.
+        Feedback consists of ground truth values for the document specified as a list of\
+ :py:class:`~las.Field` instances.
 
         >>> from las import ApiClient
         >>> api_client = ApiClient(endpoint='<api endpoint>')
@@ -68,7 +68,8 @@ class ApiClient(Client):
 
         :return: Feedback response
         :rtype: dict
-        :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`, :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
+        :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
+ :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
         """
 
         return self.post_document_id(document_id, feedback)
@@ -76,7 +77,7 @@ class ApiClient(Client):
     def revoke_consent(self, consent_id: str) -> dict:
         """Revoke consent and deleting all documents associated with consent_id.
         Consent id is a parameter that is provided by the user upon making a prediction on a document.
-        See :py:meth:`las.ApiClient.predict`.
+        See :py:meth:`~las.ApiClient.predict`.
 
         >>> from las import ApiClient
         >>> api_client = ApiClient(endpoint='<api endpoint>')
@@ -87,7 +88,8 @@ class ApiClient(Client):
 
         :return: Revoke consent response
         :rtype: dict
-        :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`, :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
+        :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
+ :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
         """
         return self.delete_consent_id(consent_id)
 

@@ -1,16 +1,15 @@
-import requests
 import json
 import logging
-
 from base64 import b64encode
-from backoff import on_exception, expo  # type: ignore
-from requests.exceptions import RequestException
 from json.decoder import JSONDecodeError
+from typing import Any, Callable, Dict, Optional, Sequence
 from urllib.parse import urlparse
-from typing import Dict, Optional, Callable, Any, Sequence
+
+import requests
+from backoff import expo, on_exception  # type: ignore
+from requests.exceptions import RequestException
 
 from .credentials import Credentials
-
 
 logger = logging.getLogger('las')
 
@@ -132,7 +131,8 @@ class Client:
         :return: Document handle id
         :rtype: dict
 
-        :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`, :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
+        :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
+ :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
         """
 
         body = {
@@ -158,7 +158,8 @@ class Client:
         :return: Documents from REST API contained in batch <batch id>
         :rtype: dict
 
-        :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`, :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
+        :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
+ :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
         """
 
         return self._make_request(requests.get, '/documents', params={'batchId': batch_id, 'consentId': consent_id})
@@ -178,7 +179,8 @@ class Client:
         :type model_name: str
         :param max_pages: Maximum number of pages to run predictions on
         :type model_name: int
-        :param auto_rotate: Whether or not to let the API try different rotations on the document when running predictions
+        :param auto_rotate: Whether or not to let the API try different rotations on\
+ the document when running predictions
         :type model_name: bool
         :param extras: Extra information to add to json body
         :type extras: Dict[str, Any]
@@ -186,7 +188,8 @@ class Client:
         :return: Prediction on document
         :rtype: dict
 
-        :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`, :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
+        :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
+ :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
         """
 
         body = {
@@ -210,7 +213,8 @@ class Client:
         :return: Document response from REST API
         :rtype: dict
 
-        :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`, :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
+        :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
+ :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
         """
         return self._make_request(requests.get, f'/documents/{document_id}')
 
@@ -231,7 +235,8 @@ class Client:
         :return: Feedback response from REST API
         :rtype: dict
 
-        :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`, :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
+        :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
+ :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
         """
 
         return self._make_request(requests.post, f'/documents/{document_id}', body={'feedback': feedback})
@@ -248,7 +253,8 @@ class Client:
         :return: Delete consent id response from REST API
         :rtype: dict
 
-        :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`, :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
+        :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
+ :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
         """
         return self._make_request(requests.delete, f'/consents/{consent_id}', body={})
 
@@ -282,7 +288,8 @@ class Client:
         :return: batch handle id and pre-signed upload url
         :rtype: dict
 
-        :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`, :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
+        :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
+ :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
         """
         return self._make_request(requests.patch, f'/users/{user_id}', body={'consentHash': consent_hash})
 
@@ -298,7 +305,8 @@ class Client:
         :return: batch handle id and pre-signed upload url
         :rtype: dict
 
-        :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`, :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
+        :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
+ :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
         """
 
         return self._make_request(requests.get, f'/users/{user_id}')
