@@ -67,11 +67,6 @@ def api_client():
 
 
 @pytest.fixture(scope='module')
-def use_kms(config):
-    return config.getboolean('default', 'use_kms', fallback=False)
-
-
-@pytest.fixture(scope='module')
 def state_machine_arn(params):
     return params('state_machine_arn')
 

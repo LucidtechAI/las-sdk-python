@@ -2,7 +2,7 @@ import configparser
 import os
 import time
 from os.path import exists, expanduser
-from typing import Optional, Tuple, List
+from typing import List, Optional, Tuple
 
 import requests
 from requests.auth import HTTPBasicAuth
@@ -13,16 +13,21 @@ class MissingCredentials(Exception):
 
 
 class Credentials:
-    """Used to fetch and store credentials. One of 3 conditions must be met to successfully create credentials.
+    """Used to fetch and store credentials. Credentials are fetched in the below order. If any point
+    yields 5 credentials, those are used, and if not, the constructor continues on to next point.
 
-    1. credentials_path is provided
-    2. credentials is located in default path ~/.lucidtech/credentials.cfg
-    3. the following environment variables are present:
+    1. creds is provided
+    2. credentials_path is provided
+    3. all of the following environment variables are present:
         - LAS_CLIENT_ID
         - LAS_CLIENT_SECRET
         - LAS_API_KEY
         - LAS_AUTH_ENDPOINT
         - LAS_API_ENDPOINT
+    4. credentials is located in default path ~/.lucidtech/credentials.cfg
+
+    Note that all 5 variables must end up being set - if e.g. 4 environment variables are set, but not the fifth,
+    all variables will be disregarded, and the credentials in the default path will be used.
 
     :param credentials_path: Path to credentials file
     :type credentials_path: str
@@ -36,14 +41,22 @@ class Credentials:
     :type auth_endpoint: str
 
     """
-    def __init__(self, credentials_path=None):
+    def __init__(self, creds: Optional[List[str]] = None, credentials_path: Optional[str] = None):
         self._token = (None, None)
-        creds = list(self._read_from_file(credentials_path))
-        creds_from_environ = self._read_from_environ()
-
-        for idx, value in enumerate(creds):
-            if creds_from_environ[idx] is not None:
-                creds[idx] = creds_from_environ[idx]
+        if creds is not None:
+            assert len(creds) == 5, "creds should be a list of 5 strings"
+        else:
+            if credentials_path is not None:
+                creds = list(self._read_from_file(credentials_path))
+            else:
+                # try to read creds from environment, give up and read from default path if not all are found
+                creds_from_environ = self._read_from_environ()
+                creds = [None] * 5
+                for idx, value in enumerate(creds):
+                    if creds_from_environ[idx] is not None:
+                        creds[idx] = creds_from_environ[idx]
+                if not all(creds):
+                    creds = self._read_from_file(None)
 
         if not all(creds):
             raise MissingCredentials
