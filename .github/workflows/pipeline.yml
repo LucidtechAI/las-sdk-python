@@ -29,7 +29,6 @@ jobs:
         pip install -r requirements.ci.txt
 
     - name: Lint with flake8
-      continue-on-error: true
       run: |
         flake8 --config=tox.ini las tests
         mypy --config-file=tox.ini las tests
