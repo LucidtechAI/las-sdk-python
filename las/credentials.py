@@ -2,7 +2,7 @@ import configparser
 import os
 import time
 from os.path import exists, expanduser
-from typing import List, Optional, Tuple, Callable
+from typing import List, Optional, Tuple
 
 import requests
 from requests.auth import HTTPBasicAuth
@@ -30,7 +30,7 @@ class Credentials:
         if not all([client_id, client_secret, api_key, auth_endpoint, api_endpoint]):
             raise MissingCredentials
 
-        self._token = ('', 0) 
+        self._token = ('', 0)
         self.client_id = client_id
         self.client_secret = client_secret
         self.api_key = api_key

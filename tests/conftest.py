@@ -1,5 +1,6 @@
 import configparser
 import pathlib
+import random
 import string
 from functools import partial
 from os.path import expanduser
@@ -7,12 +8,25 @@ from random import choice, randint
 from uuid import uuid4
 
 import pytest
+from requests_mock import Mocker
 
 from las import ApiClient, Client
 
 
 def pytest_addoption(parser):
     parser.addoption('--cfg', action='store')
+
+
+@pytest.fixture(scope='session', autouse=True)
+def mock_access_token_endpoint():
+    response = {
+        'access_token': ''.join(choice(string.ascii_uppercase) for _ in range(randint(50, 50))),
+        'expires_in': 123456789,
+    }
+
+    with Mocker(real_http=True) as m:
+        m.post('/token', json=response)
+        yield
 
 
 @pytest.fixture(scope='module')
