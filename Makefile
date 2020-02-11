@@ -12,9 +12,9 @@ md_docs:
 	mv $(TMPSPHINXDIR)/_build/markdown docs
 
 .PHONY: test
-test: prism-start
+test:
 	@echo "Running test suite..."
-	tox
+	tox -e py
 
 .PHONY: prism-start
 prism-start:
