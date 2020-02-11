@@ -1,6 +1,5 @@
 import configparser
 import pathlib
-import random
 import string
 from functools import partial
 from os.path import expanduser
