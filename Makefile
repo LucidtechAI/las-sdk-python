@@ -1,9 +1,6 @@
 TMPSPHINXDIR = tmp_sphinx
 
-.PHONY: *
-
-FILE = /tmp/prism.cid
-
+.PHONY: lint
 lint:
 	tox -e lint
 
@@ -14,26 +11,18 @@ md_docs:
 	make --directory $(TMPSPHINXDIR) markdown
 	mv $(TMPSPHINXDIR)/_build/markdown docs
 
+.PHONY: test
 test: prism-start
 	@echo "Running test suite..."
 	tox
 
-prism-start: cleanup
+.PHONY: prism-start
+prism-start:
 	@echo "Starting mock API..."
 	docker run \
 		--init \
 		--detach \
 		-p 4010:4010 \
 		-h 0.0.0.0 \
-		stoplight/prism:3 mock -d \
-		https://raw.githubusercontent.com/LucidtechAI/las-docs/master/apis/dev/oas.json
-	@echo "Mock API started."
-
-cleanup:
-ifeq ($(shell test -e $(FILE)),)
-	@echo "Cleaning up..."
-	$(shell docker stop $($(shell cat FILE)) 2>/dev/null)
-	$(shell rm $(FILE) 2>/dev/null)
-else
-	@echo "Nothing to clean up."
-endif
+		stoplight/prism:3.2.8 mock -d -h 0.0.0.0 \
+		https://raw.githubusercontent.com/LucidtechAI/las-docs/rest-api-docs/apis/dev/oas.json
