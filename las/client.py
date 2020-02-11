@@ -9,7 +9,7 @@ import requests
 from backoff import expo, on_exception  # type: ignore
 from requests.exceptions import RequestException
 
-from .credentials import Credentials
+from .credentials import Credentials, guess_credentials
 
 logger = logging.getLogger('las')
 
@@ -70,10 +70,10 @@ class LimitExceededException(ClientException):
 
 class Client:
     """A low level client to invoke api methods from Lucidtech AI Services."""
-    def __init__(self, credentials=None):
+    def __init__(self, credentials: Optional[Credentials] = None):
         """:param credentials: Credentials to use, instance of :py:class:`~las.Credentials`
         :type credentials: Credentials"""
-        self.credentials = credentials or Credentials()
+        self.credentials = credentials or guess_credentials()
         self.endpoint = self.credentials.api_endpoint
 
     def _create_signing_headers(self, path: str):
