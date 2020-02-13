@@ -3,6 +3,7 @@ import pathlib
 import string
 from functools import partial
 from os.path import expanduser
+from os import urandom
 from random import choice, randint
 from uuid import uuid4
 
@@ -113,6 +114,6 @@ def consent_id(document_and_consent_id):
 @pytest.fixture(scope='function')
 def content():
     """
-    Yields a random bytestring with a length varying from 100 to 1000
+    Yields a random JPEG bytestring with a length 2E6
     """
-    yield ''.join(choice(string.ascii_uppercase + string.digits) for _ in range(randint(100, 1000))).encode()
+    yield b'\xFF\xD8\xFF\xEE' + urandom(int(2E4))
