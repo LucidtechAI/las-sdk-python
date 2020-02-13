@@ -1,15 +1,10 @@
 # flake8: noqa
+# type: ignore
 
 import logging
 
-from .client import (
-    Client,
-    ClientException,
-    InvalidCredentialsException,
-    LimitExceededException,
-    TooManyRequestsException
-)
-from .credentials import Credentials, MissingCredentials
+from .client import Client
+from .credentials import Credentials
 from .prediction import Field, Prediction
 
 __all__ = [
