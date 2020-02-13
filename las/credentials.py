@@ -103,7 +103,6 @@ def read_from_file(credentials_path: Optional[str] = None) -> List[Optional[str]
         credentials_path = expanduser('~/.lucidtech/credentials.cfg')
 
     if not exists(credentials_path):
-        return [None]*5
         raise MissingCredentials
 
     config = configparser.ConfigParser()
