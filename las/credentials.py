@@ -13,7 +13,7 @@ class MissingCredentials(Exception):
 
 
 class Credentials:
-    """Used to fetch and store credentials and to generate/cache an acces token.
+    """Used to fetch and store credentials and to generate/cache an access token.
 
     :param client_id: The client id
     :type str:

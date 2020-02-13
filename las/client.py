@@ -178,10 +178,10 @@ class Client:
         :param model_name: The name of the model to use for inference
         :type model_name: str
         :param max_pages: Maximum number of pages to run predictions on
-        :type model_name: int
+        :type max_pages: int
         :param auto_rotate: Whether or not to let the API try different rotations on\
  the document when running predictions
-        :type model_name: bool
+        :type auto_rotate: bool
         :param extras: Extra information to add to json body
         :type extras: Dict[str, Any]
 
