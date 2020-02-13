@@ -1,6 +1,3 @@
-# flake8: noqa
-# type: ignore
-
 import logging
 
 from .client import Client
