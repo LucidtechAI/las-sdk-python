@@ -189,10 +189,10 @@ class BaseClient:
         :param model_name: The name of the model to use for inference
         :type model_name: str
         :param max_pages: Maximum number of pages to run predictions on
-        :type model_name: int
+        :type max_pages: int
         :param auto_rotate: Whether or not to let the API try different rotations on\
  the document when running predictions
-        :type model_name: bool
+        :type auto_rotate: bool
         :param extras: Extra information to add to json body
         :type extras: Dict[str, Any]
 
@@ -281,7 +281,8 @@ class BaseClient:
         :return: batch handle id and pre-signed upload url
         :rtype: dict
 
-        :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`, :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
+        :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,
+        :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
         """
         return self._make_request(requests.post, '/batches', body={'description': description})
 

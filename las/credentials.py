@@ -2,7 +2,7 @@ import configparser
 import os
 import time
 from os.path import exists, expanduser
-from typing import List, Optional, Tuple, Callable
+from typing import List, Optional, Tuple
 
 import requests
 from requests.auth import HTTPBasicAuth
