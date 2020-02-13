@@ -114,6 +114,6 @@ def consent_id(document_and_consent_id):
 @pytest.fixture(scope='function')
 def content():
     """
-    Yields a random JPEG bytestring with a length 2E6
+    Yields a random JPEG bytestring with a length 2E4
     """
     yield b'\xFF\xD8\xFF\xEE' + urandom(int(2E4))
