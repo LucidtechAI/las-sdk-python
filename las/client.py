@@ -1,22 +1,19 @@
+import imghdr
 import json
 import logging
+import pathlib
 from base64 import b64encode
 from json.decoder import JSONDecodeError
-from typing import Any, Callable, Dict, Optional, Sequence
+from typing import Any, Callable, Dict, List, Optional, Sequence
 from urllib.parse import urlparse
-import imghdr
-import logging
-import pathlib
+
 import filetype
-from typing import Any, Dict, List
-
-from .prediction import Field, Prediction
-
 import requests
 from backoff import expo, on_exception  # type: ignore
 from requests.exceptions import RequestException
 
 from .credentials import Credentials, guess_credentials
+from .prediction import Field, Prediction
 
 logger = logging.getLogger('las')
 

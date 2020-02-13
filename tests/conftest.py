@@ -7,9 +7,9 @@ from random import choice, randint
 from uuid import uuid4
 
 import pytest
+from las import Client
+from las.client import BaseClient
 from requests_mock import Mocker
-
-from las import ApiClient, Client
 
 
 def pytest_addoption(parser):
@@ -70,13 +70,13 @@ def endpoint(params):
 
 
 @pytest.fixture(scope='module')
-def client():
-    return Client()
+def base_client():
+    return BaseClient()
 
 
 @pytest.fixture(scope='module')
-def api_client():
-    return ApiClient()
+def client():
+    return Client()
 
 
 @pytest.fixture(scope='function', params=[('tests/example.jpeg', 'image/jpeg')])
@@ -96,7 +96,7 @@ def document_and_consent_id(monkeypatch, mime_type, client: Client, content):
     monkeypatch.setattr(pathlib.Path, 'read_bytes', lambda _: content)
 
     consent_id = str(uuid4())
-    post_documents_response = client.post_documents(content, mime_type, consent_id)
+    post_documents_response = client.create_document(content, mime_type, consent_id)
     yield post_documents_response['documentId'], consent_id
 
 

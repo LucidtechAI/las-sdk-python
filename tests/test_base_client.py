@@ -3,9 +3,9 @@ from typing import Iterable
 from unittest.mock import Mock, patch
 from uuid import uuid4
 
-import pytest
 import requests
 
+import pytest
 from las.client import BaseClient, InvalidCredentialsException, LimitExceededException, TooManyRequestsException
 
 pytestmark = pytest.mark.integration

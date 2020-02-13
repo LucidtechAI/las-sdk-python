@@ -7,7 +7,7 @@ from .client import (
     ClientException,
     InvalidCredentialsException,
     LimitExceededException,
-    TooManyRequestsException,
+    TooManyRequestsException
 )
 from .credentials import Credentials, MissingCredentials
 from .prediction import Field, Prediction

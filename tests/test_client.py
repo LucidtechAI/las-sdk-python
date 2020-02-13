@@ -3,7 +3,6 @@ import tempfile
 from typing import Iterable
 
 import pytest
-
 from las import Client, Field
 from las.client import FileFormatException
 
