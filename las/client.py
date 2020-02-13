@@ -1,4 +1,3 @@
-import imghdr
 import json
 import logging
 import pathlib
