@@ -40,5 +40,7 @@ jobs:
 
       - name: Run tests
         run: |
+          docker logs -f $(cat /tmp/prism.cid) &
           tox -r -e py
+          kill %1
           make prism-stop
