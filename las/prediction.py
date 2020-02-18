@@ -1,5 +1,8 @@
-class Field(dict):
-    def __init__(self, label, value, confidence=None):
+from typing import Dict
+
+
+class Field(Dict[str, str]):
+    def __init__(self, label: str, value: str, confidence=None):
         field = dict(label=label, value=value)
         field = dict(**field, confidence=confidence) if confidence else field
         super().__init__(**field)
@@ -17,7 +20,7 @@ class Field(dict):
         return self.get('confidence')
 
 
-class Prediction(dict):
+class Prediction(Dict[str, str]):
     def __init__(self, document_id: str, consent_id: str, model_name: str, prediction_response: dict):
         prediction = dict(
             document_id=document_id,

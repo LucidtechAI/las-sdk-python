@@ -1,8 +1,11 @@
 import configparser
-
 import os
-from os.path import expanduser, exists
-from typing import Tuple, Optional
+import time
+from os.path import exists, expanduser
+from typing import List, Optional, Tuple
+
+import requests
+from requests.auth import HTTPBasicAuth
 
 
 class MissingCredentials(Exception):
@@ -10,59 +13,123 @@ class MissingCredentials(Exception):
 
 
 class Credentials:
-    """Used to fetch and store credentials. One of 4 conditions must be met to successfully create credentials.
+    """Used to fetch and store credentials and to generate/cache an access token.
 
-    1. credentials_path is provided
-    2. access_key_id, secret_access_key and api_key is provided
-    3. credentials is located in default path ~/.lucidtech/credentials.cfg
-    4. the following environment variables are present:
-        - LAS_ACCESS_KEY_ID
-        - LAS_SECRET_ACCESS_KEY
-        - LAS_API_KEY
+    :param client_id: The client id
+    :type str:
+    :param client_secret: The client secret
+    :type str:
+    :param api_key: The api key
+    :type str:
+    :param auth_endpoint: The auth endpoint
+    :type str:
+    :param api_endpoint: The api endpoint
+    :type str:"""
 
-    :param credentials_path: Path to credentials file
-    :type credentials_path: str
-    :param access_key_id: Access Key Id
-    :type access_key_id: str
-    :param secret_access_key: Secret Access Key
-    :type secret_access_key: str
-    :param api_key: API key
-    :type api_key: str
-
-    """
-    def __init__(self, credentials_path=None, access_key_id=None, secret_access_key=None, api_key=None):
-        if not all([access_key_id, secret_access_key, api_key]):
-            if not credentials_path:
-                credentials_path = expanduser('~/.lucidtech/credentials.cfg')
-
-            if exists(credentials_path):
-                access_key_id, secret_access_key, api_key = self._read_from_file(credentials_path)
-            else:
-                access_key_id, secret_access_key, api_key = self._read_from_environ()
-
-        if not all([access_key_id, secret_access_key, api_key]):
+    def __init__(self, client_id: str, client_secret: str, api_key: str, auth_endpoint: str, api_endpoint: str):
+        if not all([client_id, client_secret, api_key, auth_endpoint, api_endpoint]):
             raise MissingCredentials
 
-        self.access_key_id = access_key_id
-        self.secret_access_key = secret_access_key
+        self._token = ('', 0)
+        self.client_id = client_id
+        self.client_secret = client_secret
         self.api_key = api_key
+        self.auth_endpoint = auth_endpoint
+        self.api_endpoint = api_endpoint
 
-    @staticmethod
-    def _read_from_environ() -> Tuple[Optional[str], Optional[str], Optional[str]]:
-        access_key_id = os.environ.get('LAS_ACCESS_KEY_ID')
-        secret_access_key = os.environ.get('LAS_SECRET_ACCESS_KEY')
-        api_key = os.environ.get('LAS_API_KEY')
+    def override_with_environ(self):
+        """Replaces all values in self with those defined in environ."""
+        for attrname, environname in [
+                ('client_id', 'LAS_CLIENT_ID'),
+                ('client_secret', 'LAS_CLIENT_SECRET'),
+                ('api_key', 'LAS_API_KEY'),
+                ('auth_endpoint', 'LAS_AUTH_ENDPOINT'),
+                ('api_endpoint', 'LAS_API_ENDPOINT')
+        ]:
+            setattr(self, attrname, os.environ.get('LAS_CLIENT_ID') or getattr(self, attrname))
 
-        return access_key_id, secret_access_key, api_key
+    @property
+    def access_token(self) -> str:
+        access_token, expiration = self._token
 
-    @staticmethod
-    def _read_from_file(credentials_path: str) -> Tuple[Optional[str], Optional[str], Optional[str]]:
-        config = configparser.ConfigParser()
-        config.read(credentials_path)
-        section = 'default'
+        if not access_token or time.time() > expiration:
+            access_token, expiration = self._get_client_credentials()
+            self._token = (access_token, expiration)
 
-        access_key_id = config.get(section, 'access_key_id')
-        secret_access_key = config.get(section, 'secret_access_key')
-        api_key = config.get(section, 'api_key')
+        return access_token
 
-        return access_key_id, secret_access_key, api_key
+    def _get_client_credentials(self) -> Tuple[str, int]:
+        url = f'https://{self.auth_endpoint}/token?grant_type=client_credentials'
+        headers = {'Content-Type': 'application/x-www-form-urlencoded'}
+        auth = HTTPBasicAuth(self.client_id, self.client_secret)
+
+        response = requests.post(url, headers=headers, auth=auth)
+        response.raise_for_status()
+
+        response_data = response.json()
+        return response_data['access_token'], time.time() + response_data['expires_in']
+
+
+def read_from_environ() -> List[Optional[str]]:
+    """Read the following environment variables and return them:
+        - LAS_CLIENT_ID
+        - LAS_CLIENT_SECRET
+        - LAS_API_KEY
+        - LAS_AUTH_ENDPOINT
+        - LAS_API_ENDPOINT
+
+    :return: List of client_id, client_secret, api_key, auth_endpoint, api_endpoint
+    :rtype: List[Optional[str]]"""
+
+    return [os.environ.get(k) for k in (
+        'LAS_CLIENT_ID',
+        'LAS_CLIENT_SECRET',
+        'LAS_API_KEY',
+        'LAS_AUTH_ENDPOINT',
+        'LAS_API_ENDPOINT'
+    )]
+
+
+def read_from_file(credentials_path: Optional[str] = None) -> List[Optional[str]]:
+    """Read a config file and return credentials from it. Defaults to '~/.lucidtech/credentials.cfg'.
+
+    :param credentials_path: Path to read credentials from.
+    :type credentials_path: Optional[str]
+
+    :return: List of client_id, client_secret, api_key, auth_endpoint, api_endpoint
+    :rtype: List[Optional[str]]"""
+
+    if not credentials_path:
+        credentials_path = expanduser('~/.lucidtech/credentials.cfg')
+
+    if not exists(credentials_path):
+        raise MissingCredentials
+
+    config = configparser.ConfigParser()
+    config.read(credentials_path)
+    section = 'default'
+
+    client_id = config.get(section, 'client_id')
+    client_secret = config.get(section, 'client_secret')
+    api_key = config.get(section, 'api_key')
+    auth_endpoint = config.get(section, 'auth_endpoint')
+    api_endpoint = config.get(section, 'api_endpoint')
+
+    return [client_id, client_secret, api_key, auth_endpoint, api_endpoint]
+
+
+def guess_credentials() -> Credentials:
+    """Tries to fetch Credentials first by looking at the environment variables, next by looking at the default
+    credentials path ~/.lucidtech/credentials.cfg. Note that if not all the required environment variables
+    are present, _all_ variables will be disregarded, and the credentials in the default path will be used.
+
+    :return: Credentials from file
+    :rtype: :py:class:`~las.Credentials`
+
+    :raises: :py:class:`~las.MissingCredentials`"""
+
+    for guesser in [read_from_environ, read_from_file]:
+        args = guesser()  # type: ignore
+        if all(args):
+            return Credentials(*args)
+    raise MissingCredentials

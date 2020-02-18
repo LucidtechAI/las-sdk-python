@@ -1,16 +1,15 @@
 import logging
 
-from .api_client import ApiClient
-from .client import Client
+from .client import BaseClient, Client
 from .credentials import Credentials
-from .prediction import Prediction, Field
+from .prediction import Field, Prediction
 
 __all__ = [
-    ApiClient,
-    Client,
-    Credentials,
-    Prediction,
-    Field,
+    'BaseClient',
+    'Client',
+    'Credentials',
+    'Prediction',
+    'Field'
 ]
 
 logger = logging.getLogger('las')
