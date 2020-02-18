@@ -32,3 +32,8 @@ ifeq ("$(wildcard /tmp/prism.cid)","")
 else
 	docker stop $(CID)
 endif
+
+.PHONY: publish
+publish:
+	python setup.py sdist
+	twine upload dist/*
