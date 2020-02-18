@@ -381,25 +381,6 @@ class Client(BaseClient):
 
         return self.update_document(document_id, feedback)
 
-    def revoke_consent(self, consent_id: str) -> dict:
-        """Revoke consent and deleting all documents associated with consent_id.
-        Consent id is a parameter that is provided by the user upon making a prediction on a document.
-        See :py:meth:`~las.ApiClient.predict`.
-
-        >>> from las import Client
-        >>> client = Client(endpoint='<api endpoint>')
-        >>> client.revoke_consent('<consent id>')
-
-        :param consent_id: Delete documents associated with this consent_id
-        :type consent_id: str
-
-        :return: Revoke consent response
-        :rtype: dict
-        :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
- :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
-        """
-        return self.delete_consent(consent_id)
-
     @staticmethod
     def _get_content_type(document_path: str) -> str:
         supported_formats = {
