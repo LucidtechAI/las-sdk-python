@@ -19,13 +19,6 @@ def test_send_feedback(client: Client, document_id: str):
     assert 'consentId' in response, 'Missing consentId in response'
 
 
-def test_revoke_consent(client: Client, consent_id: str):
-    response = client.revoke_consent(consent_id)
-
-    assert 'consentId' in response, 'Missing consentId in response'
-    assert 'documentIds' in response, 'Missing documentIds in response'
-
-
 def test_invalid_file_format(client: Client, model_names: Iterable[str]):
     for model_name in model_names:
         with tempfile.NamedTemporaryFile() as fp:
