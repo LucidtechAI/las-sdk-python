@@ -90,24 +90,23 @@ def read_from_environ() -> List[Optional[str]]:
     )]
 
 
-def read_from_file(credentials_path: Optional[str] = None) -> List[Optional[str]]:
+def read_from_file(credentials_path: str = expanduser('~/.lucidtech/credentials.cfg'),
+                   section: str = 'default') -> List[Optional[str]]:
     """Read a config file and return credentials from it. Defaults to '~/.lucidtech/credentials.cfg'.
 
     :param credentials_path: Path to read credentials from.
-    :type credentials_path: Optional[str]
+    :type credentials_path: str
+    :param section: Section to read credentials from.
+    :type section: str
 
     :return: List of client_id, client_secret, api_key, auth_endpoint, api_endpoint
     :rtype: List[Optional[str]]"""
-
-    if not credentials_path:
-        credentials_path = expanduser('~/.lucidtech/credentials.cfg')
 
     if not exists(credentials_path):
         raise MissingCredentials
 
     config = configparser.ConfigParser()
     config.read(credentials_path)
-    section = 'default'
 
     client_id = config.get(section, 'client_id')
     client_secret = config.get(section, 'client_secret')
