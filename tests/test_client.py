@@ -3,10 +3,27 @@ import tempfile
 from typing import Iterable
 
 import pytest
+
 from las import Client, Field
 from las.client import FileFormatException
 
 pytestmark = pytest.mark.integration
+
+
+def test_send_feedback(client: Client, document_id: str):
+    feedback = [Field(label='total_amount', value='120.00'), Field(label='purchase_date', value='2019-03-10')]
+    response = client.send_feedback(document_id, feedback)
+
+    assert 'feedback' in response, 'Missing feedback in response'
+    assert 'documentId' in response, 'Missing documentId in response'
+    assert 'consentId' in response, 'Missing consentId in response'
+
+
+def test_invalid_file_format(client: Client, model_names: Iterable[str]):
+    for model_name in model_names:
+        with tempfile.NamedTemporaryFile() as fp:
+            with pytest.raises(FileFormatException):
+                client.predict(fp.name, model_name=model_name)
 
 
 def test_predict(monkeypatch, client: Client, document_paths: Iterable[str],
@@ -27,19 +44,3 @@ def test_predict(monkeypatch, client: Client, document_paths: Iterable[str],
             assert field.confidence, 'Missing confidence in field'
             assert 0.0 <= field.confidence <= 1.0, 'Confidence not between 0 and 1'
             assert type(field.value) == str, 'Value is not str'
-
-
-def test_send_feedback(client: Client, document_id: str):
-    feedback = [Field(label='total_amount', value='120.00'), Field(label='purchase_date', value='2019-03-10')]
-    response = client.send_feedback(document_id, feedback)
-
-    assert 'feedback' in response, 'Missing feedback in response'
-    assert 'documentId' in response, 'Missing documentId in response'
-    assert 'consentId' in response, 'Missing consentId in response'
-
-
-def test_invalid_file_format(client: Client, model_names: Iterable[str]):
-    for model_name in model_names:
-        with tempfile.NamedTemporaryFile() as fp:
-            with pytest.raises(FileFormatException):
-                client.predict(fp.name, model_name=model_name)

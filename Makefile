@@ -21,7 +21,6 @@ prism-start:
 		--init \
 		--detach \
 		-p 4010:4010 \
-		-h 0.0.0.0 \
 		stoplight/prism:3.2.8 mock -d -h 0.0.0.0 \
 		https://raw.githubusercontent.com/LucidtechAI/las-docs/rest-api-docs/apis/dev/oas.json > /tmp/prism.cid
 
@@ -32,3 +31,8 @@ ifeq ("$(wildcard /tmp/prism.cid)","")
 else
 	docker stop $(CID)
 endif
+
+.PHONY: publish
+publish:
+	python setup.py sdist bdist_wheel
+	twine upload dist/*
