@@ -3,30 +3,11 @@ import tempfile
 from typing import Iterable
 
 import pytest
+
 from las import Client, Field
 from las.client import FileFormatException
 
 pytestmark = pytest.mark.integration
-
-
-def test_predict(monkeypatch, client: Client, document_paths: Iterable[str],
-                 model_names: Iterable[str], content: bytes):
-    monkeypatch.setattr(pathlib.Path, 'read_bytes', lambda _: content)
-
-    for document_path, model_name in zip(document_paths, model_names):
-        prediction = client.predict(document_path, model_name=model_name)
-
-        assert prediction.document_id, 'Missing document_id in prediction'
-        assert prediction.consent_id, 'Missing consent_id in prediction'
-        assert prediction.model_name, 'Missing model_name in prediction'
-        assert prediction.fields, 'Missing fields in prediction'
-
-        for field in prediction.fields:
-            assert field.label, 'Missing label in field'
-            assert type(field.label) == str, 'Label is not str'
-            assert field.confidence, 'Missing confidence in field'
-            assert 0.0 <= field.confidence <= 1.0, 'Confidence not between 0 and 1'
-            assert type(field.value) == str, 'Value is not str'
 
 
 def test_send_feedback(client: Client, document_id: str):
@@ -50,3 +31,23 @@ def test_invalid_file_format(client: Client, model_names: Iterable[str]):
         with tempfile.NamedTemporaryFile() as fp:
             with pytest.raises(FileFormatException):
                 client.predict(fp.name, model_name=model_name)
+
+
+def test_predict(monkeypatch, client: Client, document_paths: Iterable[str],
+                 model_names: Iterable[str], content: bytes):
+    monkeypatch.setattr(pathlib.Path, 'read_bytes', lambda _: content)
+
+    for document_path, model_name in zip(document_paths, model_names):
+        prediction = client.predict(document_path, model_name=model_name)
+
+        assert prediction.document_id, 'Missing document_id in prediction'
+        assert prediction.consent_id, 'Missing consent_id in prediction'
+        assert prediction.model_name, 'Missing model_name in prediction'
+        assert prediction.fields, 'Missing fields in prediction'
+
+        for field in prediction.fields:
+            assert field.label, 'Missing label in field'
+            assert type(field.label) == str, 'Label is not str'
+            assert field.confidence, 'Missing confidence in field'
+            assert 0.0 <= field.confidence <= 1.0, 'Confidence not between 0 and 1'
+            assert type(field.value) == str, 'Value is not str'
