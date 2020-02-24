@@ -122,8 +122,8 @@ class BaseClient:
                         batch_id: str = None, feedback: Sequence[Dict[str, str]] = None) -> dict:
         """Creates a document handle, calls the POST /documents endpoint.
 
-        >>> from las import Client
-        >>> client = Client(endpoint='<api endpoint>')
+        >>> from las.client import BaseClient
+        >>> client = BaseClient()
         >>> client.create_document(b'<bytes data>', 'image/jpeg', '<consent id>')
 
         :param content: The contents to POST
@@ -155,8 +155,8 @@ class BaseClient:
     def list_documents(self, batch_id: Optional[str] = None, consent_id: Optional[str] = None) -> dict:
         """List documents that you have created, calls the GET /documents endpoint.
 
-        >>> from las import Client
-        >>> client = Client(endpoint='<api endpoint>')
+        >>> from las.client import BaseClient
+        >>> client = BaseClient()
         >>> client.list_documents()
 
         :param batch_id: The batch id that contains the documents of interest
@@ -176,8 +176,8 @@ class BaseClient:
                           auto_rotate: Optional[bool] = None, extras: Dict[str, Any] = None) -> dict:
         """Create a prediction on a document using specified model, calls the POST /predictions endpoint.
 
-        >>> from las import Client
-        >>> client = Client(endpoint='<api endpoint>')
+        >>> from las.client import BaseClient
+        >>> client = BaseClient()
         >>> client.create_prediction(document_id='<document id>', model_name='invoice')
 
         :param document_id: The document id to run inference and create a prediction on
@@ -211,8 +211,8 @@ class BaseClient:
     def get_document(self, document_id: str) -> dict:
         """Get document from the REST API, calls the GET /documents/{documentId} endpoint.
 
-        >>> from las import Client
-        >>> client = Client(endpoint='<api endpoint>')
+        >>> from las.client import BaseClient
+        >>> client = BaseClient()
         >>> client.get_document(document_id='<document id>')
 
         :param document_id: The document id to run inference and create a prediction on
@@ -230,8 +230,8 @@ class BaseClient:
         Posting feedback means posting the ground truth data for the particular document.
         This enables the API to learn from past mistakes.
 
-        >>> from las import Client
-        >>> client = Client(endpoint='<api endpoint>')
+        >>> from las.client import BaseClient
+        >>> client = BaseClient()
         >>> feedback = [{'label': 'total_amount', 'value': '156.00'}, {'label': 'invoice_date', 'value': '2018-10-23'}]
         >>> client.update_document(document_id='<document id>', feedback=feedback)
 
@@ -251,8 +251,8 @@ class BaseClient:
     def delete_consent(self, consent_id: str) -> dict:
         """Delete documents with this consent_id, calls the DELETE /consents/{consentId} endpoint.
 
-        >>> from las import Client
-        >>> client = Client(endpoint='<api endpoint>')
+        >>> from las.client import BaseClient
+        >>> client = BaseClient()
         >>> client.delete_consent('<consent id>')
 
         :param consent_id: Delete documents with this consent_id
@@ -268,8 +268,8 @@ class BaseClient:
     def create_batch(self, description: str) -> dict:
         """Creates a batch handle, calls the POST /batches endpoint.
 
-        >>> from las import Client
-        >>> client = Client(endpoint='<api endpoint>')
+        >>> from las.client import BaseClient
+        >>> client = BaseClient()
         >>> client.create_batch(description='Data from clients obtained during fall 2019')
 
         :param description: A short description of the batch you intend to create
@@ -285,8 +285,8 @@ class BaseClient:
     def update_user(self, user_id: str, consent_hash: str) -> dict:
         """Modifies consent hash for user, calls the PATCH /users/{user_id} endpoint.
 
-        >>> from las import Client
-        >>> client = Client(endpoint='<api endpoint>')
+        >>> from las.client import BaseClient
+        >>> client = BaseClient()
         >>> client.update_user('me', '<consent hash>')
 
         :param user_id: The user_id to modify consent hash for
@@ -304,8 +304,8 @@ class BaseClient:
     def get_user(self, user_id: str) -> dict:
         """Get information about user, calls the GET /users/{user_id} endpoint.
 
-        >>> from las import Client
-        >>> client = Client(endpoint='<api endpoint>')
+        >>> from las.client import BaseClient
+        >>> client = BaseClient()
         >>> client.get_user('me')
 
         :param user_id: The user_id to get consent hash for
@@ -364,7 +364,7 @@ class Client(BaseClient):
  :py:class:`~las.Field` instances.
 
         >>> from las import Client
-        >>> client = Client(endpoint='<api endpoint>')
+        >>> client = Client()
         >>> feedback = [Field(label='total_amount', value='120.00'), Field(label='purchase_date', value='2019-03-10')]
         >>> client.send_feedback('<document id>', feedback)
 
