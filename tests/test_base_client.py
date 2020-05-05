@@ -11,7 +11,7 @@ from las.client import BaseClient, InvalidCredentialsException, LimitExceededExc
 pytestmark = pytest.mark.integration
 
 
-def test_post_documents(monkeypatch, client: BaseClient, document_paths: Iterable[str],
+def test_create_document(monkeypatch, client: BaseClient, document_paths: Iterable[str],
                         document_mime_types: Iterable[str], content):
     monkeypatch.setattr(pathlib.Path, 'read_bytes', lambda _: content)
 
@@ -25,7 +25,7 @@ def test_post_documents(monkeypatch, client: BaseClient, document_paths: Iterabl
         assert 'contentType' in post_documents_response, 'Missing contentType in response'
 
 
-def test_post_document_id(client: BaseClient, document_id: str):
+def test_update_document(client: BaseClient, document_id: str):
     feedback = [
         {'label': 'total_amount', 'value': '54.50'},
         {'label': 'purchase_date', 'value': '2007-07-30'}
