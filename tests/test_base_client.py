@@ -11,8 +11,13 @@ from las.client import BaseClient, InvalidCredentialsException, LimitExceededExc
 pytestmark = pytest.mark.integration
 
 
-def test_create_document(monkeypatch, client: BaseClient, document_paths: Iterable[str],
-                        document_mime_types: Iterable[str], content):
+def test_create_document(
+    monkeypatch,
+    client: BaseClient,
+    document_paths: Iterable[str],
+    document_mime_types: Iterable[str],
+    content,
+):
     monkeypatch.setattr(pathlib.Path, 'read_bytes', lambda _: content)
 
     for document_path, document_mime_type in zip(document_paths, document_mime_types):
