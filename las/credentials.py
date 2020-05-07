@@ -37,17 +37,6 @@ class Credentials:
         self.auth_endpoint = auth_endpoint
         self.api_endpoint = api_endpoint
 
-    def override_with_environ(self):
-        """Replaces all values in self with those defined in environ."""
-        for attrname, environname in [
-                ('client_id', 'LAS_CLIENT_ID'),
-                ('client_secret', 'LAS_CLIENT_SECRET'),
-                ('api_key', 'LAS_API_KEY'),
-                ('auth_endpoint', 'LAS_AUTH_ENDPOINT'),
-                ('api_endpoint', 'LAS_API_ENDPOINT')
-        ]:
-            setattr(self, attrname, os.environ.get('LAS_CLIENT_ID') or getattr(self, attrname))
-
     @property
     def access_token(self) -> str:
         access_token, expiration = self._token
