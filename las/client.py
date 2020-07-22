@@ -118,6 +118,22 @@ class BaseClient:
 
         return _json_decode(response)
 
+    def list_workflows(self) -> dict:
+        """List workflows that you have created, calls the GET /workflows endpoint.
+
+        >>> from las.client import BaseClient
+        >>> client = BaseClient()
+        >>> client.list_workflows()
+
+        :return: Workflows from REST API
+        :rtype: dict
+
+        :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
+ :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
+        """
+
+        return self._make_request(requests.get, '/workflows')
+
     def create_document(self, content: bytes, content_type: str, consent_id: str,
                         batch_id: str = None, feedback: Sequence[Dict[str, str]] = None) -> dict:
         """Creates a document handle, calls the POST /documents endpoint.
