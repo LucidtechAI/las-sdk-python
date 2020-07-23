@@ -118,6 +118,33 @@ class BaseClient:
 
         return _json_decode(response)
 
+    def execute_workflow(self, workflow_id: str, content: dict) -> dict:
+        """Creates a workflow handle, calls the POST /workflows/{workflowId}/executions endpoint.
+
+        >>> from las.client import BaseClient
+        >>> from pathlib import Path
+        >>> client = BaseClient()
+        >>> content = json.loads(Path('my/state/machine/input.json').read_text())
+        >>> client.execute_workflow('my-state-machine-id', content)
+
+        :param workflow_id: the id of your workflow
+        :type workflow_id: str
+        :param content: The specification of your workflow
+        :type content: dict
+        :return: workflow handle id
+        :rtype: dict
+
+        :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
+ :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
+        """
+
+        endpoint = f'/workflows/{workflow_id}/executions'
+        body = {
+            'input': content
+        }
+
+        return self._make_request(requests.post, endpoint, body=dictstrip(body), encode_body=False)
+
     def create_workflow(self, content: dict, name: str, description: str,
                         type: str = 'ASL', version: str = '1.0') -> dict:
         """Creates a workflow handle, calls the POST /workflows endpoint.
