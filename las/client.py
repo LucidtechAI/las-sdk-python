@@ -177,6 +177,32 @@ class BaseClient:
         }
         return self._make_request(requests.post, '/transformations', body=dictstrip(body), encode_body=False)
 
+    def update_transformation_execution(self, transformation_id: str, execution_id: str, output: str) -> dict:
+        """Modifies transformation execution,
+        calls the PATCH /transformations/{transformation_id}/executions/{execution_id} endpoint.
+
+        >>> from las.client import BaseClient
+        >>> client = BaseClient()
+        >>> client.update_transformation_execution('<transformation_id>', '<execution_id>', '<token>', '<output>')
+
+        :param transformation_id: The transformation_id that performs the execution
+        :type transformation_id: str
+        :param execution_id: The id of the execution to update
+        :type execution_id: str
+        :param output: The output from the execution
+        :type output: str
+        :return: transformation execution handle id
+        :rtype: dict
+
+        :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
+ :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
+        """
+        path = f'/transformations/{transformation_id}/executions/{execution_id}'
+        body = {
+            'output': output
+        }
+        return self._make_request(requests.patch, path, body=body)
+
     def execute_workflow(self, workflow_id: str, content: dict) -> dict:
         """Creates a workflow handle, calls the POST /workflows/{workflowId}/executions endpoint.
 
