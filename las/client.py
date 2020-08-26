@@ -124,7 +124,7 @@ class BaseClient:
         >>> from pathlib import Path
         >>> client = BaseClient()
         >>> content = json.loads(Path('my/transformation/input.json').read_text())
-        >>> client.execute_transformation('my-transformation-id', content)
+        >>> client.execute_transformation('<transformation_id>', content)
 
         :param transformation_id: the id of your transformation
         :type transformation_id: str
@@ -143,7 +143,7 @@ class BaseClient:
         return self._make_request(requests.post, endpoint, body=dictstrip(body), encode_body=False)
 
     def create_transformation(self, transformation_type: str, in_schema: dict, out_schema: dict,
-                              params: Optional[dict]) -> dict:
+                              params: Optional[dict] = None) -> dict:
         """Creates a transformation handle, calls the POST /transformations endpoint.
 
         >>> import json
@@ -153,7 +153,7 @@ class BaseClient:
         >>> in_schema = json.loads(Path('my/input/schema.json').read_text())
         >>> out_schema = json.loads(Path('my/output/schema.json').read_text())
         >>> params = json.loads(Path('my/transformation/parameters.json').read_text())
-        >>> client.create_transformation("manual", in_schema, out_schema, params)
+        >>> client.create_transformation('manual', in_schema, out_schema, params)
 
         :param in_schema: The json-schema that defines the input to the transformation
         :type in_schema: dict
@@ -177,13 +177,13 @@ class BaseClient:
         }
         return self._make_request(requests.post, '/transformations', body=dictstrip(body), encode_body=False)
 
-    def update_transformation_execution(self, transformation_id: str, execution_id: str, output: str) -> dict:
+    def update_transformation_execution(self, transformation_id: str, execution_id: str, output: dict) -> dict:
         """Modifies transformation execution,
         calls the PATCH /transformations/{transformation_id}/executions/{execution_id} endpoint.
 
         >>> from las.client import BaseClient
         >>> client = BaseClient()
-        >>> client.update_transformation_execution('<transformation_id>', '<execution_id>', '<token>', '<output>')
+        >>> client.update_transformation_execution('<transformation_id>', '<execution_id>', '<output>')
 
         :param transformation_id: The transformation_id that performs the execution
         :type transformation_id: str
@@ -210,7 +210,7 @@ class BaseClient:
         >>> from pathlib import Path
         >>> client = BaseClient()
         >>> content = json.loads(Path('my/state/machine/input.json').read_text())
-        >>> client.execute_workflow('my-state-machine-id', content)
+        >>> client.execute_workflow('<workflow_id>', content)
 
         :param workflow_id: the id of your workflow
         :type workflow_id: str
