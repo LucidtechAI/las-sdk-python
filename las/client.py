@@ -117,7 +117,7 @@ class BaseClient:
         )
         return _json_decode(response)
 
-    def execute_transformation(self, transformation_id: str, content: dict) -> dict:
+    def execute_transformation(self, transformation_id: str) -> dict:
         """Creates a transformation handle, calls the POST /transformations/{transformationId}/executions endpoint.
 
         >>> from las.client import BaseClient
@@ -137,10 +137,7 @@ class BaseClient:
  :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
         """
         endpoint = f'/transformations/{transformation_id}/executions'
-        body = {
-            'input': content
-        }
-        return self._make_request(requests.post, endpoint, body=dictstrip(body), encode_body=False)
+        return self._make_request(requests.post, endpoint, body={})
 
     def create_transformation(self, transformation_type: str, in_schema: dict, out_schema: dict,
                               params: Optional[dict] = None) -> dict:
@@ -229,7 +226,7 @@ class BaseClient:
         return self._make_request(requests.post, endpoint, body=dictstrip(body), encode_body=False)
 
     def create_workflow(self, definition: dict, name: str, description: str,
-                        language: str = 'ASL', version: str = '1.0') -> dict:
+                        language: str = 'ASL', version: str = '1.0.0') -> dict:
         """Creates a workflow handle, calls the POST /workflows endpoint.
 
         >>> from las.client import BaseClient
