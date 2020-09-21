@@ -226,7 +226,7 @@ class BaseClient:
         return self._make_request(requests.post, endpoint, body=dictstrip(body), encode_body=False)
 
     def create_workflow(self, definition: dict, name: str, description: str,
-                        language: str = 'ASL', version: str = '1.0.0') -> dict:
+                        language: str = 'ASL', version: str = '1.0.0', error_config: Optional[dict] = None) -> dict:
         """Creates a workflow handle, calls the POST /workflows endpoint.
 
         >>> from las.client import BaseClient
@@ -257,6 +257,7 @@ class BaseClient:
             'description': description,
             'language': language,
             'version': version,
+            'errorConfig': error_config,
         }
         return self._make_request(requests.post, '/workflows', body=dictstrip(body), encode_body=False)
 
