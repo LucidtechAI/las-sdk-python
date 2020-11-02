@@ -89,7 +89,7 @@ class BaseClient:
 
         auth_headers = {
             'Authorization': f'Bearer {self.credentials.access_token}',
-            'X-Api-Key': self.credentials.api_key
+            'X-Api-Key': self.credentials.api_key,
         }
         headers = {**auth_headers, 'Content-Type': 'application/json'}
         return uri, headers
@@ -113,7 +113,7 @@ class BaseClient:
         response = requests_fn(
             url=uri.geturl(),
             headers=headers,
-            **kwargs
+            **kwargs,
         )
         return _json_decode(response)
 
@@ -124,9 +124,9 @@ class BaseClient:
         >>> client = BaseClient()
         >>> client.create_batch(description='<description>')
 
-        :param description: A short description of the batch
+        :param description: Description of the batch
         :type description: str
-        :return: Post batches response from REST API
+        :return: Batch response from REST API
         :rtype: dict
 
         :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,
@@ -142,17 +142,17 @@ class BaseClient:
         >>> client = BaseClient()
         >>> client.create_document(b'<bytes data>', 'image/jpeg', '<consent id>')
 
-        :param content: The content to POST
+        :param content: Content to POST
         :type content: bytes
-        :param content_type: A mime type for the document handle
+        :param content_type: MIME type for the document handle
         :type content_type: str
-        :param consent_id: A consent id to mark the owner of the document handle
+        :param consent_id: Id of the consent that marks the owner of the document handle
         :type consent_id: str
-        :param batch_id: The batch id to the associated batch
+        :param batch_id: Id of the associated batch
         :type batch_id: str
-        :param feedback: A list of feedback items {label: value} representing the ground truth values for the document
+        :param feedback: List of feedback items {label: value} representing the ground truth values for the document
         :type feedback: Sequence[Dict[str, str]]
-        :return: Document handle id
+        :return: Document response from REST API
         :rtype: dict
 
         :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
@@ -163,7 +163,7 @@ class BaseClient:
             'contentType': content_type,
             'consentId': consent_id,
             'batchId': batch_id,
-            'feedback': feedback
+            'feedback': feedback,
         }
         return self._make_request(requests.post, '/documents', body=dictstrip(body), encode_body=False)
 
@@ -174,11 +174,11 @@ class BaseClient:
         >>> client = BaseClient()
         >>> client.list_documents(batch_id='<batch_id>', consent_id='<consent_id>')
 
-        :param batch_id: The batch id that contains the documents of interest
+        :param batch_id: Id of the batch that contains the documents of interest
         :type batch_id: str
-        :param consent_id: A consent id to mark the owner of the document handle
+        :param consent_id: Id of the consent that marks the owner of the document handle
         :type consent_id: str
-        :return: Documents from REST API contained in batch <batch id>
+        :return: List of document response from REST API
         :rtype: dict
 
         :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
@@ -193,15 +193,15 @@ class BaseClient:
         >>> client = BaseClient()
         >>> client.delete_documents('<consent id>')
 
-        :param consent_id: The consent id that marks the owner of the document handle
+        :param consent_id: Id of the consent that marks the owner of the document handle
         :type consent_id: str
-        :return: Delete documents response from REST API
+        :return: List of document response from REST API
         :rtype: dict
 
         :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
  :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
         """
-        return self._make_request(requests.delete, f'/documents/', params={'consentId': consent_id})
+        return self._make_request(requests.delete, '/documents', params={'consentId': consent_id})
 
     def get_document(self, document_id: str) -> dict:
         """Get document from the REST API, calls the GET /documents/{documentId} endpoint.
@@ -210,7 +210,7 @@ class BaseClient:
         >>> client = BaseClient()
         >>> client.get_document(document_id='<document id>')
 
-        :param document_id: The document id to run inference and create a prediction on
+        :param document_id: Id of the document
         :type document_id: str
         :return: Document response from REST API
         :rtype: dict
@@ -230,11 +230,11 @@ class BaseClient:
         >>> feedback = [{'label': 'total_amount', 'value': '156.00'}, {'label': 'invoice_date', 'value': '2018-10-23'}]
         >>> client.update_document(document_id='<document id>', feedback=feedback)
 
-        :param document_id: The document id to run inference and create a prediction on
+        :param document_id: Id of the document
         :type document_id: str
-        :param feedback: A list of feedback items {label: value} representing the ground truth values for the document
+        :param feedback: List of feedback items {label: value} representing the ground truth values for the document
         :type feedback: Sequence[Dict[str, str]]
-        :return: Feedback response from REST API
+        :return: Document response from REST API
         :rtype: dict
 
         :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
@@ -250,9 +250,9 @@ class BaseClient:
         >>> client = BaseClient()
         >>> client.create_prediction(document_id='<document id>', model_name='<model_id>')
 
-        :param document_id: The document id to run inference and create a prediction on
+        :param document_id: Id of the document to run inference and create a prediction on
         :type document_id: str
-        :param model_id: The name of the model to use for inference
+        :param model_id: Id of the model to use for inference
         :type model_id: str
         :param max_pages: Maximum number of pages to run predictions on
         :type max_pages: int
@@ -261,8 +261,7 @@ class BaseClient:
         :type auto_rotate: bool
         :param extras: Extra information to add to json body
         :type extras: Dict[str, Any]
-
-        :return: Prediction on document
+        :return: Predicion response from REST API
         :rtype: dict
 
         :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
@@ -273,7 +272,7 @@ class BaseClient:
             'modelName': model_id,
             'maxPages': max_pages,
             'autoRotate': auto_rotate,
-            **(extras or {})
+            **(extras or {}),
         }
         return self._make_request(requests.post, '/predictions', body=dictstrip(body))
 
@@ -285,20 +284,20 @@ class BaseClient:
         >>> from pathlib import Path
         >>> from las.client import BaseClient
         >>> client = BaseClient()
-        >>> in_schema = json.loads(Path('my/input/schema.json').read_text())
-        >>> out_schema = json.loads(Path('my/output/schema.json').read_text())
-        >>> params = json.loads(Path('my/transition/parameters.json').read_text())
+        >>> in_schema = {'$schema': 'https://json-schema.org/draft-04/schema#', 'title': 'in', 'properties': {...} }
+        >>> out_schema = {'$schema': 'https://json-schema.org/draft-04/schema#', 'title': 'out', 'properties': {...} }
+        >>> params = {'imageUrl': '<image_url>', 'credentials': {'username': '<username>', 'password': '<password>'}}
         >>> client.create_transition('docker', in_schema, out_schema, params)
 
-        :param in_schema: The json-schema that defines the input to the transition
+        :param in_schema: Json-schema that defines the input to the transition
         :type in_schema: dict
-        :param out_schema: The json-schema that defines the output of the transition
+        :param out_schema: Json-schema that defines the output of the transition
         :type out_schema: dict
-        :param transition_type: the type of transition "docker"|"manual"
+        :param transition_type: Type of transition "docker"|"manual"
         :type transition_type: str
-        :param params: extra parameters to the transition
+        :param params: Extra parameters to the transition
         :type params: Optional[dict]
-        :return: transition handle id
+        :return: Transition response from REST API
         :rtype: dict
 
         :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
@@ -313,15 +312,15 @@ class BaseClient:
         return self._make_request(requests.post, '/transitions', body=dictstrip(body), encode_body=False)
 
     def execute_transition(self, transition_id: str) -> dict:
-        """start executing a manual transition, calls the POST /transitions/{transitionId}/executions endpoint.
+        """Start executing a manual transition, calls the POST /transitions/{transitionId}/executions endpoint.
 
         >>> from las.client import BaseClient
         >>> client = BaseClient()
         >>> client.execute_transition('<transition_id>')
 
-        :param transition_id: the id of your transition
+        :param transition_id: Id of the transition
         :type transition_id: str
-        :return: transition execution handle id
+        :return: Transition execution response from REST API
         :rtype: dict
 
         :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
@@ -340,29 +339,29 @@ class BaseClient:
         >>> client.update_transition_execution('<transition_id>', '<execution_id>', 'succeeded', '<output>')
         >>> client.update_transition_execution('<transition_id>', '<execution_id>', 'failed', '<error>')
 
-        :param transition_id: The transition_id that performs the execution
+        :param transition_id: Id of the transition that performs the execution
         :type transition_id: str
-        :param execution_id: The id of the execution to update
+        :param execution_id: Id of the execution to update
         :type execution_id: str
-        :param status: The status of the execution 'succeeded|failed'
+        :param status: Status of the execution 'succeeded|failed'
         :type status: str
-        :param output: The output from the execution, required when status is 'succeded'
+        :param output: Output from the execution, required when status is 'succeded'
         :type output: str
-        :param error: The error from the execution, required when status is 'failed' and needs to contain 'message'
+        :param error: Error from the execution, required when status is 'failed', needs to contain 'message'
         :type error: str
-        :return: transition execution handle id
+        :return: Transition execution response from REST API
         :rtype: dict
 
         :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
  :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
         """
-        path = f'/transitions/{transition_id}/executions/{execution_id}'
+        url = f'/transitions/{transition_id}/executions/{execution_id}'
         body = {
             'status': status,
             'output': output,
             'error': error,
         }
-        return self._make_request(requests.patch, path, body=dictstrip(body))
+        return self._make_request(requests.patch, url, body=dictstrip(body))
 
     def create_user(self, email: str) -> dict:
         """Creates a new user, calls the POST /users endpoint.
@@ -371,9 +370,9 @@ class BaseClient:
         >>> client = BaseClient()
         >>> client.create_user('<email>')
 
-        :param email: the email to the new user
+        :param email: Email to the new user
         :type email: str
-        :return: A dict with the new users Id and the email.
+        :return: User response from REST API
         :rtype: dict
 
         :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
@@ -388,13 +387,13 @@ class BaseClient:
         >>> client = BaseClient()
         >>> client.list_users()
 
-        :return: A dict with all users registered on the client
+        :return: List of user response from REST API
         :rtype: dict
 
         :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
  :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
         """
-        return self._make_request(requests.get, f'/users')
+        return self._make_request(requests.get, '/users')
 
     def get_user(self, user_id: str) -> dict:
         """Get information about a specific user, calls the GET /users/{user_id} endpoint.
@@ -403,9 +402,9 @@ class BaseClient:
         >>> client = BaseClient()
         >>> client.get_user('<user_id>')
 
-        :param user_id: The user id to get consent hash for
+        :param user_id: Id of the user
         :type user_id: str
-        :return: User information
+        :return: User response from REST API
         :rtype: dict
 
         :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
@@ -420,9 +419,9 @@ class BaseClient:
         >>> client = BaseClient()
         >>> client.delete_user('<user_id>')
 
-        :param user_id: Delete the user with this user_id
+        :param user_id: Id of the user
         :type user_id: str
-        :return: Delete user id response from REST API
+        :return: User response from REST API
         :rtype: dict
 
         :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
@@ -432,21 +431,21 @@ class BaseClient:
 
     def create_workflow(self, specification: dict, name: str, description: Optional[str] = None,
                         error_config: Optional[dict] = None) -> dict:
-        """Creates a workflow handle, calls the POST /workflows endpoint.
+        """Creates a new workflow, calls the POST /workflows endpoint.
 
         >>> from las.client import BaseClient
         >>> from pathlib import Path
         >>> client = BaseClient()
-        >>> content = json.loads(Path('my/state/machine.json').read_text())
-        >>> client.create_workflow(content, '<name>', '<description>', '<error_config>')
+        >>> specification = {'language': 'ASL', 'version': '1.0.0', 'definition': {...}}
+        >>> client.create_workflow(specification, '<name>', '<description>', '<error_config>')
 
-        :param specification: Specification of your workflow
+        :param specification: Specification of the workflow
         :type specification: dict
-        :param name: Name for your workflow
+        :param name: Name of the workflow
         :type name: str
-        :param description: Description of your workflow
+        :param description: Description of the workflow
         :type description: str
-        :return: Workflow handle id
+        :return: Workflow response from REST API
         :rtype: dict
 
         :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
@@ -467,7 +466,7 @@ class BaseClient:
         >>> client = BaseClient()
         >>> client.list_workflows()
 
-        :return: Workflows from REST API
+        :return: List of workflow response from REST API
         :rtype: dict
 
         :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
@@ -482,9 +481,9 @@ class BaseClient:
         >>> client = BaseClient()
         >>> client.delete_workflow('<workflow_id>')
 
-        :param workflow_id: Identifier for the workflow
+        :param workflow_id: Id of the workflow
         :type workflow_id: str
-        :return: Delete workflow id response from REST API
+        :return: Workflow response from REST API
         :rtype: dict
 
         :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
@@ -498,14 +497,14 @@ class BaseClient:
         >>> from las.client import BaseClient
         >>> from pathlib import Path
         >>> client = BaseClient()
-        >>> content = json.loads(Path('my/state/machine/input.json').read_text())
+        >>> content = {...}
         >>> client.execute_workflow('<workflow_id>', content)
 
-        :param workflow_id: the id of the workflow
+        :param workflow_id: Id of the workflow
         :type workflow_id: str
-        :param content: the input to the first step of the workflow
+        :param content: Input to the first step of the workflow
         :type content: dict
-        :return: workflow handle id
+        :return: Workflow execution response from REST API
         :rtype: dict
 
         :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
@@ -521,12 +520,13 @@ class BaseClient:
         >>> client = BaseClient()
         >>> client.list_workflow_executions('<workflow_id>', '<status>')
 
-        :param workflow_id: the id of the workflow
+        :param workflow_id: Id of the workflow
         :type workflow_id: str
-        :param status: the status of the executions
+        :param status: Status of the executions
         :type status: str
-        :return: workflow handle id with executions and statuses
+        :return: List of workflow execution responses from REST API
         :rtype: dict
+
         :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
  :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
         """
@@ -551,15 +551,15 @@ class Client(BaseClient):
 
         :param document_path: Path to document to run inference on
         :type document_path: str
-        :param model_id: Identifier for the model to use for inference
+        :param model_id: Id for the model to use for inference
         :type model_id: str
-        :param consent_id: An identifier to mark the owner of the document handle
+        :param consent_id: Id to mark the owner of the document handle
         :type consent_id: str
         :param extras: Extra information to add to json body
         :type extras: Dict[str, Any]
-
         :return: Prediction on document
         :rtype: Prediction
+
         :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
  :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
         """
@@ -581,13 +581,13 @@ class Client(BaseClient):
         >>> feedback = [Field(label='total_amount', value='120.00'), Field(label='purchase_date', value='2019-03-10')]
         >>> client.send_feedback('<document id>', feedback)
 
-        :param document_id: The document id of the document that will receive the feedback
+        :param document_id: Id of the document that will receive the feedback
         :type document_id: str
-        :param feedback: A list of :py:class:`~las.Field` representing the ground truth values for the document
+        :param feedback: List of :py:class:`~las.Field` representing the ground truth values for the document
         :type feedback: List[Field]
-
         :return: Feedback response
         :rtype: dict
+
         :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
  :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
         """
@@ -597,7 +597,7 @@ class Client(BaseClient):
     def _get_content_type(document_path: str) -> str:
         supported_formats = {
             'image/jpeg',
-            'application/pdf'
+            'application/pdf',
         }
 
         content = pathlib.Path(document_path).read_bytes()
@@ -607,4 +607,3 @@ class Client(BaseClient):
             return guessed_type.mime
         else:
             raise FileFormatException
-
