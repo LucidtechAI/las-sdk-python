@@ -21,11 +21,11 @@ class Field(Dict[str, str]):
 
 
 class Prediction(Dict[str, str]):
-    def __init__(self, document_id: str, consent_id: str, model_name: str, prediction_response: dict):
+    def __init__(self, document_id: str, consent_id: str, model_id: str, prediction_response: dict):
         prediction = dict(
             document_id=document_id,
             consent_id=consent_id,
-            model_name=model_name,
+            model_id=model_id,
             fields=prediction_response['predictions']
         )
 
@@ -40,8 +40,8 @@ class Prediction(Dict[str, str]):
         return self['consent_id']
 
     @property
-    def model_name(self):
-        return self['model_name']
+    def model_id(self):
+        return self['model_id']
 
     @property
     def fields(self):
