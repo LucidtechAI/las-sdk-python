@@ -117,187 +117,22 @@ class BaseClient:
         )
         return _json_decode(response)
 
-    def execute_transition(self, transition_id: str) -> dict:
-        """Creates a transition handle, calls the POST /transitions/{transitionId}/executions endpoint.
-
-        >>> from las.client import BaseClient
-        >>> from pathlib import Path
-        >>> client = BaseClient()
-        >>> content = json.loads(Path('my/transition/input.json').read_text())
-        >>> client.execute_transition('<transition_id>', content)
-
-        :param transition_id: the id of your transition
-        :type transition_id: str
-        :param content: The input to the transition
-        :type content: dict
-        :return: transition handle id
-        :rtype: dict
-
-        :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
- :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
-        """
-        endpoint = f'/transitions/{transition_id}/executions'
-        return self._make_request(requests.post, endpoint, body={})
-
-    def create_transition(self, transition_type: str, in_schema: dict, out_schema: dict,
-                              params: Optional[dict] = None) -> dict:
-        """Creates a transition handle, calls the POST /transitions endpoint.
-
-        >>> import json
-        >>> from pathlib import Path
-        >>> from las.client import BaseClient
-        >>> client = BaseClient()
-        >>> in_schema = json.loads(Path('my/input/schema.json').read_text())
-        >>> out_schema = json.loads(Path('my/output/schema.json').read_text())
-        >>> params = json.loads(Path('my/transition/parameters.json').read_text())
-        >>> client.create_transition('manual', in_schema, out_schema, params)
-
-        :param in_schema: The json-schema that defines the input to the transition
-        :type in_schema: dict
-        :param out_schema: The json-schema that defines the output of the transition
-        :type out_schema: dict
-        :param transition_type: the type of transition "docker"|"manual"
-        :type transition_type: str
-        :param params: extra parameters to the transition
-        :type params: Optional[dict]
-        :return: transition handle id
-        :rtype: dict
-
-        :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
- :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
-        """
-        body = {
-            'inputJsonSchema': in_schema,
-            'outputJsonSchema': out_schema,
-            'transitionType': transition_type,
-            'params': params,
-        }
-        return self._make_request(requests.post, '/transitions', body=dictstrip(body), encode_body=False)
-
-    def update_transition_execution(self, transition_id: str, execution_id: str,
-                                    output: Optional[dict] = None) -> dict:
-        """Modifies transition execution,
-        calls the PATCH /transitions/{transition_id}/executions/{execution_id} endpoint.
+    def create_batch(self, description: str) -> dict:
+        """Creates a batch handle, calls the POST /batches endpoint.
 
         >>> from las.client import BaseClient
         >>> client = BaseClient()
-        >>> client.update_transition_execution('<transition_id>', '<execution_id>', '<output>')
+        >>> client.create_batch(description='Data from clients obtained during fall 2019')
 
-        :param transition_id: The transition_id that performs the execution
-        :type transition_id: str
-        :param execution_id: The id of the execution to update
-        :type execution_id: str
-        :param output: The output from the execution
-        :type output: str
-        :return: transition execution handle id
-        :rtype: dict
-
-        :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
- :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
-        """
-        path = f'/transitions/{transition_id}/executions/{execution_id}'
-        body = output
-        return self._make_request(requests.patch, path, body=dictstrip(body))
-
-    def execute_workflow(self, workflow_id: str, content: dict) -> dict:
-        """Creates a workflow handle, calls the POST /workflows/{workflowId}/executions endpoint.
-
-        >>> from las.client import BaseClient
-        >>> from pathlib import Path
-        >>> client = BaseClient()
-        >>> content = json.loads(Path('my/state/machine/input.json').read_text())
-        >>> client.execute_workflow('<workflow_id>', content)
-
-        :param workflow_id: the id of your workflow
-        :type workflow_id: str
-        :param content: the input to the first step of the workflow
-        :type content: dict
-        :return: workflow handle id
-        :rtype: dict
-
-        :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
- :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
-        """
-        endpoint = f'/workflows/{workflow_id}/executions'
-        body = {
-            'input': content
-        }
-        return self._make_request(requests.post, endpoint, body=dictstrip(body), encode_body=False)
-
-    def create_workflow(self, specification: dict, name: str, description: Optional[str] = None,
-                        error_config: Optional[dict] = None) -> dict:
-        """Creates a workflow handle, calls the POST /workflows endpoint.
-
-        >>> from las.client import BaseClient
-        >>> from pathlib import Path
-        >>> client = BaseClient()
-        >>> content = json.loads(Path('my/state/machine.json').read_text())
-        >>> client.create_workflow(content, 'my-state-machine', 'process invoices for my clients')
-
-        :param specification: The specification of your workflow
-        :type specification: dict
-        :param name: A name for your workflow
-        :type name: str
-        :param description: A description of your workflow
+        :param description: A short description of the batch you intend to create
         :type description: str
-        :return: workflow handle id
+        :return: batch handle id and pre-signed upload url
         :rtype: dict
 
-        :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
- :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
+        :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,
+        :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
         """
-        body = {
-            'specification': specification,
-            'name': name,
-            'description': description,
-            'errorConfig': error_config,
-        }
-        return self._make_request(requests.post, '/workflows', body=dictstrip(body), encode_body=False)
-
-    def list_workflows(self) -> dict:
-        """List workflows that you have created, calls the GET /workflows endpoint.
-
-        >>> from las.client import BaseClient
-        >>> client = BaseClient()
-        >>> client.list_workflows()
-
-        :return: Workflows from REST API
-        :rtype: dict
-
-        :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
- :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
-        """
-        return self._make_request(requests.get, '/workflows')
-
-    def list_workflow_executions(self, workflow_id: str, status: Optional[str] = None) -> dict:
-        """List executions that you have in your workflow, calls the GET /workflows/{workflowId}/executions endpoint.
-
-        >>> from las.client import BaseClient
-        >>> client = BaseClient()
-        >>> client.list_workflow_executions('<workflow_id>', '<status>')
-
-        :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
- :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
-        """
-        url = f'/workflows/{workflow_id}/executions'
-        return self._make_request(requests.get, url, params={'status': status})
-
-    def delete_workflow(self, workflow_id: str) -> dict:
-        """Delete the workflow with the provided workflow_id, calls the DELETE /workflows/{workflowId} endpoint.
-
-        >>> from las.client import BaseClient
-        >>> client = BaseClient()
-        >>> client.delete_consent('<consent id>')
-
-        :param workflow_id: Delete the workflow with this workflow_id
-        :type workflow_id: str
-        :return: Delete workflow id response from REST API
-        :rtype: dict
-
-        :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
- :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
-        """
-        return self._make_request(requests.delete, f'/workflows/{workflow_id}', body={})
+        return self._make_request(requests.post, '/batches', body={'description': description})
 
     def create_document(self, content: bytes, content_type: str, consent_id: str,
                         batch_id: str = None, feedback: Sequence[Dict[str, str]] = None) -> dict:
@@ -351,41 +186,6 @@ class BaseClient:
         """
         return self._make_request(requests.get, '/documents', params={'batchId': batch_id, 'consentId': consent_id})
 
-    def create_prediction(self, document_id: str, model_name: str, max_pages: Optional[int] = None,
-                          auto_rotate: Optional[bool] = None, extras: Dict[str, Any] = None) -> dict:
-        """Create a prediction on a document using specified model, calls the POST /predictions endpoint.
-
-        >>> from las.client import BaseClient
-        >>> client = BaseClient()
-        >>> client.create_prediction(document_id='<document id>', model_name='invoice')
-
-        :param document_id: The document id to run inference and create a prediction on
-        :type document_id: str
-        :param model_name: The name of the model to use for inference
-        :type model_name: str
-        :param max_pages: Maximum number of pages to run predictions on
-        :type max_pages: int
-        :param auto_rotate: Whether or not to let the API try different rotations on\
- the document when running predictions
-        :type auto_rotate: bool
-        :param extras: Extra information to add to json body
-        :type extras: Dict[str, Any]
-
-        :return: Prediction on document
-        :rtype: dict
-
-        :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
- :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
-        """
-        body = {
-            'documentId': document_id,
-            'modelName': model_name,
-            'maxPages': max_pages,
-            'autoRotate': auto_rotate,
-            **(extras or {})
-        }
-        return self._make_request(requests.post, '/predictions', body=dictstrip(body))
-
     def get_document(self, document_id: str) -> dict:
         """Get document from the REST API, calls the GET /documents/{documentId} endpoint.
 
@@ -425,7 +225,7 @@ class BaseClient:
         """
         return self._make_request(requests.post, f'/documents/{document_id}', body={'feedback': feedback})
 
-    def delete_documents(self, consent_id: str=None, batch_id: str=None) -> dict:
+    def delete_documents(self, consent_id: str = None, batch_id: str = None) -> dict:
         """Delete documents with the provided consent_id and/or batch_id, calls the DELETE /documents endpoint.
 
         >>> from las.client import BaseClient
@@ -440,24 +240,95 @@ class BaseClient:
         :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
  :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
         """
-        return self._make_request(requests.delete, f'/documents/', params={'batchId': batch_id, 'consentId': consent_id})
+        params = {
+            'batchId': batch_id,
+            'consentId': consent_id
+        }
+        return self._make_request(requests.delete, f'/documents/', params=params)
 
-    def create_batch(self, description: str) -> dict:
-        """Creates a batch handle, calls the POST /batches endpoint.
+    def create_prediction(self, document_id: str, model_name: str, max_pages: Optional[int] = None,
+                          auto_rotate: Optional[bool] = None, extras: Dict[str, Any] = None) -> dict:
+        """Create a prediction on a document using specified model, calls the POST /predictions endpoint.
 
         >>> from las.client import BaseClient
         >>> client = BaseClient()
-        >>> client.create_batch(description='Data from clients obtained during fall 2019')
+        >>> client.create_prediction(document_id='<document id>', model_name='invoice')
 
-        :param description: A short description of the batch you intend to create
-        :type description: str
+        :param document_id: The document id to run inference and create a prediction on
+        :type document_id: str
+        :param model_name: The name of the model to use for inference
+        :type model_name: str
+        :param max_pages: Maximum number of pages to run predictions on
+        :type max_pages: int
+        :param auto_rotate: Whether or not to let the API try different rotations on\
+ the document when running predictions
+        :type auto_rotate: bool
+        :param extras: Extra information to add to json body
+        :type extras: Dict[str, Any]
+
+        :return: Prediction on document
+        :rtype: dict
+
+        :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
+ :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
+        """
+        body = {
+            'documentId': document_id,
+            'modelName': model_name,
+            'maxPages': max_pages,
+            'autoRotate': auto_rotate,
+            **(extras or {})
+        }
+        return self._make_request(requests.post, '/predictions', body=dictstrip(body))
+
+    def create_user(self, email: str) -> dict:
+        """Creates a new user, calls the POST /users endpoint.
+
+        >>> from las.client import BaseClient
+        >>> client = BaseClient()
+        >>> client.create_user('example@email.com')
+
+        :param email: the email to the new user
+        :type str:
+        :return: A dict with the new users Id and the email.
+        :rtype: dict
+
+        :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
+ :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
+        """
+        return self._make_request(requests.post, '/users', body={'email': email}, encode_body=False)
+
+    def list_users(self) -> dict:
+        """List users, calls the GET /users endpoint.
+
+        >>> from las.client import BaseClient
+        >>> client = BaseClient()
+        >>> client.list_users()
+
+        :return: A dict with all users registered on the client
+        :rtype: dict
+
+        :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
+ :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
+        """
+        return self._make_request(requests.get, f'/users')
+
+    def get_user(self, user_id: str) -> dict:
+        """Get information about user, calls the GET /users/{user_id} endpoint.
+
+        >>> from las.client import BaseClient
+        >>> client = BaseClient()
+        >>> client.get_user('me')
+
+        :param user_id: The user_id to get consent hash for
+        :type user_id: str
         :return: batch handle id and pre-signed upload url
         :rtype: dict
 
-        :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,
-        :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
+        :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
+ :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
         """
-        return self._make_request(requests.post, '/batches', body={'description': description})
+        return self._make_request(requests.get, f'/users/{user_id}')
 
     def update_user(self, user_id: str, consent_hash: str) -> dict:
         """Modifies consent hash for user, calls the PATCH /users/{user_id} endpoint.
@@ -478,55 +349,6 @@ class BaseClient:
         """
         return self._make_request(requests.patch, f'/users/{user_id}', body={'consentHash': consent_hash})
 
-    def get_user(self, user_id: str) -> dict:
-        """Get information about user, calls the GET /users/{user_id} endpoint.
-
-        >>> from las.client import BaseClient
-        >>> client = BaseClient()
-        >>> client.get_user('me')
-
-        :param user_id: The user_id to get consent hash for
-        :type user_id: str
-        :return: batch handle id and pre-signed upload url
-        :rtype: dict
-
-        :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
- :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
-        """
-        return self._make_request(requests.get, f'/users/{user_id}')
-
-    def list_users(self) -> dict:
-        """List users, calls the GET /users endpoint.
-
-        >>> from las.client import BaseClient
-        >>> client = BaseClient()
-        >>> client.list_users()
-
-        :return: A dict with all users registered on the client
-        :rtype: dict
-
-        :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
- :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
-        """
-        return self._make_request(requests.get, f'/users')
-
-    def create_user(self, email: str) -> dict:
-        """Creates a new user, calls the POST /users endpoint.
-
-        >>> from las.client import BaseClient
-        >>> client = BaseClient()
-        >>> client.create_user('example@email.com')
-
-        :param email: the email to the new user
-        :type str:
-        :return: A dict with the new users Id and the email.
-        :rtype: dict
-
-        :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
- :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
-        """
-        return self._make_request(requests.post, '/documents', body={'email': email}, encode_body=False)
-
     def delete_user(self, user_id: str) -> dict:
         """Delete the user with the provided user_id, calls the DELETE /users/{userId} endpoint.
 
@@ -543,6 +365,188 @@ class BaseClient:
  :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
         """
         return self._make_request(requests.delete, f'/users/{user_id}', body={})
+
+    def create_transition(self, transition_type: str, in_schema: dict, out_schema: dict,
+                          params: Optional[dict] = None) -> dict:
+        """Creates a transition handle, calls the POST /transitions endpoint.
+
+        >>> import json
+        >>> from pathlib import Path
+        >>> from las.client import BaseClient
+        >>> client = BaseClient()
+        >>> in_schema = json.loads(Path('my/input/schema.json').read_text())
+        >>> out_schema = json.loads(Path('my/output/schema.json').read_text())
+        >>> params = json.loads(Path('my/transition/parameters.json').read_text())
+        >>> client.create_transition('manual', in_schema, out_schema, params)
+
+        :param in_schema: The json-schema that defines the input to the transition
+        :type in_schema: dict
+        :param out_schema: The json-schema that defines the output of the transition
+        :type out_schema: dict
+        :param transition_type: the type of transition "docker"|"manual"
+        :type transition_type: str
+        :param params: extra parameters to the transition
+        :type params: Optional[dict]
+        :return: transition handle id
+        :rtype: dict
+
+        :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
+ :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
+        """
+        body = {
+            'inputJsonSchema': in_schema,
+            'outputJsonSchema': out_schema,
+            'transitionType': transition_type,
+            'params': params,
+        }
+        return self._make_request(requests.post, '/transitions', body=dictstrip(body), encode_body=False)
+
+    def execute_transition(self, transition_id: str) -> dict:
+        """Creates a transition handle, calls the POST /transitions/{transitionId}/executions endpoint.
+
+        >>> from las.client import BaseClient
+        >>> from pathlib import Path
+        >>> client = BaseClient()
+        >>> content = json.loads(Path('my/transition/input.json').read_text())
+        >>> client.execute_transition('<transition_id>', content)
+
+        :param transition_id: the id of your transition
+        :type transition_id: str
+        :param content: The input to the transition
+        :type content: dict
+        :return: transition handle id
+        :rtype: dict
+
+        :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
+ :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
+        """
+        endpoint = f'/transitions/{transition_id}/executions'
+        return self._make_request(requests.post, endpoint, body={})
+
+    def update_transition_execution(self, transition_id: str, execution_id: str,
+                                    output: Optional[dict] = None) -> dict:
+        """Modifies transition execution,
+        calls the PATCH /transitions/{transition_id}/executions/{execution_id} endpoint.
+
+        >>> from las.client import BaseClient
+        >>> client = BaseClient()
+        >>> client.update_transition_execution('<transition_id>', '<execution_id>', '<output>')
+
+        :param transition_id: The transition_id that performs the execution
+        :type transition_id: str
+        :param execution_id: The id of the execution to update
+        :type execution_id: str
+        :param output: The output from the execution
+        :type output: str
+        :return: transition execution handle id
+        :rtype: dict
+
+        :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
+ :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
+        """
+        path = f'/transitions/{transition_id}/executions/{execution_id}'
+        body = output
+        return self._make_request(requests.patch, path, body=dictstrip(body))
+
+    def create_workflow(self, specification: dict, name: str, description: Optional[str] = None,
+                        error_config: Optional[dict] = None) -> dict:
+        """Creates a workflow handle, calls the POST /workflows endpoint.
+
+        >>> from las.client import BaseClient
+        >>> from pathlib import Path
+        >>> client = BaseClient()
+        >>> content = json.loads(Path('my/state/machine.json').read_text())
+        >>> client.create_workflow(content, 'my-state-machine', 'process invoices for my clients')
+
+        :param specification: The specification of your workflow
+        :type specification: dict
+        :param name: A name for your workflow
+        :type name: str
+        :param description: A description of your workflow
+        :type description: str
+        :return: workflow handle id
+        :rtype: dict
+
+        :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
+ :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
+        """
+        body = {
+            'specification': specification,
+            'name': name,
+            'description': description,
+            'errorConfig': error_config,
+        }
+        return self._make_request(requests.post, '/workflows', body=dictstrip(body), encode_body=False)
+
+    def list_workflows(self) -> dict:
+        """List workflows that you have created, calls the GET /workflows endpoint.
+
+        >>> from las.client import BaseClient
+        >>> client = BaseClient()
+        >>> client.list_workflows()
+
+        :return: Workflows from REST API
+        :rtype: dict
+
+        :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
+ :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
+        """
+        return self._make_request(requests.get, '/workflows')
+
+    def delete_workflow(self, workflow_id: str) -> dict:
+        """Delete the workflow with the provided workflow_id, calls the DELETE /workflows/{workflowId} endpoint.
+
+        >>> from las.client import BaseClient
+        >>> client = BaseClient()
+        >>> client.delete_consent('<consent id>')
+
+        :param workflow_id: Delete the workflow with this workflow_id
+        :type workflow_id: str
+        :return: Delete workflow id response from REST API
+        :rtype: dict
+
+        :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
+ :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
+        """
+        return self._make_request(requests.delete, f'/workflows/{workflow_id}', body={})
+
+    def execute_workflow(self, workflow_id: str, content: dict) -> dict:
+        """Creates a workflow handle, calls the POST /workflows/{workflowId}/executions endpoint.
+
+        >>> from las.client import BaseClient
+        >>> from pathlib import Path
+        >>> client = BaseClient()
+        >>> content = json.loads(Path('my/state/machine/input.json').read_text())
+        >>> client.execute_workflow('<workflow_id>', content)
+
+        :param workflow_id: the id of your workflow
+        :type workflow_id: str
+        :param content: the input to the first step of the workflow
+        :type content: dict
+        :return: workflow handle id
+        :rtype: dict
+
+        :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
+ :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
+        """
+        endpoint = f'/workflows/{workflow_id}/executions'
+        body = {
+            'input': content
+        }
+        return self._make_request(requests.post, endpoint, body=dictstrip(body), encode_body=False)
+
+    def list_workflow_executions(self, workflow_id: str, status: Optional[str] = None) -> dict:
+        """List executions that you have in your workflow, calls the GET /workflows/{workflowId}/executions endpoint.
+
+        >>> from las.client import BaseClient
+        >>> client = BaseClient()
+        >>> client.list_workflow_executions('<workflow_id>', '<status>')
+
+        :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
+ :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
+        """
+        url = f'/workflows/{workflow_id}/executions'
+        return self._make_request(requests.get, url, params={'status': status})
 
 
 class Client(BaseClient):
