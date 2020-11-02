@@ -413,25 +413,6 @@ class BaseClient:
         """
         return self._make_request(requests.get, f'/users/{user_id}')
 
-    def update_user(self, user_id: str, consent_hash: str) -> dict:
-        """Modifies consent hash for user, calls the PATCH /users/{user_id} endpoint.
-
-        >>> from las.client import BaseClient
-        >>> client = BaseClient()
-        >>> client.update_user('me', '<consent hash>')
-
-        :param user_id: The user_id to modify consent hash for
-        :type user_id: str
-        :param consent_hash: The consent hash to set
-        :type consent_hash: str
-        :return: the user_id and its consent hash
-        :rtype: dict
-
-        :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
- :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
-        """
-        return self._make_request(requests.patch, f'/users/{user_id}', body={'consentHash': consent_hash})
-
     def delete_user(self, user_id: str) -> dict:
         """Delete the user with the provided user_id, calls the DELETE /users/{userId} endpoint.
 
