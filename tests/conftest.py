@@ -3,16 +3,30 @@ import pathlib
 import string
 from functools import partial
 from os.path import expanduser
+from os import urandom
 from random import choice, randint
 from uuid import uuid4
 
 import pytest
-
-from las import ApiClient, Client
+from las import Client
+from las.client import BaseClient
+from requests_mock import Mocker
 
 
 def pytest_addoption(parser):
     parser.addoption('--cfg', action='store')
+
+
+@pytest.fixture(scope='session', autouse=True)
+def mock_access_token_endpoint():
+    response = {
+        'access_token': ''.join(choice(string.ascii_uppercase) for _ in range(randint(50, 50))),
+        'expires_in': 123456789,
+    }
+
+    with Mocker(real_http=True) as m:
+        m.post('/token', json=response)
+        yield
 
 
 @pytest.fixture(scope='module')
@@ -57,13 +71,13 @@ def endpoint(params):
 
 
 @pytest.fixture(scope='module')
-def client():
-    return Client()
+def base_client():
+    return BaseClient()
 
 
 @pytest.fixture(scope='module')
-def api_client():
-    return ApiClient()
+def client():
+    return Client()
 
 
 @pytest.fixture(scope='module')
@@ -93,7 +107,7 @@ def document_and_consent_id(monkeypatch, mime_type, client: Client, content):
     monkeypatch.setattr(pathlib.Path, 'read_bytes', lambda _: content)
 
     consent_id = str(uuid4())
-    post_documents_response = client.post_documents(content, mime_type, consent_id)
+    post_documents_response = client.create_document(content, mime_type, consent_id)
     yield post_documents_response['documentId'], consent_id
 
 
@@ -110,6 +124,6 @@ def consent_id(document_and_consent_id):
 @pytest.fixture(scope='function')
 def content():
     """
-    Yields a random bytestring with a length varying from 100 to 1000
+    Yields a random JPEG bytestring with a length 2E4
     """
-    yield ''.join(choice(string.ascii_uppercase + string.digits) for _ in range(randint(100, 1000))).encode()
+    yield b'\xFF\xD8\xFF\xEE' + urandom(int(2E4))

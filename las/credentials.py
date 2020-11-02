@@ -13,91 +13,29 @@ class MissingCredentials(Exception):
 
 
 class Credentials:
-    """Used to fetch and store credentials. Credentials are fetched in the below order. If any point
-    yields 5 credentials, those are used, and if not, the constructor continues on to next point.
+    """Used to fetch and store credentials and to generate/cache an access token.
 
-    1. creds is provided
-    2. credentials_path is provided
-    3. all of the following environment variables are present:
-        - LAS_CLIENT_ID
-        - LAS_CLIENT_SECRET
-        - LAS_API_KEY
-        - LAS_AUTH_ENDPOINT
-        - LAS_API_ENDPOINT
-    4. credentials is located in default path ~/.lucidtech/credentials.cfg
+    :param client_id: The client id
+    :type str:
+    :param client_secret: The client secret
+    :type str:
+    :param api_key: The api key
+    :type str:
+    :param auth_endpoint: The auth endpoint
+    :type str:
+    :param api_endpoint: The api endpoint
+    :type str:"""
 
-    Note that all 5 variables must end up being set - if e.g. 4 environment variables are set, but not the fifth,
-    all variables will be disregarded, and the credentials in the default path will be used.
-
-    :param credentials_path: Path to credentials file
-    :type credentials_path: str
-    :param client_id: Client Id
-    :type client_id: str
-    :param client_secret: Client Secret
-    :type client_secret: str
-    :param api_key: API key
-    :type api_key: str
-    :param auth_endpoint: Authorization endpoint
-    :type auth_endpoint: str
-
-    """
-    def __init__(self, creds: Optional[List[str]] = None, credentials_path: Optional[str] = None):
-        self._token = (None, None)
-        if creds is not None:
-            assert len(creds) == 5, "creds should be a list of 5 strings"
-        else:
-            if credentials_path is not None:
-                creds = list(self._read_from_file(credentials_path))
-            else:
-                # try to read creds from environment, give up and read from default path if not all are found
-                creds_from_environ = self._read_from_environ()
-                creds = [None] * 5
-                for idx, value in enumerate(creds):
-                    if creds_from_environ[idx] is not None:
-                        creds[idx] = creds_from_environ[idx]
-                if not all(creds):
-                    creds = self._read_from_file(None)
-
-        if not all(creds):
+    def __init__(self, client_id: str, client_secret: str, api_key: str, auth_endpoint: str, api_endpoint: str):
+        if not all([client_id, client_secret, api_key, auth_endpoint, api_endpoint]):
             raise MissingCredentials
 
-        client_id, client_secret, api_key, auth_endpoint, api_endpoint = creds
-
+        self._token = ('', 0)
         self.client_id = client_id
         self.client_secret = client_secret
         self.api_key = api_key
         self.auth_endpoint = auth_endpoint
         self.api_endpoint = api_endpoint
-
-    @staticmethod
-    def _read_from_environ() -> List[Optional[str]]:
-        return [os.environ.get(k) for k in (
-            'LAS_CLIENT_ID',
-            'LAS_CLIENT_SECRET',
-            'LAS_API_KEY',
-            'LAS_AUTH_ENDPOINT',
-            'LAS_API_ENDPOINT'
-        )]
-
-    @staticmethod
-    def _read_from_file(credentials_path: str) -> List[Optional[str]]:
-        if not credentials_path:
-            credentials_path = expanduser('~/.lucidtech/credentials.cfg')
-
-        if not exists(credentials_path):
-            return [None] * 5
-
-        config = configparser.ConfigParser()
-        config.read(credentials_path)
-        section = 'default'
-
-        client_id = config.get(section, 'client_id')
-        client_secret = config.get(section, 'client_secret')
-        api_key = config.get(section, 'api_key')
-        auth_endpoint = config.get(section, 'auth_endpoint')
-        api_endpoint = config.get(section, 'api_endpoint')
-
-        return [client_id, client_secret, api_key, auth_endpoint, api_endpoint]
 
     @property
     def access_token(self) -> str:
@@ -110,7 +48,7 @@ class Credentials:
         return access_token
 
     def _get_client_credentials(self) -> Tuple[str, int]:
-        url = f'https://{self.auth_endpoint}/oauth2/token?grant_type=client_credentials'
+        url = f'https://{self.auth_endpoint}/token?grant_type=client_credentials'
         headers = {'Content-Type': 'application/x-www-form-urlencoded'}
         auth = HTTPBasicAuth(self.client_id, self.client_secret)
 
@@ -119,3 +57,67 @@ class Credentials:
 
         response_data = response.json()
         return response_data['access_token'], time.time() + response_data['expires_in']
+
+
+def read_from_environ() -> List[Optional[str]]:
+    """Read the following environment variables and return them:
+        - LAS_CLIENT_ID
+        - LAS_CLIENT_SECRET
+        - LAS_API_KEY
+        - LAS_AUTH_ENDPOINT
+        - LAS_API_ENDPOINT
+
+    :return: List of client_id, client_secret, api_key, auth_endpoint, api_endpoint
+    :rtype: List[Optional[str]]"""
+
+    return [os.environ.get(k) for k in (
+        'LAS_CLIENT_ID',
+        'LAS_CLIENT_SECRET',
+        'LAS_API_KEY',
+        'LAS_AUTH_ENDPOINT',
+        'LAS_API_ENDPOINT'
+    )]
+
+
+def read_from_file(credentials_path: str = expanduser('~/.lucidtech/credentials.cfg'),
+                   section: str = 'default') -> List[Optional[str]]:
+    """Read a config file and return credentials from it. Defaults to '~/.lucidtech/credentials.cfg'.
+
+    :param credentials_path: Path to read credentials from.
+    :type credentials_path: str
+    :param section: Section to read credentials from.
+    :type section: str
+
+    :return: List of client_id, client_secret, api_key, auth_endpoint, api_endpoint
+    :rtype: List[Optional[str]]"""
+
+    if not exists(credentials_path):
+        raise MissingCredentials
+
+    config = configparser.ConfigParser()
+    config.read(credentials_path)
+
+    client_id = config.get(section, 'client_id')
+    client_secret = config.get(section, 'client_secret')
+    api_key = config.get(section, 'api_key')
+    auth_endpoint = config.get(section, 'auth_endpoint')
+    api_endpoint = config.get(section, 'api_endpoint')
+
+    return [client_id, client_secret, api_key, auth_endpoint, api_endpoint]
+
+
+def guess_credentials() -> Credentials:
+    """Tries to fetch Credentials first by looking at the environment variables, next by looking at the default
+    credentials path ~/.lucidtech/credentials.cfg. Note that if not all the required environment variables
+    are present, _all_ variables will be disregarded, and the credentials in the default path will be used.
+
+    :return: Credentials from file
+    :rtype: :py:class:`~las.Credentials`
+
+    :raises: :py:class:`~las.MissingCredentials`"""
+
+    for guesser in [read_from_environ, read_from_file]:
+        args = guesser()  # type: ignore
+        if all(args):
+            return Credentials(*args)
+    raise MissingCredentials

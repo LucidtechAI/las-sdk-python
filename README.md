@@ -1,6 +1,6 @@
 # Python SDK for Lucidtech AI Services API
 
-![Github Actions build status](https://github.com/LucidtechAI/las-sdk-python/workflows/las-sdk-python/badge.svg)
+![Github Actions build status](https://github.com/LucidtechAI/las-sdk-python/workflows/main/badge.svg)
 
 ## Documentation
 
