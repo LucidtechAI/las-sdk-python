@@ -97,18 +97,16 @@ class BaseClient:
     @on_exception(expo, TooManyRequestsException, max_tries=4)
     @on_exception(expo, RequestException, max_tries=3, giveup=_fatal_code)
     def _make_request(self, requests_fn: Callable, signing_path: str,
-                      body: Optional[dict] = None, params: Optional[dict] = None,
-                      encode_body: bool = True) -> dict:
+                      body: Optional[dict] = None, params: Optional[dict] = None) -> dict:
         """Make signed headers, use them to make a HTTP request of arbitrary form and return the result
         as decoded JSON. Optionally pass a payload to JSON-dump and parameters for the request call."""
 
         kwargs: Dict[str, Any] = {'params': params}
 
         if body is not None:
-            data = json.dumps(body)
-            # TODO: read requests-doc to find out whether encoding is needed
-            kwargs['data'] = data.encode() if encode_body else data
+            kwargs['data'] = json.dumps(body)
 
+        print(f'BODY: {body}')
         uri, headers = self._create_signing_headers(signing_path)
         response = requests_fn(
             url=uri.geturl(),
@@ -165,7 +163,7 @@ class BaseClient:
             'batchId': batch_id,
             'feedback': feedback,
         }
-        return self._make_request(requests.post, '/documents', body=dictstrip(body), encode_body=False)
+        return self._make_request(requests.post, '/documents', body=dictstrip(body))
 
     def list_documents(self, batch_id: Optional[str] = None, consent_id: Optional[str] = None) -> dict:
         """List documents you have created, calls the GET /documents endpoint.
@@ -309,7 +307,7 @@ class BaseClient:
             'transitionType': transition_type,
             'params': params,
         }
-        return self._make_request(requests.post, '/transitions', body=dictstrip(body), encode_body=False)
+        return self._make_request(requests.post, '/transitions', body=dictstrip(body))
 
     def execute_transition(self, transition_id: str) -> dict:
         """Start executing a manual transition, calls the POST /transitions/{transitionId}/executions endpoint.
@@ -336,8 +334,10 @@ class BaseClient:
 
         >>> from las.client import BaseClient
         >>> client = BaseClient()
-        >>> client.update_transition_execution('<transition_id>', '<execution_id>', 'succeeded', '<output>')
-        >>> client.update_transition_execution('<transition_id>', '<execution_id>', 'failed', '<error>')
+        >>> output = {...}
+        >>> client.update_transition_execution('<transition_id>', '<execution_id>', 'succeeded', output)
+        >>> error = {"message": 'The execution could not be processed due to ...'}
+        >>> client.update_transition_execution('<transition_id>', '<execution_id>', 'failed', error)
 
         :param transition_id: Id of the transition that performs the execution
         :type transition_id: str
@@ -378,7 +378,7 @@ class BaseClient:
         :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
  :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
         """
-        return self._make_request(requests.post, '/users', body={'email': email}, encode_body=False)
+        return self._make_request(requests.post, '/users', body={'email': email})
 
     def list_users(self) -> dict:
         """List users, calls the GET /users endpoint.
@@ -437,7 +437,8 @@ class BaseClient:
         >>> from pathlib import Path
         >>> client = BaseClient()
         >>> specification = {'language': 'ASL', 'version': '1.0.0', 'definition': {...}}
-        >>> client.create_workflow(specification, '<name>', '<description>', '<error_config>')
+        >>> error_config = {'email': '<error-recipient>'}
+        >>> client.create_workflow(specification, '<name>', '<description>', error_config)
 
         :param specification: Specification of the workflow
         :type specification: dict
@@ -445,6 +446,8 @@ class BaseClient:
         :type name: str
         :param description: Description of the workflow
         :type description: str
+        :param error_config: Configuration of error handler
+        :type error_config: dict
         :return: Workflow response from REST API
         :rtype: dict
 
@@ -457,7 +460,7 @@ class BaseClient:
             'description': description,
             'errorConfig': error_config,
         }
-        return self._make_request(requests.post, '/workflows', body=dictstrip(body), encode_body=False)
+        return self._make_request(requests.post, '/workflows', body=dictstrip(body))
 
     def list_workflows(self) -> dict:
         """List workflows, calls the GET /workflows endpoint.
@@ -511,7 +514,7 @@ class BaseClient:
  :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
         """
         endpoint = f'/workflows/{workflow_id}/executions'
-        return self._make_request(requests.post, endpoint, body={'input': content}, encode_body=False)
+        return self._make_request(requests.post, endpoint, body={'input': content})
 
     def list_workflow_executions(self, workflow_id: str, status: Optional[str] = None) -> dict:
         """List executions in a workflow, calls the GET /workflows/{workflowId}/executions endpoint.
