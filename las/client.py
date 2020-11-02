@@ -282,6 +282,23 @@ class BaseClient:
         url = f'/workflows/{workflow_id}/executions'
         return self._make_request(requests.get, url, params={'status': status})
 
+    def delete_workflow(self, workflow_id: str) -> dict:
+        """Delete the workflow with the provided workflow_id, calls the DELETE /workflows/{workflowId} endpoint.
+
+        >>> from las.client import BaseClient
+        >>> client = BaseClient()
+        >>> client.delete_consent('<consent id>')
+
+        :param workflow_id: Delete the workflow with this workflow_id
+        :type workflow_id: str
+        :return: Delete workflow id response from REST API
+        :rtype: dict
+
+        :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
+ :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
+        """
+        return self._make_request(requests.delete, f'/workflows/{workflow_id}', body={})
+
     def create_document(self, content: bytes, content_type: str, consent_id: str,
                         batch_id: str = None, feedback: Sequence[Dict[str, str]] = None) -> dict:
         """Creates a document handle, calls the POST /documents endpoint.
@@ -408,22 +425,22 @@ class BaseClient:
         """
         return self._make_request(requests.post, f'/documents/{document_id}', body={'feedback': feedback})
 
-    def delete_consent(self, consent_id: str) -> dict:
-        """Delete documents with this consent_id, calls the DELETE /consents/{consentId} endpoint.
+    def delete_documents(self, consent_id: str=None, batch_id: str=None) -> dict:
+        """Delete documents with the provided consent_id and/or batch_id, calls the DELETE /documents endpoint.
 
         >>> from las.client import BaseClient
         >>> client = BaseClient()
-        >>> client.delete_consent('<consent id>')
+        >>> client.delete_documents('<consent id>', '<batch_id>')
 
-        :param consent_id: Delete documents with this consent_id
+        :param consent_id: Delete documents with this consent_id and/or batch_id
         :type consent_id: str
-        :return: Delete consent id response from REST API
+        :return: Delete documents response from REST API
         :rtype: dict
 
         :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
  :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
         """
-        return self._make_request(requests.delete, f'/consents/{consent_id}', body={})
+        return self._make_request(requests.delete, f'/documents/', params={'batchId': batch_id, 'consentId': consent_id})
 
     def create_batch(self, description: str) -> dict:
         """Creates a batch handle, calls the POST /batches endpoint.
@@ -477,6 +494,55 @@ class BaseClient:
  :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
         """
         return self._make_request(requests.get, f'/users/{user_id}')
+
+    def list_users(self) -> dict:
+        """List users, calls the GET /users endpoint.
+
+        >>> from las.client import BaseClient
+        >>> client = BaseClient()
+        >>> client.list_users()
+
+        :return: A dict with all users registered on the client
+        :rtype: dict
+
+        :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
+ :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
+        """
+        return self._make_request(requests.get, f'/users')
+
+    def create_user(self, email: str) -> dict:
+        """Creates a new user, calls the POST /users endpoint.
+
+        >>> from las.client import BaseClient
+        >>> client = BaseClient()
+        >>> client.create_user('example@email.com')
+
+        :param email: the email to the new user
+        :type str:
+        :return: A dict with the new users Id and the email.
+        :rtype: dict
+
+        :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
+ :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
+        """
+        return self._make_request(requests.post, '/documents', body={'email': email}, encode_body=False)
+
+    def delete_user(self, user_id: str) -> dict:
+        """Delete the user with the provided user_id, calls the DELETE /users/{userId} endpoint.
+
+        >>> from las.client import BaseClient
+        >>> client = BaseClient()
+        >>> client.delete_user('<user_id>')
+
+        :param user_id: Delete the user with this user_id
+        :type user_id: str
+        :return: Delete user id response from REST API
+        :rtype: dict
+
+        :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
+ :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
+        """
+        return self._make_request(requests.delete, f'/users/{user_id}', body={})
 
 
 class Client(BaseClient):
