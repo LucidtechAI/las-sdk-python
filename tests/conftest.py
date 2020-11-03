@@ -11,6 +11,7 @@ import pytest
 from las import Client
 from las.client import BaseClient
 from requests_mock import Mocker
+from . import util
 
 
 def pytest_addoption(parser):
@@ -51,8 +52,8 @@ def split_and_strip(s, delimiter=','):
 
 
 @pytest.fixture(scope='module')
-def model_names(params):
-    return split_and_strip(params('model_names'))
+def model_ids(params):
+    return split_and_strip(params('model_ids'))
 
 
 @pytest.fixture(scope='module')
@@ -100,25 +101,6 @@ def typed_content(request):
 @pytest.fixture
 def mime_type():
     return 'image/jpeg'
-
-
-@pytest.fixture(scope='function')
-def document_and_consent_id(monkeypatch, mime_type, client: Client, content):
-    monkeypatch.setattr(pathlib.Path, 'read_bytes', lambda _: content)
-
-    consent_id = f'las:consent:{uuid4().hex}'
-    post_documents_response = client.create_document(content, mime_type, consent_id)
-    yield post_documents_response['documentId'], consent_id
-
-
-@pytest.fixture(scope='function')
-def document_id(document_and_consent_id):
-    yield document_and_consent_id[0]
-
-
-@pytest.fixture(scope='function')
-def consent_id(document_and_consent_id):
-    yield document_and_consent_id[1]
 
 
 @pytest.fixture(scope='function')

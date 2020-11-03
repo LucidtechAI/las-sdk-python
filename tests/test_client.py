@@ -6,11 +6,13 @@ import pytest
 
 from las import Client, Field
 from las.client import FileFormatException
+from . import util
 
 pytestmark = pytest.mark.integration
 
 
-def test_send_feedback(client: Client, document_id: str):
+def test_send_feedback(client: Client):
+    document_id = util.document_id()
     feedback = [Field(label='total_amount', value='120.00'), Field(label='purchase_date', value='2019-03-10')]
     response = client.send_feedback(document_id, feedback)
 
@@ -29,6 +31,10 @@ def test_invalid_file_format(client: Client, model_ids: Iterable[str]):
 def test_predict(monkeypatch, client: Client, document_paths: Iterable[str],
                  model_ids: Iterable[str], content: bytes):
     monkeypatch.setattr(pathlib.Path, 'read_bytes', lambda _: content)
+    monkeypatch.setattr(
+        'las.client.BaseClient.create_document',
+        lambda *args, **kwargs: {'documentId': util.document_id()}
+    )
 
     for document_path, model_id in zip(document_paths, model_ids):
         prediction = client.predict(document_path, model_id=model_id)
