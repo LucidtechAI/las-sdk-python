@@ -106,7 +106,6 @@ class BaseClient:
         if body is not None:
             kwargs['data'] = json.dumps(body)
 
-        print(f'BODY: {body}')
         uri, headers = self._create_signing_headers(signing_path)
         response = requests_fn(
             url=uri.geturl(),
