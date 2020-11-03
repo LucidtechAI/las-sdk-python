@@ -131,7 +131,7 @@ class BaseClient:
         """
         return self._make_request(requests.post, '/batches', body={'description': description})
 
-    def create_document(self, content: bytes, content_type: str, consent_id: str,
+    def create_document(self, content: bytes, content_type: str, consent_id: Optional[str] = None,
                         batch_id: str = None, feedback: Sequence[Dict[str, str]] = None) -> dict:
         """Creates a document handle, calls the POST /documents endpoint.
 
@@ -183,7 +183,7 @@ class BaseClient:
         """
         return self._make_request(requests.get, '/documents', params={'batchId': batch_id, 'consentId': consent_id})
 
-    def delete_documents(self, consent_id: str = None) -> dict:
+    def delete_documents(self, consent_id: Optional[str] = None) -> dict:
         """Delete documents with the provided consent_id, calls the DELETE /documents endpoint.
 
         >>> from las.client import BaseClient
@@ -324,7 +324,7 @@ class BaseClient:
  :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
         """
         endpoint = f'/transitions/{transition_id}/executions'
-        return self._make_request(requests.post, endpoint, body={})
+        return self._make_request(requests.post, endpoint)
 
     def update_transition_execution(self, transition_id: str, execution_id: str, status: str,
                                     output: Optional[dict] = None, error: Optional[dict] = None) -> dict:
@@ -426,7 +426,7 @@ class BaseClient:
         :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
  :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
         """
-        return self._make_request(requests.delete, f'/users/{user_id}', body={})
+        return self._make_request(requests.delete, f'/users/{user_id}')
 
     def create_workflow(self, specification: dict, name: str, description: Optional[str] = None,
                         error_config: Optional[dict] = None) -> dict:
@@ -491,7 +491,7 @@ class BaseClient:
         :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
  :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
         """
-        return self._make_request(requests.delete, f'/workflows/{workflow_id}', body={})
+        return self._make_request(requests.delete, f'/workflows/{workflow_id}')
 
     def execute_workflow(self, workflow_id: str, content: dict) -> dict:
         """Start a workflow execution, calls the POST /workflows/{workflowId}/executions endpoint.
@@ -538,10 +538,7 @@ class BaseClient:
 
 class Client(BaseClient):
     """A high level client to invoke api methods from Lucidtech AI Services."""
-    DEFAULT_CONSENT_ID = 'default'
-    DEFAULT_BATCH_ID = 'default'
-
-    def predict(self, document_path: str, model_id: str, consent_id: str = DEFAULT_CONSENT_ID,
+    def predict(self, document_path: str, model_id: str, consent_id: Optional[str] = None,
                 extras: Dict[str, Any] = None) -> Prediction:
         """Create a prediction on a document specified by path using specified model.
         This method takes care of creating and uploading a document specified by document_path.
@@ -549,7 +546,7 @@ class Client(BaseClient):
 
         >>> from las import Client
         >>> client = Client()
-        >>> client.predict(document_path='document.jpeg', model_id='invoice')
+        >>> client.predict(document_path='document.jpeg', model_id='las:model:<hex-uuid>')
 
         :param document_path: Path to document to run inference on
         :type document_path: str
