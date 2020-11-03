@@ -106,7 +106,7 @@ def mime_type():
 def document_and_consent_id(monkeypatch, mime_type, client: Client, content):
     monkeypatch.setattr(pathlib.Path, 'read_bytes', lambda _: content)
 
-    consent_id = str(uuid4())
+    consent_id = f'las:consent:{uuid4().hex}'
     post_documents_response = client.create_document(content, mime_type, consent_id)
     yield post_documents_response['documentId'], consent_id
 
