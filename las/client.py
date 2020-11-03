@@ -165,7 +165,7 @@ class BaseClient:
         return self._make_request(requests.post, '/documents', body=dictstrip(body))
 
     def list_documents(self, batch_id: Optional[str] = None, consent_id: Optional[str] = None) -> dict:
-        """List documents you have created, calls the GET /documents endpoint.
+        """List documents available for inference, calls the GET /documents endpoint.
 
         >>> from las.client import BaseClient
         >>> client = BaseClient()

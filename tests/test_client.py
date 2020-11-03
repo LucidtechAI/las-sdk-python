@@ -19,23 +19,23 @@ def test_send_feedback(client: Client, document_id: str):
     assert 'consentId' in response, 'Missing consentId in response'
 
 
-def test_invalid_file_format(client: Client, model_names: Iterable[str]):
-    for model_name in model_names:
+def test_invalid_file_format(client: Client, model_ids: Iterable[str]):
+    for model_id in model_ids:
         with tempfile.NamedTemporaryFile() as fp:
             with pytest.raises(FileFormatException):
-                client.predict(fp.name, model_name=model_name)
+                client.predict(fp.name, model_id=model_id)
 
 
 def test_predict(monkeypatch, client: Client, document_paths: Iterable[str],
-                 model_names: Iterable[str], content: bytes):
+                 model_ids: Iterable[str], content: bytes):
     monkeypatch.setattr(pathlib.Path, 'read_bytes', lambda _: content)
 
-    for document_path, model_name in zip(document_paths, model_names):
-        prediction = client.predict(document_path, model_name=model_name)
+    for document_path, model_id in zip(document_paths, model_ids):
+        prediction = client.predict(document_path, model_id=model_id)
 
         assert prediction.document_id, 'Missing document_id in prediction'
         assert prediction.consent_id, 'Missing consent_id in prediction'
-        assert prediction.model_name, 'Missing model_name in prediction'
+        assert prediction.model_id, 'Missing model_id in prediction'
         assert prediction.fields, 'Missing fields in prediction'
 
         for field in prediction.fields:
