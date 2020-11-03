@@ -14,7 +14,6 @@ def test_create_transition(client: BaseClient, transition_type, params):
     response = client.create_transition(transition_type, in_schema, out_schema, params=params)
     logging.info(response)
     assert 'transitionId' in response, 'Missing transitionId in response'
-    assert 'transitionType' in response, 'Missing transitionType in response'
 
 
 def test_execute_transition(client: BaseClient):
