@@ -40,7 +40,6 @@ def test_predict(monkeypatch, client: Client, document_paths: Iterable[str],
         prediction = client.predict(document_path, model_id=model_id)
 
         assert prediction.document_id, 'Missing document_id in prediction'
-        assert prediction.consent_id, 'Missing consent_id in prediction'
         assert prediction.model_id, 'Missing model_id in prediction'
         assert prediction.fields, 'Missing fields in prediction'
 
