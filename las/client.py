@@ -324,7 +324,7 @@ class BaseClient:
  :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
         """
         endpoint = f'/transitions/{transition_id}/executions'
-        return self._make_request(requests.post, endpoint)
+        return self._make_request(requests.post, endpoint, body={})
 
     def update_transition_execution(self, transition_id: str, execution_id: str, status: str,
                                     output: Optional[dict] = None, error: Optional[dict] = None) -> dict:
