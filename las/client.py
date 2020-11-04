@@ -245,7 +245,7 @@ class BaseClient:
 
         >>> from las.client import BaseClient
         >>> client = BaseClient()
-        >>> client.create_prediction(document_id='<document id>', model_name='<model_id>')
+        >>> client.create_prediction(document_id='<document id>', model_id='<model_id>')
 
         :param document_id: Id of the document to run inference and create a prediction on
         :type document_id: str
@@ -266,7 +266,7 @@ class BaseClient:
         """
         body = {
             'documentId': document_id,
-            'modelName': model_id,
+            'modelId': model_id,
             'maxPages': max_pages,
             'autoRotate': auto_rotate,
             **(extras or {}),
