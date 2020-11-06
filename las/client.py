@@ -175,7 +175,7 @@ class BaseClient:
         :type batch_id: str
         :param consent_id: Id of the consent that marks the owner of the document handle
         :type consent_id: str
-        :return: List of document response from REST API
+        :return: Documents response from REST API
         :rtype: dict
 
         :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
@@ -192,7 +192,7 @@ class BaseClient:
 
         :param consent_id: Id of the consent that marks the owner of the document handle
         :type consent_id: str
-        :return: List of document response from REST API
+        :return: Documents response from REST API
         :rtype: dict
 
         :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
@@ -386,7 +386,7 @@ class BaseClient:
         >>> client = BaseClient()
         >>> client.list_users()
 
-        :return: List of user response from REST API
+        :return: Users response from REST API
         :rtype: dict
 
         :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
@@ -468,7 +468,7 @@ class BaseClient:
         >>> client = BaseClient()
         >>> client.list_workflows()
 
-        :return: List of workflow response from REST API
+        :return: Workflows response from REST API
         :rtype: dict
 
         :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
@@ -526,7 +526,7 @@ class BaseClient:
         :type workflow_id: str
         :param status: Status of the executions
         :type status: str
-        :return: List of workflow execution responses from REST API
+        :return: Workflow executions responses from REST API
         :rtype: dict
 
         :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
