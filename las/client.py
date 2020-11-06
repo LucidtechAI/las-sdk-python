@@ -258,7 +258,7 @@ class BaseClient:
         :type auto_rotate: bool
         :param extras: Extra information to add to json body
         :type extras: Dict[str, Any]
-        :return: Predicion response from REST API
+        :return: Prediction response from REST API
         :rtype: dict
 
         :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
@@ -307,6 +307,24 @@ class BaseClient:
             'params': params,
         }
         return self._make_request(requests.post, '/transitions', body=dictstrip(body))
+
+    def list_transitions(self, transition_type: Optional[str] = None) -> dict:
+        """List transitions, calls the GET /transitions endpoint.
+
+        >>> from las.client import BaseClient
+        >>> client = BaseClient()
+        >>> client.list_transitions('<transition_type>')
+
+        :param transition_type: Type of transition
+        :type transition_type: str
+        :return: Transitions response from REST API
+        :rtype: dict
+
+        :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
+ :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
+        """
+        url = f'/transitions'
+        return self._make_request(requests.get, url, params={'transitionType': transition_type})
 
     def execute_transition(self, transition_id: str) -> dict:
         """Start executing a manual transition, calls the POST /transitions/{transitionId}/executions endpoint.
