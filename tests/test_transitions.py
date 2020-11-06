@@ -17,6 +17,15 @@ def test_create_transition(client: BaseClient, transition_type, params):
     assert 'transitionType' in response, 'Missing transitionType in response'
 
 
+@pytest.mark.parametrize('transition_type', ['docker', 'manual', None])
+def test_list_transitions(client: BaseClient, transition_type):
+    response = client.list_transitions(transition_type)
+    logging.info(response)
+    assert 'transitions' in response, 'Missing transitions in response'
+    if transition_type:
+        assert 'transitionType' in response, 'Missing transitionType in response'
+
+
 def test_execute_transition(client: BaseClient):
     transition_id = util.transition_id()
     response = client.execute_transition(transition_id)
