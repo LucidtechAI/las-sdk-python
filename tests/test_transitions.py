@@ -7,6 +7,7 @@ import logging
 @pytest.mark.parametrize('transition_type,params', [
     ('docker', {'imageUrl': 'python3.8'}),
     ('manual', None),
+    ('manual', {'assets': {'jsRemoteComponent': util.asset_id()}}),
 ])
 def test_create_transition(client: BaseClient, transition_type, params):
     in_schema = util.json_schema()

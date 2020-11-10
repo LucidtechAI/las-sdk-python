@@ -114,6 +114,56 @@ class BaseClient:
         )
         return _json_decode(response)
 
+    def create_asset(self, content: bytes) -> dict:
+        """Creates an asset handle, calls the POST /assets endpoint.
+
+        >>> from las.client import BaseClient
+        >>> client = BaseClient()
+        >>> client.create_asset(b'<bytes data>')
+
+        :param content: Content to POST
+        :type content: bytes
+        :return: Asset response from REST API
+        :rtype: dict
+
+        :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
+ :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
+        """
+        body = {'content': b64encode(content).decode()}
+        return self._make_request(requests.post, '/assets', body=body)
+
+    def list_assets(self) -> dict:
+        """List assets available, calls the GET /assets endpoint.
+
+        >>> from las.client import BaseClient
+        >>> client = BaseClient()
+        >>> client.list_assets()
+
+        :return: Assets response from REST API without the content of each asset
+        :rtype: dict
+
+        :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
+ :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
+        """
+        return self._make_request(requests.get, '/assets')
+
+    def get_asset(self, asset_id: str) -> dict:
+        """Get asset from the REST API, calls the GET /assets/{assetId} endpoint.
+
+        >>> from las.client import BaseClient
+        >>> client = BaseClient()
+        >>> client.get_asset(asset_id='<asset id>')
+
+        :param asset_id: Id of the asset
+        :type asset_id: str
+        :return: Asset response from REST API with content
+        :rtype: dict
+
+        :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
+ :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
+        """
+        return self._make_request(requests.get, f'/assets/{asset_id}')
+
     def create_batch(self, description: str) -> dict:
         """Creates a batch, calls the POST /batches endpoint.
 
@@ -245,7 +295,7 @@ class BaseClient:
 
         >>> from las.client import BaseClient
         >>> client = BaseClient()
-        >>> client.create_prediction(document_id='<document id>', model_id='<model_id>')
+        >>> client.create_prediction(document_id='<document id>', model_id='<model id>')
 
         :param document_id: Id of the document to run inference and create a prediction on
         :type document_id: str
@@ -283,8 +333,13 @@ class BaseClient:
         >>> client = BaseClient()
         >>> in_schema = {'$schema': 'https://json-schema.org/draft-04/schema#', 'title': 'in', 'properties': {...} }
         >>> out_schema = {'$schema': 'https://json-schema.org/draft-04/schema#', 'title': 'out', 'properties': {...} }
-        >>> params = {'imageUrl': '<image_url>', 'credentials': {'username': '<username>', 'password': '<password>'}}
-        >>> client.create_transition('docker', in_schema, out_schema, params)
+        >>> # A typical docker transitions
+        >>> docker_params = {'imageUrl': '<image_url>', 'credentials': {'username': '<username>', 'password': '<password>'}}
+        >>> client.create_transition('docker', in_schema, out_schema, docker_params)
+        >>> # A typical manual transitions
+        >>> assets = {'jsRemoteComponent': 'las:asset:<hex-uuid>', '<other asset name>': 'las:asset:<hex-uuid>'}
+        >>> manual_params = {'assets': assets}
+        >>> client.create_transition('manual', in_schema, out_schema, manual_params)
 
         :param in_schema: Json-schema that defines the input to the transition
         :type in_schema: dict

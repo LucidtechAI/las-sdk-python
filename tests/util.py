@@ -1,6 +1,10 @@
 from uuid import uuid4
 
 
+def asset_id():
+    return f'las:asset:{uuid4().hex}'
+
+
 def batch_id():
     return f'las:batch:{uuid4().hex}'
 
