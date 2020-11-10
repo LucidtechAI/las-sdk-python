@@ -132,20 +132,28 @@ class BaseClient:
         body = {'content': b64encode(content).decode()}
         return self._make_request(requests.post, '/assets', body=body)
 
-    def list_assets(self) -> dict:
+    def list_assets(self, max_results: Optional[int] = None, next_token: Optional[str] = None) -> dict:
         """List assets available, calls the GET /assets endpoint.
 
         >>> from las.client import BaseClient
         >>> client = BaseClient()
         >>> client.list_assets()
 
+        :param max_results: Maximum number of results to be returned
+        :type max_results: int
+        :param next_token: A unique token for each page, use the returned token to retrieve the next page.
+        :type next_token: str
         :return: Assets response from REST API without the content of each asset
         :rtype: dict
 
         :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
  :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
         """
-        return self._make_request(requests.get, '/assets')
+        params = {
+            'maxResults': max_results,
+            'nextToken': next_token,
+        }
+        return self._make_request(requests.get, '/assets', params=params)
 
     def get_asset(self, asset_id: str) -> dict:
         """Get asset from the REST API, calls the GET /assets/{assetId} endpoint.
@@ -214,7 +222,8 @@ class BaseClient:
         }
         return self._make_request(requests.post, '/documents', body=dictstrip(body))
 
-    def list_documents(self, batch_id: Optional[str] = None, consent_id: Optional[str] = None) -> dict:
+    def list_documents(self, batch_id: Optional[str] = None, consent_id: Optional[str] = None,
+                       max_results: Optional[int] = None, next_token: Optional[str] = None) -> dict:
         """List documents available for inference, calls the GET /documents endpoint.
 
         >>> from las.client import BaseClient
@@ -225,13 +234,23 @@ class BaseClient:
         :type batch_id: str
         :param consent_id: Id of the consent that marks the owner of the document handle
         :type consent_id: str
+        :param max_results: Maximum number of results to be returned
+        :type max_results: int
+        :param next_token: A unique token for each page, use the returned token to retrieve the next page.
+        :type next_token: str
         :return: Documents response from REST API
         :rtype: dict
 
         :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
  :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
         """
-        return self._make_request(requests.get, '/documents', params={'batchId': batch_id, 'consentId': consent_id})
+        params = {
+            'batchId': batch_id,
+            'consentId': consent_id,
+            'maxResults': max_results,
+            'nextToken': next_token,
+        }
+        return self._make_request(requests.get, '/documents', params=params)
 
     def delete_documents(self, consent_id: Optional[str] = None) -> dict:
         """Delete documents with the provided consent_id, calls the DELETE /documents endpoint.
@@ -363,7 +382,8 @@ class BaseClient:
         }
         return self._make_request(requests.post, '/transitions', body=dictstrip(body))
 
-    def list_transitions(self, transition_type: Optional[str] = None) -> dict:
+    def list_transitions(self, transition_type: Optional[str] = None,
+                         max_results: Optional[int] = None, next_token: Optional[str] = None) -> dict:
         """List transitions, calls the GET /transitions endpoint.
 
         >>> from las.client import BaseClient
@@ -372,6 +392,10 @@ class BaseClient:
 
         :param transition_type: Type of transition
         :type transition_type: str
+        :param max_results: Maximum number of results to be returned
+        :type max_results: int
+        :param next_token: A unique token for each page, use the returned token to retrieve the next page.
+        :type next_token: str
         :return: Transitions response from REST API
         :rtype: dict
 
@@ -379,7 +403,12 @@ class BaseClient:
  :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
         """
         url = f'/transitions'
-        return self._make_request(requests.get, url, params={'transitionType': transition_type})
+        params = {
+            'transitionType': transition_type,
+            'maxResults': max_results,
+            'nextToken': next_token,
+        }
+        return self._make_request(requests.get, url, params=params)
 
     def execute_transition(self, transition_id: str) -> dict:
         """Start executing a manual transition, calls the POST /transitions/{transitionId}/executions endpoint.
@@ -452,20 +481,28 @@ class BaseClient:
         """
         return self._make_request(requests.post, '/users', body={'email': email})
 
-    def list_users(self) -> dict:
+    def list_users(self, max_results: Optional[int] = None, next_token: Optional[str] = None) -> dict:
         """List users, calls the GET /users endpoint.
 
         >>> from las.client import BaseClient
         >>> client = BaseClient()
         >>> client.list_users()
 
+        :param max_results: Maximum number of results to be returned
+        :type max_results: int
+        :param next_token: A unique token for each page, use the returned token to retrieve the next page.
+        :type next_token: str
         :return: Users response from REST API
         :rtype: dict
 
         :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
  :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
         """
-        return self._make_request(requests.get, '/users')
+        params = {
+            'maxResults': max_results,
+            'nextToken': next_token,
+        }
+        return self._make_request(requests.get, '/users', params=params)
 
     def get_user(self, user_id: str) -> dict:
         """Get information about a specific user, calls the GET /users/{user_id} endpoint.
@@ -534,20 +571,28 @@ class BaseClient:
         }
         return self._make_request(requests.post, '/workflows', body=dictstrip(body))
 
-    def list_workflows(self) -> dict:
+    def list_workflows(self, max_results: Optional[int] = None, next_token: Optional[str] = None) -> dict:
         """List workflows, calls the GET /workflows endpoint.
 
         >>> from las.client import BaseClient
         >>> client = BaseClient()
         >>> client.list_workflows()
 
+        :param max_results: Maximum number of results to be returned
+        :type max_results: int
+        :param next_token: A unique token for each page, use the returned token to retrieve the next page.
+        :type next_token: str
         :return: Workflows response from REST API
         :rtype: dict
 
         :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
  :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
         """
-        return self._make_request(requests.get, '/workflows')
+        params = {
+            'maxResults': max_results,
+            'nextToken': next_token,
+        }
+        return self._make_request(requests.get, '/workflows', params=params)
 
     def delete_workflow(self, workflow_id: str) -> dict:
         """Delete the workflow with the provided workflow_id, calls the DELETE /workflows/{workflowId} endpoint.
@@ -588,7 +633,8 @@ class BaseClient:
         endpoint = f'/workflows/{workflow_id}/executions'
         return self._make_request(requests.post, endpoint, body={'input': content})
 
-    def list_workflow_executions(self, workflow_id: str, status: Optional[str] = None) -> dict:
+    def list_workflow_executions(self, workflow_id: str, status: Optional[str] = None,
+                                 max_results: Optional[int] = None, next_token: Optional[str] = None) -> dict:
         """List executions in a workflow, calls the GET /workflows/{workflowId}/executions endpoint.
 
         >>> from las.client import BaseClient
@@ -599,6 +645,10 @@ class BaseClient:
         :type workflow_id: str
         :param status: Status of the executions
         :type status: str
+        :param max_results: Maximum number of results to be returned
+        :type max_results: int
+        :param next_token: A unique token for each page, use the returned token to retrieve the next page.
+        :type next_token: str
         :return: Workflow executions responses from REST API
         :rtype: dict
 
@@ -606,7 +656,12 @@ class BaseClient:
  :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
         """
         url = f'/workflows/{workflow_id}/executions'
-        return self._make_request(requests.get, url, params={'status': status})
+        params = {
+            'status': status,
+            'maxResults': max_results,
+            'nextToken': next_token,
+        }
+        return self._make_request(requests.get, url, params=params)
 
 
 class Client(BaseClient):
