@@ -57,6 +57,19 @@ def test_list_workflow_executions(client: BaseClient, status):
     assert 'executions' in response, 'Missing executions in response'
 
 
+@pytest.mark.parametrize('max_results,next_token', [
+    (random.randint(1, 100), None),
+    (random.randint(1, 100), 'foo'),
+    (None, None),
+])
+def test_list_workflow_executions_with_pagination(client: BaseClient, max_results, next_token):
+    workflow_id = util.workflow_id()
+    response = client.list_workflow_executions(workflow_id=workflow_id, max_results=max_results, next_token=next_token)
+    assert 'workflowId' in response, 'Missing workflowId in response'
+    assert 'executions' in response, 'Missing executions in response'
+    assert 'nextToken' in response, 'Missing nextToken in response'
+
+
 def test_execute_workflow(client: BaseClient):
     workflow_id = util.workflow_id()
     response = client.execute_workflow(workflow_id, content={})
