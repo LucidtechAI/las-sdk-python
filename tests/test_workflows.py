@@ -1,7 +1,10 @@
+import logging
+import random
+
 import pytest
+
 from las.client import BaseClient
 from . import util
-import logging
 
 
 @pytest.mark.parametrize('description,error_config', [
@@ -27,6 +30,17 @@ def test_list_workflows(client: BaseClient):
     for workflow in response['workflows']:
         assert 'name' in workflow, 'Missing name in response'
         assert 'workflowId' in workflow, 'Missing workflowId in response'
+
+
+@pytest.mark.parametrize('max_results,next_token', [
+    (random.randint(1, 100), None),
+    (random.randint(1, 100), 'foo'),
+    (None, None),
+])
+def test_list_workflows_with_pagination(client: BaseClient, max_results, next_token):
+    response = client.list_workflows(max_results=max_results, next_token=next_token)
+    assert 'workflows' in response, 'Missing workflows in response'
+    assert 'nextToken' in response, 'Missing nextToken in response'
 
 
 @pytest.mark.parametrize('status', [

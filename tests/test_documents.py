@@ -1,4 +1,5 @@
 import pathlib
+import random
 from typing import Iterable
 import pytest
 from las.client import BaseClient
@@ -32,9 +33,20 @@ def test_create_document(
     (None, util.consent_id()),
     (util.batch_id(), util.consent_id()),
 ])
-def test_get_documents(client: BaseClient, batch_id, consent_id):
+def test_list_documents(client: BaseClient, batch_id, consent_id):
     response = client.list_documents(consent_id=consent_id, batch_id=batch_id)
     assert 'documents' in response, 'Missing documents in response'
+
+
+@pytest.mark.parametrize('max_results,next_token', [
+    (random.randint(1, 100), None),
+    (random.randint(1, 100), 'foo'),
+    (None, None),
+])
+def test_list_documents_with_pagination(client: BaseClient, max_results, next_token):
+    response = client.list_documents(max_results=max_results, next_token=next_token)
+    assert 'documents' in response, 'Missing documents in response'
+    assert 'nextToken' in response, 'Missing nextToken in response'
 
 
 def test_get_document(client: BaseClient):

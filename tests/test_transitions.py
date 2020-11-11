@@ -2,6 +2,7 @@ import pytest
 from las.client import BaseClient
 from . import util
 import logging
+import random
 
 
 @pytest.mark.parametrize('transition_type,params', [
@@ -25,6 +26,18 @@ def test_list_transitions(client: BaseClient, transition_type):
     assert 'transitions' in response, 'Missing transitions in response'
     if transition_type:
         assert 'transitionType' in response, 'Missing transitionType in response'
+
+
+@pytest.mark.parametrize('max_results,next_token', [
+    (random.randint(1, 100), None),
+    (random.randint(1, 100), 'foo'),
+    (None, None),
+])
+def test_list_transitions_with_pagination(client: BaseClient, max_results, next_token):
+    response = client.list_transitions(max_results=max_results, next_token=next_token)
+    logging.info(response)
+    assert 'transitions' in response, 'Missing transitions in response'
+    assert 'nextToken' in response, 'Missing nextToken in response'
 
 
 def test_execute_transition(client: BaseClient):
