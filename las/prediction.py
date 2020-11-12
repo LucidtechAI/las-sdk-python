@@ -1,8 +1,8 @@
-from typing import Dict
+from typing import Dict, Union, Optional
 
 
-class Field(Dict[str, str]):
-    def __init__(self, label: str, value: str, confidence=None):
+class Field(Dict[str, Union[Optional[str], bool]]):
+    def __init__(self, label: str, value: Union[Optional[str], bool], confidence=None):
         field = dict(label=label, value=value)
         field = dict(**field, confidence=confidence) if confidence else field
         super().__init__(**field)

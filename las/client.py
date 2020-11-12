@@ -3,7 +3,7 @@ import logging
 import pathlib
 from base64 import b64encode
 from json.decoder import JSONDecodeError
-from typing import Any, Callable, Dict, List, Optional, Sequence
+from typing import Any, Callable, Dict, List, Optional, Sequence, Union
 from urllib.parse import urlparse
 
 import filetype
@@ -286,7 +286,7 @@ class BaseClient:
         """
         return self._make_request(requests.get, f'/documents/{document_id}')
 
-    def update_document(self, document_id: str, feedback: Sequence[Dict[str, str]]) -> dict:
+    def update_document(self, document_id: str, feedback: Sequence[Dict[str, Union[Optional[str], bool]]]) -> dict:
         """Post feedback to the REST API, calls the PATCH /documents/{documentId} endpoint.
         Posting feedback means posting the ground truth data for the particular document.
         This enables the API to learn from past mistakes.
@@ -299,7 +299,7 @@ class BaseClient:
         :param document_id: Id of the document
         :type document_id: str
         :param feedback: List of feedback items {label: value} representing the ground truth values for the document
-        :type feedback: Sequence[Dict[str, str]]
+        :type feedback: Sequence[Dict[str, Union[Optional[str], bool]]]
         :return: Document response from REST API
         :rtype: dict
 

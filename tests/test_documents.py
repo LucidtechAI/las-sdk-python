@@ -62,7 +62,8 @@ def test_update_document(client: BaseClient):
     document_id = util.document_id()
     feedback = [
         {'label': 'total_amount', 'value': '54.50'},
-        {'label': 'purchase_date', 'value': '2007-07-30'}
+        {'label': 'purchase_date', 'value': '2007-07-30'},
+        {'label': 'secure_agreement', 'value': True},
     ]
 
     post_document_id_response = client.update_document(document_id, feedback)
