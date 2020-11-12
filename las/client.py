@@ -172,6 +172,26 @@ class BaseClient:
         """
         return self._make_request(requests.get, f'/assets/{asset_id}')
 
+    def update_asset(self, asset_id: str, content: bytes) -> dict:
+        """Updates an asset, calls the PATCH /assets/assetId endpoint.
+
+        >>> from las.client import BaseClient
+        >>> client = BaseClient()
+        >>> client.update_asset('<asset id>', b'<bytes data>')
+
+        :param asset_id: Id of the asset
+        :type asset_id: str
+        :param content: Content to PATCH
+        :type content: bytes
+        :return: Asset response from REST API
+        :rtype: dict
+
+        :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
+ :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
+        """
+        body = {'content': b64encode(content).decode()}
+        return self._make_request(requests.patch, f'/assets/{asset_id}', body=body)
+
     def create_batch(self, description: str) -> dict:
         """Creates a batch, calls the POST /batches endpoint.
 
