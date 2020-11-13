@@ -37,3 +37,10 @@ def test_get_asset(client: BaseClient):
     assert 'assetId' in response, 'Missing assetId in response'
     assert 'content' in response, 'Missing content in response'
 
+
+def test_update_asset(client: BaseClient):
+    asset_id = util.asset_id()
+    content = Path('tests/remote_component.js').read_bytes()
+    response = client.update_asset(asset_id, content)
+    assert 'assetId' in response, 'Missing assetId in response'
+
