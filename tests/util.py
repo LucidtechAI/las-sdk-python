@@ -13,16 +13,16 @@ def consent_id():
     return f'las:consent:{uuid4().hex}'
 
 
-def model_id():
-    return f'las:model:{uuid4().hex}'
-
-
 def document_id():
     return f'las:document:{uuid4().hex}'
 
 
-def user_id():
-    return f'las:user:{uuid4().hex}'
+def model_id():
+    return f'las:model:{uuid4().hex}'
+
+
+def secret_id():
+    return f'las:secret:{uuid4().hex}'
 
 
 def transition_id():
@@ -31,6 +31,10 @@ def transition_id():
 
 def transition_execution_id():
     return f'las:transition-execution:{uuid4().hex}'
+
+
+def user_id():
+    return f'las:user:{uuid4().hex}'
 
 
 def workflow_id():
