@@ -422,7 +422,7 @@ class BaseClient:
         :param data: Dict containing the data you want to keep secret
         :type data: str
         :param description: Description of the secret
-        :type description: str
+        :type description: Optional[str]
         :return: Secret response from REST API
         :rtype: dict
 
@@ -435,8 +435,8 @@ class BaseClient:
         }
         return self._make_request(requests.patch, f'/secrets/{secret_id}', body=dictstrip(body))
 
-    def create_transition(self, transition_type: str, in_schema: dict, out_schema: dict,
-                          params: Optional[dict] = None) -> dict:
+    def create_transition(self, name, transition_type: str, in_schema: dict, out_schema: dict,
+                          params: Optional[dict] = None, description: Optional[str] = None) -> dict:
         """Creates a transition handle, calls the POST /transitions endpoint.
 
         >>> import json
@@ -447,20 +447,24 @@ class BaseClient:
         >>> out_schema = {'$schema': 'https://json-schema.org/draft-04/schema#', 'title': 'out', 'properties': {...} }
         >>> # A typical docker transitions
         >>> docker_params = {'imageUrl': '<image_url>', 'credentials': {'username': '<username>', 'password': '<password>'}}
-        >>> client.create_transition('docker', in_schema, out_schema, docker_params)
+        >>> client.create_transition('<name>', 'docker', in_schema, out_schema, docker_params)
         >>> # A typical manual transitions
         >>> assets = {'jsRemoteComponent': 'las:asset:<hex-uuid>', '<other asset name>': 'las:asset:<hex-uuid>'}
         >>> manual_params = {'assets': assets}
-        >>> client.create_transition('manual', in_schema, out_schema, manual_params)
+        >>> client.create_transition('<name>', 'manual', in_schema, out_schema, manual_params)
 
         :param in_schema: Json-schema that defines the input to the transition
         :type in_schema: dict
         :param out_schema: Json-schema that defines the output of the transition
         :type out_schema: dict
+        :param name: Name of the transition
+        :type name: str
         :param transition_type: Type of transition "docker"|"manual"
         :type transition_type: str
         :param params: Extra parameters to the transition
         :type params: Optional[dict]
+        :param description: Description of the transition
+        :type description: Optional[str]
         :return: Transition response from REST API
         :rtype: dict
 
@@ -468,6 +472,8 @@ class BaseClient:
  :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
         """
         body = {
+            'name': name,
+            'description': description,
             'inputJsonSchema': in_schema,
             'outputJsonSchema': out_schema,
             'transitionType': transition_type,
