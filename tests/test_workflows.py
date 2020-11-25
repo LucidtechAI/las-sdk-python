@@ -44,9 +44,10 @@ def test_list_workflows_with_pagination(client: BaseClient, max_results, next_to
 
 
 @pytest.mark.parametrize('status', [
-    'succeeded',
-    'failed',
-    'running',
+    ['succeeded'],
+    ['failed'],
+    ['running'],
+    ['succeeded', 'running'],
     None,
 ])
 def test_list_workflow_executions(client: BaseClient, status):

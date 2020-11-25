@@ -13,13 +13,13 @@ import random
 def test_create_transition(client: BaseClient, transition_type, params):
     in_schema = util.json_schema()
     out_schema = util.json_schema()
-    response = client.create_transition(transition_type, in_schema, out_schema, params=params)
+    response = client.create_transition('name', transition_type, in_schema, out_schema, params=params)
     logging.info(response)
     assert 'transitionId' in response, 'Missing transitionId in response'
     assert 'transitionType' in response, 'Missing transitionType in response'
 
 
-@pytest.mark.parametrize('transition_type', ['docker', 'manual', None])
+@pytest.mark.parametrize('transition_type', [['docker'], ['manual'], ['docker', 'manual'], None])
 def test_list_transitions(client: BaseClient, transition_type):
     response = client.list_transitions(transition_type)
     logging.info(response)

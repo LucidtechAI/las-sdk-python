@@ -29,9 +29,9 @@ def test_create_document(
 
 @pytest.mark.parametrize('batch_id,consent_id', [
     (None, None),
-    (util.batch_id(), None),
-    (None, util.consent_id()),
-    (util.batch_id(), util.consent_id()),
+    ([util.batch_id()], None),
+    (None, [util.consent_id()]),
+    ([util.batch_id()], [util.consent_id()]),
 ])
 def test_list_documents(client: BaseClient, batch_id, consent_id):
     response = client.list_documents(consent_id=consent_id, batch_id=batch_id)
@@ -73,7 +73,7 @@ def test_update_document(client: BaseClient):
     assert 'consentId' in post_document_id_response, 'Missing consentId in response'
 
 
-@pytest.mark.parametrize('consent_id', [None, util.consent_id()])
+@pytest.mark.parametrize('consent_id', [None, [util.consent_id()]])
 @pytest.mark.skip(reason='DELETE does not work for the mocked API')
 def test_delete_documents(client: BaseClient, consent_id):
     delete_documents_response = client.delete_documents(consent_id)
