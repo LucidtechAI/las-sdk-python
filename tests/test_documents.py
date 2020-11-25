@@ -29,8 +29,8 @@ def test_create_document(
 
 @pytest.mark.parametrize('batch_id,consent_id', [
     (None, None),
-    ([util.batch_id()], None),
-    (None, [util.consent_id()]),
+    (util.batch_id(), None),
+    (None, util.consent_id()),
     ([util.batch_id()], [util.consent_id()]),
 ])
 def test_list_documents(client: BaseClient, batch_id, consent_id):
