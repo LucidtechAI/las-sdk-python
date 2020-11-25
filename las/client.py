@@ -210,7 +210,7 @@ class BaseClient:
         return self._make_request(requests.post, '/batches', body={'description': description})
 
     def create_document(self, content: bytes, content_type: str, consent_id: Optional[str] = None,
-                        batch_id: str = None, feedback: Sequence[Dict[str, str]] = None) -> dict:
+                        batch_id: str = None, ground_truth: Sequence[Dict[str, str]] = None) -> dict:
         """Creates a document handle, calls the POST /documents endpoint.
 
         >>> from las.client import BaseClient
@@ -225,8 +225,8 @@ class BaseClient:
         :type consent_id: str
         :param batch_id: Id of the associated batch
         :type batch_id: str
-        :param feedback: List of feedback items {label: value} representing the ground truth values for the document
-        :type feedback: Sequence[Dict[str, str]]
+        :param ground_truth: List of ground truth items {label: value} representing the ground truth values for the document
+        :type ground_truth: Sequence[Dict[str, str]]
         :return: Document response from REST API
         :rtype: dict
 
@@ -238,7 +238,7 @@ class BaseClient:
             'contentType': content_type,
             'consentId': consent_id,
             'batchId': batch_id,
-            'feedback': feedback,
+            'groundTruth': ground_truth,
         }
         return self._make_request(requests.post, '/documents', body=dictstrip(body))
 
@@ -306,27 +306,27 @@ class BaseClient:
         """
         return self._make_request(requests.get, f'/documents/{document_id}')
 
-    def update_document(self, document_id: str, feedback: Sequence[Dict[str, Union[Optional[str], bool]]]) -> dict:
-        """Post feedback to the REST API, calls the PATCH /documents/{documentId} endpoint.
-        Posting feedback means posting the ground truth data for the particular document.
+    def update_document(self, document_id: str, ground_truth: Sequence[Dict[str, Union[Optional[str], bool]]]) -> dict:
+        """Post ground truth to the REST API, calls the PATCH /documents/{documentId} endpoint.
+        Posting ground truth means posting the ground truth data for the particular document.
         This enables the API to learn from past mistakes.
 
         >>> from las.client import BaseClient
         >>> client = BaseClient()
-        >>> feedback = [{'label': 'total_amount', 'value': '156.00'}, {'label': 'invoice_date', 'value': '2018-10-23'}]
-        >>> client.update_document(document_id='<document id>', feedback=feedback)
+        >>> ground_truth = [{'label': 'total_amount', 'value': '156.00'}, {'label': 'invoice_date', 'value': '2018-10-23'}]
+        >>> client.update_document(document_id='<document id>', ground_truth=ground_truth)
 
         :param document_id: Id of the document
         :type document_id: str
-        :param feedback: List of feedback items {label: value} representing the ground truth values for the document
-        :type feedback: Sequence[Dict[str, Union[Optional[str], bool]]]
+        :param ground_truth: List of ground truth items {label: value} representing the ground truth values for the document
+        :type ground_truth: Sequence[Dict[str, Union[Optional[str], bool]]]
         :return: Document response from REST API
         :rtype: dict
 
         :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
  :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
         """
-        return self._make_request(requests.patch, f'/documents/{document_id}', body={'feedback': feedback})
+        return self._make_request(requests.patch, f'/documents/{document_id}', body={'groundTruth': ground_truth})
 
     def create_prediction(self, document_id: str, model_id: str, max_pages: Optional[int] = None,
                           auto_rotate: Optional[bool] = None, extras: Dict[str, Any] = None) -> dict:
@@ -796,28 +796,26 @@ class Client(BaseClient):
         prediction_response = self.create_prediction(document_id, model_id, extras=extras)
         return Prediction(document_id, consent_id, model_id, prediction_response)
 
-    def send_feedback(self, document_id: str, feedback: List[Field]) -> dict:
-        """Send feedback to the model.
-        This method takes care of sending feedback related to document specified by document_id.
-        Feedback consists of ground truth values for the document specified as a list of\
- :py:class:`~las.Field` instances.
+    def send_ground_truth(self, document_id: str, ground_truth: List[Field]) -> dict:
+        """Send ground truth to the model.
+        This method takes care of sending ground truth related to document specified by document_id.
 
         >>> from las import Client
         >>> client = Client()
-        >>> feedback = [Field(label='total_amount', value='120.00'), Field(label='purchase_date', value='2019-03-10')]
-        >>> client.send_feedback('<document id>', feedback)
+        >>> ground_truth = [Field(label='total_amount', value='120.00'), Field(label='purchase_date', value='2019-03-10')]
+        >>> client.send_ground_truth('<document id>', ground_truth)
 
-        :param document_id: Id of the document that will receive the feedback
+        :param document_id: Id of the document that will receive the ground truth
         :type document_id: str
-        :param feedback: List of :py:class:`~las.Field` representing the ground truth values for the document
-        :type feedback: List[Field]
-        :return: Feedback response
+        :param ground_truth: List of :py:class:`~las.Field` representing the ground truth values for the document
+        :type ground_truth: List[Field]
+        :return: GroundTruth response
         :rtype: dict
 
         :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
  :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
         """
-        return self.update_document(document_id, feedback)
+        return self.update_document(document_id, ground_truth)
 
     @staticmethod
     def _get_content_type(document_path: str) -> str:

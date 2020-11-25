@@ -55,20 +55,20 @@ def test_get_document(client: BaseClient):
     assert 'documentId' in response, 'Missing documentId in response'
     assert 'consentId' in response, 'Missing consentId in response'
     assert 'contentType' in response, 'Missing contentType in response'
-    assert 'feedback' in response, 'Missing feedback in response'
+    assert 'groundTruth' in response, 'Missing groundTruth in response'
 
 
 def test_update_document(client: BaseClient):
     document_id = util.document_id()
-    feedback = [
+    ground_truth = [
         {'label': 'total_amount', 'value': '54.50'},
         {'label': 'purchase_date', 'value': '2007-07-30'},
         {'label': 'secure_agreement', 'value': True},
     ]
 
-    post_document_id_response = client.update_document(document_id, feedback)
+    post_document_id_response = client.update_document(document_id, ground_truth)
 
-    assert 'feedback' in post_document_id_response, 'Missing feedback in response'
+    assert 'groundTruth' in post_document_id_response, 'Missing groundTruth in response'
     assert 'documentId' in post_document_id_response, 'Missing documentId in response'
     assert 'consentId' in post_document_id_response, 'Missing consentId in response'
 

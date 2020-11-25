@@ -11,12 +11,12 @@ from . import util
 pytestmark = pytest.mark.integration
 
 
-def test_send_feedback(client: Client):
+def test_send_ground_truth(client: Client):
     document_id = util.document_id()
-    feedback = [Field(label='total_amount', value='120.00'), Field(label='purchase_date', value='2019-03-10')]
-    response = client.send_feedback(document_id, feedback)
+    ground_truth = [Field(label='total_amount', value='120.00'), Field(label='purchase_date', value='2019-03-10')]
+    response = client.send_ground_truth(document_id, ground_truth)
 
-    assert 'feedback' in response, 'Missing feedback in response'
+    assert 'groundTruth' in response, 'Missing groundTruth in response'
     assert 'documentId' in response, 'Missing documentId in response'
     assert 'consentId' in response, 'Missing consentId in response'
 
