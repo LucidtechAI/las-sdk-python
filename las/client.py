@@ -362,7 +362,7 @@ class BaseClient:
         """
         body = {
             'documentId': document_id,
-            'modelName': model_name,
+            'modelId': model_name,
             'maxPages': max_pages,
             'autoRotate': auto_rotate,
             **(extras or {})
