@@ -15,6 +15,7 @@ from .credentials import Credentials, guess_credentials
 from .prediction import Field, Prediction
 
 logger = logging.getLogger('las')
+Queryparam = Union[str, List[str]]
 
 
 def dictstrip(d):
@@ -242,18 +243,18 @@ class BaseClient:
         }
         return self._make_request(requests.post, '/documents', body=dictstrip(body))
 
-    def list_documents(self, batch_id: Optional[List[str]] = None, consent_id: Optional[List[str]] = None,
+    def list_documents(self, batch_id: Optional[Queryparam] = None, consent_id: Optional[Queryparam] = None,
                        max_results: Optional[int] = None, next_token: Optional[str] = None) -> dict:
         """List documents available for inference, calls the GET /documents endpoint.
 
         >>> from las.client import BaseClient
         >>> client = BaseClient()
-        >>> client.list_documents(batch_id=['<batch_id>'], consent_id=['<consent_id>'])
+        >>> client.list_documents(batch_id='<batch_id>', consent_id='<consent_id>')
 
         :param batch_id: Ids of batches that contains the documents of interest
-        :type batch_id: List[str]
+        :type batch_id: Queryparam
         :param consent_id: Ids of the consents that marks the owner of the document handle
-        :type consent_id: List[str]
+        :type consent_id: Queryparam
         :param max_results: Maximum number of results to be returned
         :type max_results: int
         :param next_token: A unique token for each page, use the returned token to retrieve the next page.
@@ -272,15 +273,15 @@ class BaseClient:
         }
         return self._make_request(requests.get, '/documents', params=params)
 
-    def delete_documents(self, consent_id: Optional[List[str]] = None) -> dict:
+    def delete_documents(self, consent_id: Optional[Queryparam] = None) -> dict:
         """Delete documents with the provided consent_id, calls the DELETE /documents endpoint.
 
         >>> from las.client import BaseClient
         >>> client = BaseClient()
-        >>> client.delete_documents(['<consent id>'])
+        >>> client.delete_documents('<consent id>')
 
         :param consent_id: Ids of the consents that marks the owner of the document handle
-        :type consent_id: List[str]
+        :type consent_id: Queryparam
         :return: Documents response from REST API
         :rtype: dict
 
@@ -481,16 +482,16 @@ class BaseClient:
         }
         return self._make_request(requests.post, '/transitions', body=dictstrip(body))
 
-    def list_transitions(self, transition_type: Optional[List[str]] = None,
+    def list_transitions(self, transition_type: Optional[Queryparam] = None,
                          max_results: Optional[int] = None, next_token: Optional[str] = None) -> dict:
         """List transitions, calls the GET /transitions endpoint.
 
         >>> from las.client import BaseClient
         >>> client = BaseClient()
-        >>> client.list_transitions(['<transition_type>'])
+        >>> client.list_transitions('<transition_type>')
 
         :param transition_type: Types of transitions
-        :type transition_type: List[str]
+        :type transition_type: Queryparam
         :param max_results: Maximum number of results to be returned
         :type max_results: int
         :param next_token: A unique token for each page, use the returned token to retrieve the next page.
@@ -732,18 +733,18 @@ class BaseClient:
         endpoint = f'/workflows/{workflow_id}/executions'
         return self._make_request(requests.post, endpoint, body={'input': content})
 
-    def list_workflow_executions(self, workflow_id: str, status: Optional[List[str]] = None,
+    def list_workflow_executions(self, workflow_id: str, status: Optional[Queryparam] = None,
                                  max_results: Optional[int] = None, next_token: Optional[str] = None) -> dict:
         """List executions in a workflow, calls the GET /workflows/{workflowId}/executions endpoint.
 
         >>> from las.client import BaseClient
         >>> client = BaseClient()
-        >>> client.list_workflow_executions('<workflow_id>', ['<status>'])
+        >>> client.list_workflow_executions('<workflow_id>', '<status>'
 
         :param workflow_id: Id of the workflow
         :type workflow_id: str
         :param status: Statuses of the executions
-        :type status: List[str]
+        :type status: Queryparam
         :param max_results: Maximum number of results to be returned
         :type max_results: int
         :param next_token: A unique token for each page, use the returned token to retrieve the next page.
