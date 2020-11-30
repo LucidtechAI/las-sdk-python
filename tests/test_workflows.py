@@ -18,8 +18,7 @@ def test_create_workflow(client: BaseClient, description, error_config):
     name = 'foobar'
     response = client.create_workflow(specification, name, description=description, error_config=error_config)
     logging.info(response)
-    assert 'name' in response, 'Missing name in response'
-    assert 'workflowId' in response, 'Missing workflowId in response'
+    assert_workflow(response)
     if description:
         assert 'description' in response, 'Missing description in response'
 
@@ -28,8 +27,7 @@ def test_list_workflows(client: BaseClient):
     response = client.list_workflows()
     assert 'workflows' in response, 'Missing workflows in response'
     for workflow in response['workflows']:
-        assert 'name' in workflow, 'Missing name in response'
-        assert 'workflowId' in workflow, 'Missing workflowId in response'
+        assert_workflow(workflow)
 
 
 @pytest.mark.parametrize('max_results,next_token', [
@@ -41,6 +39,21 @@ def test_list_workflows_with_pagination(client: BaseClient, max_results, next_to
     response = client.list_workflows(max_results=max_results, next_token=next_token)
     assert 'workflows' in response, 'Missing workflows in response'
     assert 'nextToken' in response, 'Missing nextToken in response'
+
+
+@pytest.mark.parametrize('name,description', [
+    ('foo', None),
+    (None, 'foo'),
+    ('foo', 'bar'),
+])
+def test_update_workflow(client: BaseClient, name, description):
+    response = client.update_workflow(
+        util.workflow_id(),
+        name=name,
+        description=description,
+    )
+    logging.info(response)
+    assert_workflow(response)
 
 
 @pytest.mark.parametrize('status', [
@@ -83,5 +96,9 @@ def test_delete_workflow(client: BaseClient):
     workflow_id = util.workflow_id()
     response = client.delete_workflow(workflow_id)
     logging.info(response)
+    assert_workflow(response)
+
+
+def assert_workflow(response):
     assert 'workflowId' in response, 'Missing workflowId in response'
     assert 'name' in response, 'Missing name in response'

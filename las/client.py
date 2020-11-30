@@ -510,6 +510,40 @@ class BaseClient:
         }
         return self._make_request(requests.get, url, params=params)
 
+    def update_transition(self, transition_id: str, *, name: Optional[str], in_schema: Optional[dict],
+                          out_schema: Optional[dict], description: Optional[str] = None) -> dict:
+        """Creates a transition handle, calls the PATCH /transitions/{transitionId} endpoint.
+
+        >>> import json
+        >>> from pathlib import Path
+        >>> from las.client import BaseClient
+        >>> client = BaseClient()
+        >>> client.update_transition('<transition-id>', name='<name>', description='<description>')
+
+        :param transition_id: Id of the transition
+        :type name: str
+        :param name: Name of the transition
+        :type name: Optional[str]
+        :param description: Description of the transition
+        :type description: Optional[str]
+        :param in_schema: Json-schema that defines the input to the transition
+        :type in_schema: Optional[dict]
+        :param out_schema: Json-schema that defines the output of the transition
+        :type out_schema: Optional[dict]
+        :return: Transition response from REST API
+        :rtype: dict
+
+        :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
+ :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
+        """
+        body = {
+            'name': name,
+            'description': description,
+            'inputJsonSchema': in_schema,
+            'outputJsonSchema': out_schema,
+        }
+        return self._make_request(requests.patch, f'/transitions/{transition_id}', body=dictstrip(body))
+
     def execute_transition(self, transition_id: str) -> dict:
         """Start executing a manual transition, calls the POST /transitions/{transitionId}/executions endpoint.
 
@@ -693,6 +727,33 @@ class BaseClient:
             'nextToken': next_token,
         }
         return self._make_request(requests.get, '/workflows', params=params)
+
+    def update_workflow(self, workflow_id: str, *, name: Optional[str], description: Optional[str] = None) -> dict:
+        """Creates a workflow handle, calls the PATCH /workflows/{workflowId} endpoint.
+
+        >>> import json
+        >>> from pathlib import Path
+        >>> from las.client import BaseClient
+        >>> client = BaseClient()
+        >>> client.update_workflow('<workflow-id>', name='<name>', description='<description>')
+
+        :param workflow_id: Id of the workflow
+        :type name: str
+        :param name: Name of the workflow
+        :type name: Optional[str]
+        :param description: Description of the workflow
+        :type description: Optional[str]
+        :return: Workflow response from REST API
+        :rtype: dict
+
+        :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
+ :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
+        """
+        body = {
+            'name': name,
+            'description': description,
+        }
+        return self._make_request(requests.patch, f'/workflows/{workflow_id}', body=dictstrip(body))
 
     def delete_workflow(self, workflow_id: str) -> dict:
         """Delete the workflow with the provided workflow_id, calls the DELETE /workflows/{workflowId} endpoint.
