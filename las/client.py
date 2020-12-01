@@ -562,6 +562,44 @@ class BaseClient:
         endpoint = f'/transitions/{transition_id}/executions'
         return self._make_request(requests.post, endpoint, body={})
 
+    def list_transition_executions(
+            self, transition_id: str,
+            status: Optional[Queryparam] = None,
+            execution_id: Optional[Queryparam] = None,
+            max_results: Optional[int] = None,
+            next_token: Optional[str] = None
+    ) -> dict:
+        """List executions in a transition, calls the GET /transitions/{transitionId}/executions endpoint.
+
+        >>> from las.client import BaseClient
+        >>> client = BaseClient()
+        >>> client.list_transition_executions('<transition_id>', '<status>')
+
+        :param transition_id: Id of the transition
+        :type transition_id: str
+        :param status: Statuses of the executions
+        :type status: Queryparam
+        :param execution_id: Ids of the executions
+        :type execution_id: Queryparam
+        :param max_results: Maximum number of results to be returned
+        :type max_results: int
+        :param next_token: A unique token for each page, use the returned token to retrieve the next page.
+        :type next_token: str
+        :return: Transition executions responses from REST API
+        :rtype: dict
+
+        :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
+ :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
+        """
+        url = f'/transitions/{transition_id}/executions'
+        params = {
+            'status': status,
+            'executionId': execution_id,
+            'maxResults': max_results,
+            'nextToken': next_token,
+        }
+        return self._make_request(requests.get, url, params=params)
+
     def update_transition_execution(self, transition_id: str, execution_id: str, status: str,
                                     output: Optional[dict] = None, error: Optional[dict] = None) -> dict:
         """Ends the processing of the transition execution,
@@ -800,7 +838,7 @@ class BaseClient:
 
         >>> from las.client import BaseClient
         >>> client = BaseClient()
-        >>> client.list_workflow_executions('<workflow_id>', '<status>'
+        >>> client.list_workflow_executions('<workflow_id>', '<status>')
 
         :param workflow_id: Id of the workflow
         :type workflow_id: str
