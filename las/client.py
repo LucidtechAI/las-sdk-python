@@ -832,8 +832,15 @@ class BaseClient:
         endpoint = f'/workflows/{workflow_id}/executions'
         return self._make_request(requests.post, endpoint, body={'input': content})
 
-    def list_workflow_executions(self, workflow_id: str, status: Optional[Queryparam] = None,
-                                 max_results: Optional[int] = None, next_token: Optional[str] = None) -> dict:
+    def list_workflow_executions(
+            self,
+            workflow_id: str,
+            status: Optional[Queryparam] = None,
+            sort_by: Optional[str] = None,
+            order: Optional[str] = None,
+            max_results: Optional[int] = None,
+            next_token: Optional[str] = None
+    ) -> dict:
         """List executions in a workflow, calls the GET /workflows/{workflowId}/executions endpoint.
 
         >>> from las.client import BaseClient
@@ -842,6 +849,10 @@ class BaseClient:
 
         :param workflow_id: Id of the workflow
         :type workflow_id: str
+        :param order: Order of the executions, either 'ascending' or 'descending'
+        :type order: Optional str
+        :param sort_by: the sorting variable of the executions, either 'endTime', or 'startTime'
+        :type sort_by: Optional str
         :param status: Statuses of the executions
         :type status: Queryparam
         :param max_results: Maximum number of results to be returned
@@ -857,6 +868,8 @@ class BaseClient:
         url = f'/workflows/{workflow_id}/executions'
         params = {
             'status': status,
+            'order': order,
+            'sortBy': sort_by,
             'maxResults': max_results,
             'nextToken': next_token,
         }
