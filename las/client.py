@@ -88,7 +88,7 @@ class BaseClient:
     @on_exception(expo, TooManyRequestsException, max_tries=4)
     @on_exception(expo, RequestException, max_tries=3, giveup=_fatal_code)
     def _make_request(self, requests_fn: Callable, signing_path: str,
-                      body: Optional[dict] = None, params: Optional[dict] = None) -> dict:
+                      body: Optional[dict] = None, params: Optional[dict] = None) -> Dict:
         """Make signed headers, use them to make a HTTP request of arbitrary form and return the result
         as decoded JSON. Optionally pass a payload to JSON-dump and parameters for the request call."""
 
@@ -107,7 +107,7 @@ class BaseClient:
         )
         return _json_decode(response)
 
-    def create_asset(self, content: bytes) -> dict:
+    def create_asset(self, content: bytes) -> Dict:
         """Creates an asset handle, calls the POST /assets endpoint.
 
         >>> from las.client import BaseClient
@@ -125,7 +125,7 @@ class BaseClient:
         body = {'content': b64encode(content).decode()}
         return self._make_request(requests.post, '/assets', body=body)
 
-    def list_assets(self, *, max_results: Optional[int] = None, next_token: Optional[str] = None) -> dict:
+    def list_assets(self, *, max_results: Optional[int] = None, next_token: Optional[str] = None) -> Dict:
         """List assets available, calls the GET /assets endpoint.
 
         >>> from las.client import BaseClient
@@ -148,7 +148,7 @@ class BaseClient:
         }
         return self._make_request(requests.get, '/assets', params=params)
 
-    def get_asset(self, asset_id: str) -> dict:
+    def get_asset(self, asset_id: str) -> Dict:
         """Get asset from the REST API, calls the GET /assets/{assetId} endpoint.
 
         >>> from las.client import BaseClient
@@ -165,7 +165,7 @@ class BaseClient:
         """
         return self._make_request(requests.get, f'/assets/{asset_id}')
 
-    def update_asset(self, asset_id: str, content: bytes) -> dict:
+    def update_asset(self, asset_id: str, content: bytes) -> Dict:
         """Updates an asset, calls the PATCH /assets/assetId endpoint.
 
         >>> from las.client import BaseClient
@@ -185,7 +185,7 @@ class BaseClient:
         body = {'content': b64encode(content).decode()}
         return self._make_request(requests.patch, f'/assets/{asset_id}', body=body)
 
-    def create_batch(self, description: str) -> dict:
+    def create_batch(self, description: str) -> Dict:
         """Creates a batch, calls the POST /batches endpoint.
 
         >>> from las.client import BaseClient
@@ -210,7 +210,7 @@ class BaseClient:
             consent_id: Optional[str] = None,
             batch_id: str = None,
             ground_truth: Sequence[Dict[str, str]] = None,
-    ) -> dict:
+    ) -> Dict:
         """Creates a document handle, calls the POST /documents endpoint.
 
         >>> from las.client import BaseClient
@@ -249,7 +249,7 @@ class BaseClient:
         consent_id: Optional[Queryparam] = None,
         max_results: Optional[int] = None,
         next_token: Optional[str] = None,
-    ) -> dict:
+    ) -> Dict:
         """List documents available for inference, calls the GET /documents endpoint.
 
         >>> from las.client import BaseClient
@@ -278,7 +278,7 @@ class BaseClient:
         }
         return self._make_request(requests.get, '/documents', params=params)
 
-    def delete_documents(self, *, consent_id: Optional[Queryparam] = None) -> dict:
+    def delete_documents(self, *, consent_id: Optional[Queryparam] = None) -> Dict:
         """Delete documents with the provided consent_id, calls the DELETE /documents endpoint.
 
         >>> from las.client import BaseClient
@@ -295,7 +295,7 @@ class BaseClient:
         """
         return self._make_request(requests.delete, '/documents', params={'consentId': consent_id})
 
-    def get_document(self, document_id: str) -> dict:
+    def get_document(self, document_id: str) -> Dict:
         """Get document from the REST API, calls the GET /documents/{documentId} endpoint.
 
         >>> from las.client import BaseClient
@@ -312,7 +312,7 @@ class BaseClient:
         """
         return self._make_request(requests.get, f'/documents/{document_id}')
 
-    def update_document(self, document_id: str, ground_truth: Sequence[Dict[str, Union[Optional[str], bool]]]) -> dict:
+    def update_document(self, document_id: str, ground_truth: Sequence[Dict[str, Union[Optional[str], bool]]]) -> Dict:
         """Post ground truth to the REST API, calls the PATCH /documents/{documentId} endpoint.
         Posting ground truth means posting the ground truth data for the particular document.
         This enables the API to learn from past mistakes.
@@ -334,7 +334,7 @@ class BaseClient:
         """
         return self._make_request(requests.patch, f'/documents/{document_id}', body={'groundTruth': ground_truth})
 
-    def list_models(self, *, max_results: Optional[int] = None, next_token: Optional[str] = None) -> dict:
+    def list_models(self, *, max_results: Optional[int] = None, next_token: Optional[str] = None) -> Dict:
         """List models available, calls the GET /models endpoint.
 
         >>> from las.client import BaseClient
@@ -364,7 +364,7 @@ class BaseClient:
         *,
         max_pages: Optional[int] = None,
         auto_rotate: Optional[bool] = None,
-    ) -> dict:
+    ) -> Dict:
         """Create a prediction on a document using specified model, calls the POST /predictions endpoint.
 
         >>> from las.client import BaseClient
@@ -394,7 +394,7 @@ class BaseClient:
         }
         return self._make_request(requests.post, '/predictions', body=dictstrip(body))
 
-    def create_secret(self, data: dict, *, description: Optional[str] = None) -> dict:
+    def create_secret(self, data: dict, *, description: Optional[str] = None) -> Dict:
         """Creates an secret handle, calls the POST /secrets endpoint.
 
         >>> from las.client import BaseClient
@@ -418,7 +418,7 @@ class BaseClient:
         }
         return self._make_request(requests.post, '/secrets', body=dictstrip(body))
 
-    def list_secrets(self, *, max_results: Optional[int] = None, next_token: Optional[str] = None) -> dict:
+    def list_secrets(self, *, max_results: Optional[int] = None, next_token: Optional[str] = None) -> Dict:
         """List secrets available, calls the GET /secrets endpoint.
 
         >>> from las.client import BaseClient
@@ -441,7 +441,7 @@ class BaseClient:
         }
         return self._make_request(requests.get, '/secrets', params=params)
 
-    def update_secret(self, secret_id: str, data: dict, *, description: Optional[str] = None) -> dict:
+    def update_secret(self, secret_id: str, data: dict, *, description: Optional[str] = None) -> Dict:
         """Updates an secret, calls the PATCH /secrets/secretId endpoint.
 
         >>> from las.client import BaseClient
@@ -476,7 +476,7 @@ class BaseClient:
         *,
         params: Optional[dict] = None,
         description: Optional[str] = None,
-    ) -> dict:
+    ) -> Dict:
         """Creates a transition handle, calls the POST /transitions endpoint.
 
         >>> import json
@@ -530,7 +530,7 @@ class BaseClient:
         transition_type: Optional[Queryparam] = None,
         max_results: Optional[int] = None,
         next_token: Optional[str] = None,
-    ) -> dict:
+    ) -> Dict:
         """List transitions, calls the GET /transitions endpoint.
 
         >>> from las.client import BaseClient
@@ -565,7 +565,7 @@ class BaseClient:
         in_schema: Optional[dict],
         out_schema: Optional[dict],
         description: Optional[str] = None,
-    ) -> dict:
+    ) -> Dict:
         """Creates a transition handle, calls the PATCH /transitions/{transitionId} endpoint.
 
         >>> import json
@@ -598,7 +598,7 @@ class BaseClient:
         }
         return self._make_request(requests.patch, f'/transitions/{transition_id}', body=dictstrip(body))
 
-    def execute_transition(self, transition_id: str) -> dict:
+    def execute_transition(self, transition_id: str) -> Dict:
         """Start executing a manual transition, calls the POST /transitions/{transitionId}/executions endpoint.
 
         >>> from las.client import BaseClient
@@ -624,7 +624,7 @@ class BaseClient:
         execution_id: Optional[Queryparam] = None,
         max_results: Optional[int] = None,
         next_token: Optional[str] = None,
-    ) -> dict:
+    ) -> Dict:
         """List executions in a transition, calls the GET /transitions/{transitionId}/executions endpoint.
 
         >>> from las.client import BaseClient
@@ -664,7 +664,7 @@ class BaseClient:
         *,
         output: Optional[dict] = None,
         error: Optional[dict] = None,
-    ) -> dict:
+    ) -> Dict:
         """Ends the processing of the transition execution,
         calls the PATCH /transitions/{transition_id}/executions/{execution_id} endpoint.
 
@@ -699,7 +699,7 @@ class BaseClient:
         }
         return self._make_request(requests.patch, url, body=dictstrip(body))
 
-    def create_user(self, email: str) -> dict:
+    def create_user(self, email: str) -> Dict:
         """Creates a new user, calls the POST /users endpoint.
 
         >>> from las.client import BaseClient
@@ -716,7 +716,7 @@ class BaseClient:
         """
         return self._make_request(requests.post, '/users', body={'email': email})
 
-    def list_users(self, *, max_results: Optional[int] = None, next_token: Optional[str] = None) -> dict:
+    def list_users(self, *, max_results: Optional[int] = None, next_token: Optional[str] = None) -> Dict:
         """List users, calls the GET /users endpoint.
 
         >>> from las.client import BaseClient
@@ -739,7 +739,7 @@ class BaseClient:
         }
         return self._make_request(requests.get, '/users', params=params)
 
-    def get_user(self, user_id: str) -> dict:
+    def get_user(self, user_id: str) -> Dict:
         """Get information about a specific user, calls the GET /users/{user_id} endpoint.
 
         >>> from las.client import BaseClient
@@ -756,7 +756,7 @@ class BaseClient:
         """
         return self._make_request(requests.get, f'/users/{user_id}')
 
-    def delete_user(self, user_id: str) -> dict:
+    def delete_user(self, user_id: str) -> Dict:
         """Delete the user with the provided user_id, calls the DELETE /users/{userId} endpoint.
 
         >>> from las.client import BaseClient
@@ -780,7 +780,7 @@ class BaseClient:
         *,
         description: Optional[str] = None,
         error_config: Optional[dict] = None,
-    ) -> dict:
+    ) -> Dict:
         """Creates a new workflow, calls the POST /workflows endpoint.
 
         >>> from las.client import BaseClient
@@ -813,7 +813,7 @@ class BaseClient:
         }
         return self._make_request(requests.post, '/workflows', body=dictstrip(body))
 
-    def list_workflows(self, *, max_results: Optional[int] = None, next_token: Optional[str] = None) -> dict:
+    def list_workflows(self, *, max_results: Optional[int] = None, next_token: Optional[str] = None) -> Dict:
         """List workflows, calls the GET /workflows endpoint.
 
         >>> from las.client import BaseClient
@@ -836,7 +836,7 @@ class BaseClient:
         }
         return self._make_request(requests.get, '/workflows', params=params)
 
-    def update_workflow(self, workflow_id: str, *, name: Optional[str], description: Optional[str] = None) -> dict:
+    def update_workflow(self, workflow_id: str, *, name: Optional[str], description: Optional[str] = None) -> Dict:
         """Creates a workflow handle, calls the PATCH /workflows/{workflowId} endpoint.
 
         >>> import json
@@ -863,7 +863,7 @@ class BaseClient:
         }
         return self._make_request(requests.patch, f'/workflows/{workflow_id}', body=dictstrip(body))
 
-    def delete_workflow(self, workflow_id: str) -> dict:
+    def delete_workflow(self, workflow_id: str) -> Dict:
         """Delete the workflow with the provided workflow_id, calls the DELETE /workflows/{workflowId} endpoint.
 
         >>> from las.client import BaseClient
@@ -880,7 +880,7 @@ class BaseClient:
         """
         return self._make_request(requests.delete, f'/workflows/{workflow_id}')
 
-    def execute_workflow(self, workflow_id: str, content: dict) -> dict:
+    def execute_workflow(self, workflow_id: str, content: dict) -> Dict:
         """Start a workflow execution, calls the POST /workflows/{workflowId}/executions endpoint.
 
         >>> from las.client import BaseClient
@@ -911,7 +911,7 @@ class BaseClient:
             order: Optional[str] = None,
             max_results: Optional[int] = None,
             next_token: Optional[str] = None,
-    ) -> dict:
+    ) -> Dict:
         """List executions in a workflow, calls the GET /workflows/{workflowId}/executions endpoint.
 
         >>> from las.client import BaseClient
@@ -946,7 +946,7 @@ class BaseClient:
         }
         return self._make_request(requests.get, url, params=params)
 
-    def delete_workflow_execution(self, workflow_id: str, execution_id: str) -> dict:
+    def delete_workflow_execution(self, workflow_id: str, execution_id: str) -> Dict:
         """Deletes the execution with the provided execution_id from workflow_id,
         calls the DELETE /workflows/{workflowId}/executions/{executionId} endpoint.
 
@@ -1003,7 +1003,7 @@ class Client(BaseClient):
         prediction_response = self.create_prediction(document_id, model_id)
         return Prediction(document_id, consent_id, model_id, prediction_response)
 
-    def send_ground_truth(self, document_id: str, ground_truth: List[Field]) -> dict:
+    def send_ground_truth(self, document_id: str, ground_truth: List[Field]) -> Dict:
         """Send ground truth to the model.
         This method takes care of sending ground truth related to document specified by document_id.
 
