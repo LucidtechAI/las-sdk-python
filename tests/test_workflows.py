@@ -87,8 +87,16 @@ def test_execute_workflow(client: BaseClient):
     workflow_id = util.workflow_id()
     response = client.execute_workflow(workflow_id, content={})
     logging.info(response)
-    assert 'workflowId' in response, 'Missing workflowId in response'
-    assert 'executionId' in response, 'Missing executionId in response'
+    assert_workflow_execution(response)
+
+
+@pytest.mark.skip(reason='DELETE does not work for the mocked API')
+def test_delete_workflow_execution(client: BaseClient):
+    workflow_id = util.workflow_id()
+    execution_id = util.workflow_execution_id()
+    response = client.delete_workflow_execution(workflow_id, execution_id)
+    logging.info(response)
+    assert_workflow_execution(response)
 
 
 @pytest.mark.skip(reason='DELETE does not work for the mocked API')
@@ -102,3 +110,11 @@ def test_delete_workflow(client: BaseClient):
 def assert_workflow(response):
     assert 'workflowId' in response, 'Missing workflowId in response'
     assert 'name' in response, 'Missing name in response'
+
+
+def assert_workflow_execution(response):
+    assert 'workflowId' in response, 'Missing workflowId in response'
+    assert 'executionId' in response, 'Missing executionId in response'
+    assert 'startTime' in response, 'Missing startTime in response'
+    assert 'endTime' in response, 'Missing endTime in response'
+    assert 'transitionExecutions' in response, 'Missing transitionExecutions in response'
