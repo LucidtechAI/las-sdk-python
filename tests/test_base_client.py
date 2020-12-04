@@ -66,7 +66,7 @@ def test_invalid_credentials(post_mock,
     model_id = util.model_id()
 
     with pytest.raises(error_name):
-        client.create_document(content, mime_type, consent_id)
+        client.create_document(content, mime_type, consent_id=consent_id)
 
     with pytest.raises(error_name):
         client.create_prediction(document_id, model_id)
@@ -75,4 +75,4 @@ def test_invalid_credentials(post_mock,
         client.update_document(document_id, [{'foo': 'bar'}])
 
     with pytest.raises(error_name):
-        client.delete_documents(consent_id)
+        client.delete_documents(consent_id=consent_id)

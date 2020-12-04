@@ -125,7 +125,7 @@ class BaseClient:
         body = {'content': b64encode(content).decode()}
         return self._make_request(requests.post, '/assets', body=body)
 
-    def list_assets(self, max_results: Optional[int] = None, next_token: Optional[str] = None) -> dict:
+    def list_assets(self, *, max_results: Optional[int] = None, next_token: Optional[str] = None) -> dict:
         """List assets available, calls the GET /assets endpoint.
 
         >>> from las.client import BaseClient
@@ -206,6 +206,7 @@ class BaseClient:
             self,
             content: bytes,
             content_type: str,
+            *,
             consent_id: Optional[str] = None,
             batch_id: str = None,
             ground_truth: Sequence[Dict[str, str]] = None,
@@ -243,6 +244,7 @@ class BaseClient:
 
     def list_documents(
         self,
+        *,
         batch_id: Optional[Queryparam] = None,
         consent_id: Optional[Queryparam] = None,
         max_results: Optional[int] = None,
@@ -276,7 +278,7 @@ class BaseClient:
         }
         return self._make_request(requests.get, '/documents', params=params)
 
-    def delete_documents(self, consent_id: Optional[Queryparam] = None) -> dict:
+    def delete_documents(self, *, consent_id: Optional[Queryparam] = None) -> dict:
         """Delete documents with the provided consent_id, calls the DELETE /documents endpoint.
 
         >>> from las.client import BaseClient
@@ -332,7 +334,7 @@ class BaseClient:
         """
         return self._make_request(requests.patch, f'/documents/{document_id}', body={'groundTruth': ground_truth})
 
-    def list_models(self, max_results: Optional[int] = None, next_token: Optional[str] = None) -> dict:
+    def list_models(self, *, max_results: Optional[int] = None, next_token: Optional[str] = None) -> dict:
         """List models available, calls the GET /models endpoint.
 
         >>> from las.client import BaseClient
@@ -359,6 +361,7 @@ class BaseClient:
         self,
         document_id: str,
         model_id: str,
+        *,
         max_pages: Optional[int] = None,
         auto_rotate: Optional[bool] = None,
     ) -> dict:
@@ -391,7 +394,7 @@ class BaseClient:
         }
         return self._make_request(requests.post, '/predictions', body=dictstrip(body))
 
-    def create_secret(self, data: dict, description: Optional[str] = None) -> dict:
+    def create_secret(self, data: dict, *, description: Optional[str] = None) -> dict:
         """Creates an secret handle, calls the POST /secrets endpoint.
 
         >>> from las.client import BaseClient
@@ -415,7 +418,7 @@ class BaseClient:
         }
         return self._make_request(requests.post, '/secrets', body=dictstrip(body))
 
-    def list_secrets(self, max_results: Optional[int] = None, next_token: Optional[str] = None) -> dict:
+    def list_secrets(self, *, max_results: Optional[int] = None, next_token: Optional[str] = None) -> dict:
         """List secrets available, calls the GET /secrets endpoint.
 
         >>> from las.client import BaseClient
@@ -438,7 +441,7 @@ class BaseClient:
         }
         return self._make_request(requests.get, '/secrets', params=params)
 
-    def update_secret(self, secret_id: str, data: dict, description: Optional[str] = None) -> dict:
+    def update_secret(self, secret_id: str, data: dict, *, description: Optional[str] = None) -> dict:
         """Updates an secret, calls the PATCH /secrets/secretId endpoint.
 
         >>> from las.client import BaseClient
@@ -470,6 +473,7 @@ class BaseClient:
         transition_type: str,
         in_schema: dict,
         out_schema: dict,
+        *,
         params: Optional[dict] = None,
         description: Optional[str] = None,
     ) -> dict:
@@ -522,6 +526,7 @@ class BaseClient:
 
     def list_transitions(
         self,
+        *,
         transition_type: Optional[Queryparam] = None,
         max_results: Optional[int] = None,
         next_token: Optional[str] = None,
@@ -614,6 +619,7 @@ class BaseClient:
     def list_transition_executions(
         self,
         transition_id: str,
+        *,
         status: Optional[Queryparam] = None,
         execution_id: Optional[Queryparam] = None,
         max_results: Optional[int] = None,
@@ -655,6 +661,7 @@ class BaseClient:
         transition_id: str,
         execution_id: str,
         status: str,
+        *,
         output: Optional[dict] = None,
         error: Optional[dict] = None,
     ) -> dict:
@@ -709,7 +716,7 @@ class BaseClient:
         """
         return self._make_request(requests.post, '/users', body={'email': email})
 
-    def list_users(self, max_results: Optional[int] = None, next_token: Optional[str] = None) -> dict:
+    def list_users(self, *, max_results: Optional[int] = None, next_token: Optional[str] = None) -> dict:
         """List users, calls the GET /users endpoint.
 
         >>> from las.client import BaseClient
@@ -770,6 +777,7 @@ class BaseClient:
         self,
         specification: dict,
         name: str,
+        *,
         description: Optional[str] = None,
         error_config: Optional[dict] = None,
     ) -> dict:
@@ -805,7 +813,7 @@ class BaseClient:
         }
         return self._make_request(requests.post, '/workflows', body=dictstrip(body))
 
-    def list_workflows(self, max_results: Optional[int] = None, next_token: Optional[str] = None) -> dict:
+    def list_workflows(self, *, max_results: Optional[int] = None, next_token: Optional[str] = None) -> dict:
         """List workflows, calls the GET /workflows endpoint.
 
         >>> from las.client import BaseClient
@@ -897,6 +905,7 @@ class BaseClient:
     def list_workflow_executions(
             self,
             workflow_id: str,
+            *,
             status: Optional[Queryparam] = None,
             sort_by: Optional[str] = None,
             order: Optional[str] = None,
@@ -964,6 +973,7 @@ class Client(BaseClient):
         self,
         document_path: str,
         model_id: str,
+        *,
         consent_id: Optional[str] = None,
     ) -> Prediction:
         """Create a prediction on a document specified by path using specified model.
