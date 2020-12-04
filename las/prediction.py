@@ -21,7 +21,7 @@ class Field(Dict[str, Union[Optional[str], bool]]):
 
 
 class Prediction(Dict[str, str]):
-    def __init__(self, document_id: str, consent_id: str, model_id: str, prediction_response: dict):
+    def __init__(self, document_id: str, model_id: str, prediction_response: dict, consent_id: Optional[str] = None):
         prediction = dict(
             document_id=document_id,
             consent_id=consent_id,

@@ -1001,7 +1001,7 @@ class Client(BaseClient):
         response = self.create_document(document, content_type, consent_id=consent_id)
         document_id = response['documentId']
         prediction_response = self.create_prediction(document_id, model_id)
-        return Prediction(document_id, consent_id, model_id, prediction_response)
+        return Prediction(document_id, model_id, prediction_response, consent_id=consent_id)
 
     def send_ground_truth(self, document_id: str, ground_truth: List[Field]) -> Dict:
         """Send ground truth to the model.
