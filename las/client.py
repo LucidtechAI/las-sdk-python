@@ -875,6 +875,26 @@ class BaseClient:
         }
         return self._make_request(requests.get, url, params=params)
 
+    def delete_workflow_execution(self, workflow_id: str, execution_id: str) -> dict:
+        """Deletes the execution with the provided execution_id from workflow_id,
+        calls the DELETE /workflows/{workflowId}/executions/{executionId} endpoint.
+
+        >>> from las.client import BaseClient
+        >>> client = BaseClient()
+        >>> client.delete_workflow_execution('<workflow_id>', '<execution_id>')
+
+        :param workflow_id: Id of the workflow
+        :type workflow_id: str
+        :param execution_id: Id of the execution
+        :type execution_id: str
+        :return: WorkflowExecution response from REST API
+        :rtype: dict
+
+        :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
+ :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
+        """
+        return self._make_request(requests.delete, f'/workflows/{workflow_id}/executions/{execution_id}')
+
 
 class Client(BaseClient):
     """A high level client to invoke api methods from Lucidtech AI Services."""
