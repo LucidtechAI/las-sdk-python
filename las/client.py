@@ -998,7 +998,7 @@ class Client(BaseClient):
         """
         content_type = self._get_content_type(document_path)
         document = pathlib.Path(document_path).read_bytes()
-        response = self.create_document(document, content_type, consent_id)
+        response = self.create_document(document, content_type, consent_id=consent_id)
         document_id = response['documentId']
         prediction_response = self.create_prediction(document_id, model_id)
         return Prediction(document_id, consent_id, model_id, prediction_response)
