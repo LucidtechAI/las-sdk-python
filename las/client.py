@@ -93,7 +93,7 @@ class BaseClient:
         as decoded JSON. Optionally pass a payload to JSON-dump and parameters for the request call."""
 
         kwargs = {'params': params}
-        kwargs.update({'data': json.dumps(body)}) if body else None
+        None if body is None else kwargs.update({'data': json.dumps(body)})
         uri = urlparse(f'{self.endpoint}{signing_path}')
         headers = {
             'Authorization': f'Bearer {self.credentials.access_token}',
@@ -965,7 +965,6 @@ class Client(BaseClient):
         document_path: str,
         model_id: str,
         consent_id: Optional[str] = None,
-        extras: Dict[str, Any] = None,
     ) -> Prediction:
         """Create a prediction on a document specified by path using specified model.
         This method takes care of creating and uploading a document specified by document_path.
@@ -981,8 +980,6 @@ class Client(BaseClient):
         :type model_id: str
         :param consent_id: Id to mark the owner of the document handle
         :type consent_id: str
-        :param extras: Extra information to add to json body
-        :type extras: Dict[str, Any]
         :return: Prediction on document
         :rtype: Prediction
 
@@ -993,7 +990,7 @@ class Client(BaseClient):
         document = pathlib.Path(document_path).read_bytes()
         response = self.create_document(document, content_type, consent_id)
         document_id = response['documentId']
-        prediction_response = self.create_prediction(document_id, model_id, extras=extras)
+        prediction_response = self.create_prediction(document_id, model_id)
         return Prediction(document_id, consent_id, model_id, prediction_response)
 
     def send_ground_truth(self, document_id: str, ground_truth: List[Field]) -> dict:
