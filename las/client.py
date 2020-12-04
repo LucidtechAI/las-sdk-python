@@ -85,16 +85,6 @@ class BaseClient:
         self.credentials = credentials or guess_credentials()
         self.endpoint = self.credentials.api_endpoint
 
-    def _create_signing_headers(self, path: str):
-        uri = urlparse(f'{self.endpoint}{path}')
-
-        auth_headers = {
-            'Authorization': f'Bearer {self.credentials.access_token}',
-            'X-Api-Key': self.credentials.api_key,
-        }
-        headers = {**auth_headers, 'Content-Type': 'application/json'}
-        return uri, headers
-
     @on_exception(expo, TooManyRequestsException, max_tries=4)
     @on_exception(expo, RequestException, max_tries=3, giveup=_fatal_code)
     def _make_request(self, requests_fn: Callable, signing_path: str,
@@ -102,12 +92,14 @@ class BaseClient:
         """Make signed headers, use them to make a HTTP request of arbitrary form and return the result
         as decoded JSON. Optionally pass a payload to JSON-dump and parameters for the request call."""
 
-        kwargs: Dict[str, Any] = {'params': params}
-
-        if body is not None:
-            kwargs['data'] = json.dumps(body)
-
-        uri, headers = self._create_signing_headers(signing_path)
+        kwargs = {'params': params}
+        kwargs.update({'data': json.dumps(body)}) if body else None
+        uri = urlparse(f'{self.endpoint}{signing_path}')
+        headers = {
+            'Authorization': f'Bearer {self.credentials.access_token}',
+            'X-Api-Key': self.credentials.api_key,
+            'Content-Type': 'application/json',
+        }
         response = requests_fn(
             url=uri.geturl(),
             headers=headers,
