@@ -210,8 +210,14 @@ class BaseClient:
         """
         return self._make_request(requests.post, '/batches', body={'description': description})
 
-    def create_document(self, content: bytes, content_type: str, consent_id: Optional[str] = None,
-                        batch_id: str = None, ground_truth: Sequence[Dict[str, str]] = None) -> dict:
+    def create_document(
+            self,
+            content: bytes,
+            content_type: str,
+            consent_id: Optional[str] = None,
+            batch_id: str = None,
+            ground_truth: Sequence[Dict[str, str]] = None,
+    ) -> dict:
         """Creates a document handle, calls the POST /documents endpoint.
 
         >>> from las.client import BaseClient
@@ -226,7 +232,7 @@ class BaseClient:
         :type consent_id: str
         :param batch_id: Id of the associated batch
         :type batch_id: str
-        :param ground_truth: List of ground truth items {label: value} representing the ground truth values for the document
+        :param ground_truth: List of items {label: value} representing the ground truth values for the document
         :type ground_truth: Sequence[Dict[str, str]]
         :return: Document response from REST API
         :rtype: dict
@@ -243,8 +249,13 @@ class BaseClient:
         }
         return self._make_request(requests.post, '/documents', body=dictstrip(body))
 
-    def list_documents(self, batch_id: Optional[Queryparam] = None, consent_id: Optional[Queryparam] = None,
-                       max_results: Optional[int] = None, next_token: Optional[str] = None) -> dict:
+    def list_documents(
+        self,
+        batch_id: Optional[Queryparam] = None,
+        consent_id: Optional[Queryparam] = None,
+        max_results: Optional[int] = None,
+        next_token: Optional[str] = None,
+    ) -> dict:
         """List documents available for inference, calls the GET /documents endpoint.
 
         >>> from las.client import BaseClient
@@ -314,12 +325,12 @@ class BaseClient:
 
         >>> from las.client import BaseClient
         >>> client = BaseClient()
-        >>> ground_truth = [{'label': 'total_amount', 'value': '156.00'}, {'label': 'invoice_date', 'value': '2018-10-23'}]
+        >>> ground_truth = [{'label': 'total_amount', 'value': '156.00'}, {'label': 'date', 'value': '2018-10-23'}]
         >>> client.update_document(document_id='<document id>', ground_truth=ground_truth)
 
         :param document_id: Id of the document
         :type document_id: str
-        :param ground_truth: List of ground truth items {label: value} representing the ground truth values for the document
+        :param ground_truth: List of items {label: value} representing the ground truth values for the document
         :type ground_truth: Sequence[Dict[str, Union[Optional[str], bool]]]
         :return: Document response from REST API
         :rtype: dict
@@ -329,8 +340,36 @@ class BaseClient:
         """
         return self._make_request(requests.patch, f'/documents/{document_id}', body={'groundTruth': ground_truth})
 
-    def create_prediction(self, document_id: str, model_id: str, max_pages: Optional[int] = None,
-                          auto_rotate: Optional[bool] = None, extras: Dict[str, Any] = None) -> dict:
+    def list_models(self, max_results: Optional[int] = None, next_token: Optional[str] = None) -> dict:
+        """List models available, calls the GET /models endpoint.
+
+        >>> from las.client import BaseClient
+        >>> client = BaseClient()
+        >>> client.list_models()
+
+        :param max_results: Maximum number of results to be returned
+        :type max_results: int
+        :param next_token: A unique token for each page, use the returned token to retrieve the next page.
+        :type next_token: str
+        :return: Models response from REST API without the content of each model
+        :rtype: dict
+
+        :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
+ :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
+        """
+        params = {
+            'maxResults': max_results,
+            'nextToken': next_token,
+        }
+        return self._make_request(requests.get, '/models', params=params)
+
+    def create_prediction(
+        self,
+        document_id: str,
+        model_id: str,
+        max_pages: Optional[int] = None,
+        auto_rotate: Optional[bool] = None,
+    ) -> dict:
         """Create a prediction on a document using specified model, calls the POST /predictions endpoint.
 
         >>> from las.client import BaseClient
@@ -346,8 +385,6 @@ class BaseClient:
         :param auto_rotate: Whether or not to let the API try different rotations on\
  the document when running predictions
         :type auto_rotate: bool
-        :param extras: Extra information to add to json body
-        :type extras: Dict[str, Any]
         :return: Prediction response from REST API
         :rtype: dict
 
@@ -359,7 +396,6 @@ class BaseClient:
             'modelId': model_id,
             'maxPages': max_pages,
             'autoRotate': auto_rotate,
-            **(extras or {}),
         }
         return self._make_request(requests.post, '/predictions', body=dictstrip(body))
 
@@ -436,8 +472,15 @@ class BaseClient:
         }
         return self._make_request(requests.patch, f'/secrets/{secret_id}', body=dictstrip(body))
 
-    def create_transition(self, name, transition_type: str, in_schema: dict, out_schema: dict,
-                          params: Optional[dict] = None, description: Optional[str] = None) -> dict:
+    def create_transition(
+        self,
+        name,
+        transition_type: str,
+        in_schema: dict,
+        out_schema: dict,
+        params: Optional[dict] = None,
+        description: Optional[str] = None,
+    ) -> dict:
         """Creates a transition handle, calls the POST /transitions endpoint.
 
         >>> import json
@@ -447,7 +490,10 @@ class BaseClient:
         >>> in_schema = {'$schema': 'https://json-schema.org/draft-04/schema#', 'title': 'in', 'properties': {...} }
         >>> out_schema = {'$schema': 'https://json-schema.org/draft-04/schema#', 'title': 'out', 'properties': {...} }
         >>> # A typical docker transitions
-        >>> docker_params = {'imageUrl': '<image_url>', 'credentials': {'username': '<username>', 'password': '<password>'}}
+        >>> docker_params = {
+        >>>     'imageUrl': '<image_url>',
+        >>>     'credentials': {'username': '<username>', 'password': '<password>'}
+        >>> }
         >>> client.create_transition('<name>', 'docker', in_schema, out_schema, docker_params)
         >>> # A typical manual transitions
         >>> assets = {'jsRemoteComponent': 'las:asset:<hex-uuid>', '<other asset name>': 'las:asset:<hex-uuid>'}
@@ -462,7 +508,7 @@ class BaseClient:
         :type name: str
         :param transition_type: Type of transition "docker"|"manual"
         :type transition_type: str
-        :param params: Extra parameters to the transition
+        :param params: Parameters to the corresponding transition type
         :type params: Optional[dict]
         :param description: Description of the transition
         :type description: Optional[str]
@@ -482,8 +528,12 @@ class BaseClient:
         }
         return self._make_request(requests.post, '/transitions', body=dictstrip(body))
 
-    def list_transitions(self, transition_type: Optional[Queryparam] = None,
-                         max_results: Optional[int] = None, next_token: Optional[str] = None) -> dict:
+    def list_transitions(
+        self,
+        transition_type: Optional[Queryparam] = None,
+        max_results: Optional[int] = None,
+        next_token: Optional[str] = None,
+    ) -> dict:
         """List transitions, calls the GET /transitions endpoint.
 
         >>> from las.client import BaseClient
@@ -502,7 +552,7 @@ class BaseClient:
         :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
  :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
         """
-        url = f'/transitions'
+        url = '/transitions'
         params = {
             'transitionType': transition_type,
             'maxResults': max_results,
@@ -510,8 +560,15 @@ class BaseClient:
         }
         return self._make_request(requests.get, url, params=params)
 
-    def update_transition(self, transition_id: str, *, name: Optional[str], in_schema: Optional[dict],
-                          out_schema: Optional[dict], description: Optional[str] = None) -> dict:
+    def update_transition(
+        self,
+        transition_id: str,
+        *,
+        name: Optional[str],
+        in_schema: Optional[dict],
+        out_schema: Optional[dict],
+        description: Optional[str] = None,
+    ) -> dict:
         """Creates a transition handle, calls the PATCH /transitions/{transitionId} endpoint.
 
         >>> import json
@@ -563,11 +620,12 @@ class BaseClient:
         return self._make_request(requests.post, endpoint, body={})
 
     def list_transition_executions(
-            self, transition_id: str,
-            status: Optional[Queryparam] = None,
-            execution_id: Optional[Queryparam] = None,
-            max_results: Optional[int] = None,
-            next_token: Optional[str] = None
+        self,
+        transition_id: str,
+        status: Optional[Queryparam] = None,
+        execution_id: Optional[Queryparam] = None,
+        max_results: Optional[int] = None,
+        next_token: Optional[str] = None,
     ) -> dict:
         """List executions in a transition, calls the GET /transitions/{transitionId}/executions endpoint.
 
@@ -600,8 +658,14 @@ class BaseClient:
         }
         return self._make_request(requests.get, url, params=params)
 
-    def update_transition_execution(self, transition_id: str, execution_id: str, status: str,
-                                    output: Optional[dict] = None, error: Optional[dict] = None) -> dict:
+    def update_transition_execution(
+        self,
+        transition_id: str,
+        execution_id: str,
+        status: str,
+        output: Optional[dict] = None,
+        error: Optional[dict] = None,
+    ) -> dict:
         """Ends the processing of the transition execution,
         calls the PATCH /transitions/{transition_id}/executions/{execution_id} endpoint.
 
@@ -710,8 +774,13 @@ class BaseClient:
         """
         return self._make_request(requests.delete, f'/users/{user_id}')
 
-    def create_workflow(self, specification: dict, name: str, description: Optional[str] = None,
-                        error_config: Optional[dict] = None) -> dict:
+    def create_workflow(
+        self,
+        specification: dict,
+        name: str,
+        description: Optional[str] = None,
+        error_config: Optional[dict] = None,
+    ) -> dict:
         """Creates a new workflow, calls the POST /workflows endpoint.
 
         >>> from las.client import BaseClient
@@ -721,7 +790,8 @@ class BaseClient:
         >>> error_config = {'email': '<error-recipient>'}
         >>> client.create_workflow(specification, '<name>', '<description>', error_config)
 
-        :param specification: Specification of the workflow
+        :param specification: Specification of the workflow,
+            currently supporting ASL: https://states-language.net/spec.html
         :type specification: dict
         :param name: Name of the workflow
         :type name: str
@@ -839,7 +909,7 @@ class BaseClient:
             sort_by: Optional[str] = None,
             order: Optional[str] = None,
             max_results: Optional[int] = None,
-            next_token: Optional[str] = None
+            next_token: Optional[str] = None,
     ) -> dict:
         """List executions in a workflow, calls the GET /workflows/{workflowId}/executions endpoint.
 
@@ -898,8 +968,13 @@ class BaseClient:
 
 class Client(BaseClient):
     """A high level client to invoke api methods from Lucidtech AI Services."""
-    def predict(self, document_path: str, model_id: str, consent_id: Optional[str] = None,
-                extras: Dict[str, Any] = None) -> Prediction:
+    def predict(
+        self,
+        document_path: str,
+        model_id: str,
+        consent_id: Optional[str] = None,
+        extras: Dict[str, Any] = None,
+    ) -> Prediction:
         """Create a prediction on a document specified by path using specified model.
         This method takes care of creating and uploading a document specified by document_path.
         as well as running inference using model specified by model_id to create prediction on the document.
@@ -935,7 +1010,7 @@ class Client(BaseClient):
 
         >>> from las import Client
         >>> client = Client()
-        >>> ground_truth = [Field(label='total_amount', value='120.00'), Field(label='purchase_date', value='2019-03-10')]
+        >>> ground_truth = [Field(label='total_amount', value='120.00'), Field(label='due_date', value='2019-03-10')]
         >>> client.send_ground_truth('<document id>', ground_truth)
 
         :param document_id: Id of the document that will receive the ground truth

@@ -72,16 +72,8 @@ def endpoint(params):
 
 
 @pytest.fixture(scope='module')
-def base_client():
-    client = BaseClient()
-    _ = client.credentials.access_token
-    return client
-
-
-@pytest.fixture(scope='module')
 def client():
     client = Client()
-    _ = client.credentials.access_token
     return client
 
 

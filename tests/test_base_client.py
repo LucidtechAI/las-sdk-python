@@ -32,6 +32,12 @@ def create_limit_exceeded_mock():
     )
 
 
+@pytest.fixture(scope='module')
+def client_with_access_token(client):
+    _ = client.credentials.access_token
+    return client
+
+
 @patch('requests.post')
 @patch('requests.patch')
 @patch('requests.delete')
@@ -40,8 +46,16 @@ def create_limit_exceeded_mock():
     (create_too_many_requests_mock(), TooManyRequestsException),
     (create_limit_exceeded_mock(), LimitExceededException),
 ])
-def test_invalid_credentials(post_mock, patch_mock, delete_mock, error_mock, error_name, typed_content, client):
+def test_invalid_credentials(post_mock,
+    patch_mock,
+    delete_mock,
+    error_mock,
+    error_name,
+    typed_content,
+    client_with_access_token,
+):
 
+    client = client_with_access_token
     delete_mock.return_value = error_mock
     post_mock.return_value = error_mock
     patch_mock.return_value = error_mock
