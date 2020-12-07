@@ -1,18 +1,15 @@
 import json
 import logging
-import pathlib
 from base64 import b64encode
 from json.decoder import JSONDecodeError
 from typing import Any, Callable, Dict, List, Optional, Sequence, Union
 from urllib.parse import urlparse
 
-import filetype
 import requests
 from backoff import expo, on_exception  # type: ignore
 from requests.exceptions import RequestException
 
 from .credentials import Credentials, guess_credentials
-from .prediction import Field, Prediction
 
 logger = logging.getLogger('las')
 Queryparam = Union[str, List[str]]
@@ -77,7 +74,7 @@ class FileFormatException(ClientException):
     pass
 
 
-class BaseClient:
+class Client:
     """A low level client to invoke api methods from Lucidtech AI Services."""
     def __init__(self, credentials: Optional[Credentials] = None):
         """:param credentials: Credentials to use, instance of :py:class:`~las.Credentials`
@@ -110,8 +107,8 @@ class BaseClient:
     def create_asset(self, content: bytes) -> Dict:
         """Creates an asset handle, calls the POST /assets endpoint.
 
-        >>> from las.client import BaseClient
-        >>> client = BaseClient()
+        >>> from las.client import Client
+        >>> client = Client()
         >>> client.create_asset(b'<bytes data>')
 
         :param content: Content to POST
@@ -128,8 +125,8 @@ class BaseClient:
     def list_assets(self, *, max_results: Optional[int] = None, next_token: Optional[str] = None) -> Dict:
         """List assets available, calls the GET /assets endpoint.
 
-        >>> from las.client import BaseClient
-        >>> client = BaseClient()
+        >>> from las.client import Client
+        >>> client = Client()
         >>> client.list_assets()
 
         :param max_results: Maximum number of results to be returned
@@ -151,8 +148,8 @@ class BaseClient:
     def get_asset(self, asset_id: str) -> Dict:
         """Get asset from the REST API, calls the GET /assets/{assetId} endpoint.
 
-        >>> from las.client import BaseClient
-        >>> client = BaseClient()
+        >>> from las.client import Client
+        >>> client = Client()
         >>> client.get_asset(asset_id='<asset id>')
 
         :param asset_id: Id of the asset
@@ -168,8 +165,8 @@ class BaseClient:
     def update_asset(self, asset_id: str, content: bytes) -> Dict:
         """Updates an asset, calls the PATCH /assets/assetId endpoint.
 
-        >>> from las.client import BaseClient
-        >>> client = BaseClient()
+        >>> from las.client import Client
+        >>> client = Client()
         >>> client.update_asset('<asset id>', b'<bytes data>')
 
         :param asset_id: Id of the asset
@@ -188,8 +185,8 @@ class BaseClient:
     def create_batch(self, description: str) -> Dict:
         """Creates a batch, calls the POST /batches endpoint.
 
-        >>> from las.client import BaseClient
-        >>> client = BaseClient()
+        >>> from las.client import Client
+        >>> client = Client()
         >>> client.create_batch(description='<description>')
 
         :param description: Description of the batch
@@ -213,8 +210,8 @@ class BaseClient:
     ) -> Dict:
         """Creates a document handle, calls the POST /documents endpoint.
 
-        >>> from las.client import BaseClient
-        >>> client = BaseClient()
+        >>> from las.client import Client
+        >>> client = Client()
         >>> client.create_document(b'<bytes data>', 'image/jpeg', '<consent id>')
 
         :param content: Content to POST
@@ -252,8 +249,8 @@ class BaseClient:
     ) -> Dict:
         """List documents available for inference, calls the GET /documents endpoint.
 
-        >>> from las.client import BaseClient
-        >>> client = BaseClient()
+        >>> from las.client import Client
+        >>> client = Client()
         >>> client.list_documents(batch_id='<batch_id>', consent_id='<consent_id>')
 
         :param batch_id: Ids of batches that contains the documents of interest
@@ -281,8 +278,8 @@ class BaseClient:
     def delete_documents(self, *, consent_id: Optional[Queryparam] = None) -> Dict:
         """Delete documents with the provided consent_id, calls the DELETE /documents endpoint.
 
-        >>> from las.client import BaseClient
-        >>> client = BaseClient()
+        >>> from las.client import Client
+        >>> client = Client()
         >>> client.delete_documents('<consent id>')
 
         :param consent_id: Ids of the consents that marks the owner of the document handle
@@ -298,8 +295,8 @@ class BaseClient:
     def get_document(self, document_id: str) -> Dict:
         """Get document from the REST API, calls the GET /documents/{documentId} endpoint.
 
-        >>> from las.client import BaseClient
-        >>> client = BaseClient()
+        >>> from las.client import Client
+        >>> client = Client()
         >>> client.get_document(document_id='<document id>')
 
         :param document_id: Id of the document
@@ -317,8 +314,8 @@ class BaseClient:
         Posting ground truth means posting the ground truth data for the particular document.
         This enables the API to learn from past mistakes.
 
-        >>> from las.client import BaseClient
-        >>> client = BaseClient()
+        >>> from las.client import Client
+        >>> client = Client()
         >>> ground_truth = [{'label': 'total_amount', 'value': '156.00'}, {'label': 'date', 'value': '2018-10-23'}]
         >>> client.update_document(document_id='<document id>', ground_truth=ground_truth)
 
@@ -337,8 +334,8 @@ class BaseClient:
     def list_models(self, *, max_results: Optional[int] = None, next_token: Optional[str] = None) -> Dict:
         """List models available, calls the GET /models endpoint.
 
-        >>> from las.client import BaseClient
-        >>> client = BaseClient()
+        >>> from las.client import Client
+        >>> client = Client()
         >>> client.list_models()
 
         :param max_results: Maximum number of results to be returned
@@ -367,8 +364,8 @@ class BaseClient:
     ) -> Dict:
         """Create a prediction on a document using specified model, calls the POST /predictions endpoint.
 
-        >>> from las.client import BaseClient
-        >>> client = BaseClient()
+        >>> from las.client import Client
+        >>> client = Client()
         >>> client.create_prediction(document_id='<document id>', model_id='<model id>')
 
         :param document_id: Id of the document to run inference and create a prediction on
@@ -397,8 +394,8 @@ class BaseClient:
     def create_secret(self, data: dict, *, description: Optional[str] = None) -> Dict:
         """Creates an secret handle, calls the POST /secrets endpoint.
 
-        >>> from las.client import BaseClient
-        >>> client = BaseClient()
+        >>> from las.client import Client
+        >>> client = Client()
         >>> data = {'username': '<username>', 'password': '<password>'}
         >>> client.create_secret(data, '<description>')
 
@@ -421,8 +418,8 @@ class BaseClient:
     def list_secrets(self, *, max_results: Optional[int] = None, next_token: Optional[str] = None) -> Dict:
         """List secrets available, calls the GET /secrets endpoint.
 
-        >>> from las.client import BaseClient
-        >>> client = BaseClient()
+        >>> from las.client import Client
+        >>> client = Client()
         >>> client.list_secrets()
 
         :param max_results: Maximum number of results to be returned
@@ -444,8 +441,8 @@ class BaseClient:
     def update_secret(self, secret_id: str, data: dict, *, description: Optional[str] = None) -> Dict:
         """Updates an secret, calls the PATCH /secrets/secretId endpoint.
 
-        >>> from las.client import BaseClient
-        >>> client = BaseClient()
+        >>> from las.client import Client
+        >>> client = Client()
         >>> data = {'username': '<username>', 'password': '<password>'}
         >>> client.update_secret('<secret id>', data, '<description>')
 
@@ -481,8 +478,8 @@ class BaseClient:
 
         >>> import json
         >>> from pathlib import Path
-        >>> from las.client import BaseClient
-        >>> client = BaseClient()
+        >>> from las.client import Client
+        >>> client = Client()
         >>> in_schema = {'$schema': 'https://json-schema.org/draft-04/schema#', 'title': 'in', 'properties': {...} }
         >>> out_schema = {'$schema': 'https://json-schema.org/draft-04/schema#', 'title': 'out', 'properties': {...} }
         >>> # A typical docker transitions
@@ -533,8 +530,8 @@ class BaseClient:
     ) -> Dict:
         """List transitions, calls the GET /transitions endpoint.
 
-        >>> from las.client import BaseClient
-        >>> client = BaseClient()
+        >>> from las.client import Client
+        >>> client = Client()
         >>> client.list_transitions('<transition_type>')
 
         :param transition_type: Types of transitions
@@ -570,8 +567,8 @@ class BaseClient:
 
         >>> import json
         >>> from pathlib import Path
-        >>> from las.client import BaseClient
-        >>> client = BaseClient()
+        >>> from las.client import Client
+        >>> client = Client()
         >>> client.update_transition('<transition-id>', name='<name>', description='<description>')
 
         :param transition_id: Id of the transition
@@ -601,8 +598,8 @@ class BaseClient:
     def execute_transition(self, transition_id: str) -> Dict:
         """Start executing a manual transition, calls the POST /transitions/{transitionId}/executions endpoint.
 
-        >>> from las.client import BaseClient
-        >>> client = BaseClient()
+        >>> from las.client import Client
+        >>> client = Client()
         >>> client.execute_transition('<transition_id>')
 
         :param transition_id: Id of the transition
@@ -627,8 +624,8 @@ class BaseClient:
     ) -> Dict:
         """List executions in a transition, calls the GET /transitions/{transitionId}/executions endpoint.
 
-        >>> from las.client import BaseClient
-        >>> client = BaseClient()
+        >>> from las.client import Client
+        >>> client = Client()
         >>> client.list_transition_executions('<transition_id>', '<status>')
 
         :param transition_id: Id of the transition
@@ -668,8 +665,8 @@ class BaseClient:
         """Ends the processing of the transition execution,
         calls the PATCH /transitions/{transition_id}/executions/{execution_id} endpoint.
 
-        >>> from las.client import BaseClient
-        >>> client = BaseClient()
+        >>> from las.client import Client
+        >>> client = Client()
         >>> output = {...}
         >>> client.update_transition_execution('<transition_id>', '<execution_id>', 'succeeded', output)
         >>> error = {"message": 'The execution could not be processed due to ...'}
@@ -702,8 +699,8 @@ class BaseClient:
     def create_user(self, email: str) -> Dict:
         """Creates a new user, calls the POST /users endpoint.
 
-        >>> from las.client import BaseClient
-        >>> client = BaseClient()
+        >>> from las.client import Client
+        >>> client = Client()
         >>> client.create_user('<email>')
 
         :param email: Email to the new user
@@ -719,8 +716,8 @@ class BaseClient:
     def list_users(self, *, max_results: Optional[int] = None, next_token: Optional[str] = None) -> Dict:
         """List users, calls the GET /users endpoint.
 
-        >>> from las.client import BaseClient
-        >>> client = BaseClient()
+        >>> from las.client import Client
+        >>> client = Client()
         >>> client.list_users()
 
         :param max_results: Maximum number of results to be returned
@@ -742,8 +739,8 @@ class BaseClient:
     def get_user(self, user_id: str) -> Dict:
         """Get information about a specific user, calls the GET /users/{user_id} endpoint.
 
-        >>> from las.client import BaseClient
-        >>> client = BaseClient()
+        >>> from las.client import Client
+        >>> client = Client()
         >>> client.get_user('<user_id>')
 
         :param user_id: Id of the user
@@ -759,8 +756,8 @@ class BaseClient:
     def delete_user(self, user_id: str) -> Dict:
         """Delete the user with the provided user_id, calls the DELETE /users/{userId} endpoint.
 
-        >>> from las.client import BaseClient
-        >>> client = BaseClient()
+        >>> from las.client import Client
+        >>> client = Client()
         >>> client.delete_user('<user_id>')
 
         :param user_id: Id of the user
@@ -783,9 +780,9 @@ class BaseClient:
     ) -> Dict:
         """Creates a new workflow, calls the POST /workflows endpoint.
 
-        >>> from las.client import BaseClient
+        >>> from las.client import Client
         >>> from pathlib import Path
-        >>> client = BaseClient()
+        >>> client = Client()
         >>> specification = {'language': 'ASL', 'version': '1.0.0', 'definition': {...}}
         >>> error_config = {'email': '<error-recipient>'}
         >>> client.create_workflow(specification, '<name>', '<description>', error_config)
@@ -816,8 +813,8 @@ class BaseClient:
     def list_workflows(self, *, max_results: Optional[int] = None, next_token: Optional[str] = None) -> Dict:
         """List workflows, calls the GET /workflows endpoint.
 
-        >>> from las.client import BaseClient
-        >>> client = BaseClient()
+        >>> from las.client import Client
+        >>> client = Client()
         >>> client.list_workflows()
 
         :param max_results: Maximum number of results to be returned
@@ -841,8 +838,8 @@ class BaseClient:
 
         >>> import json
         >>> from pathlib import Path
-        >>> from las.client import BaseClient
-        >>> client = BaseClient()
+        >>> from las.client import Client
+        >>> client = Client()
         >>> client.update_workflow('<workflow-id>', name='<name>', description='<description>')
 
         :param workflow_id: Id of the workflow
@@ -866,8 +863,8 @@ class BaseClient:
     def delete_workflow(self, workflow_id: str) -> Dict:
         """Delete the workflow with the provided workflow_id, calls the DELETE /workflows/{workflowId} endpoint.
 
-        >>> from las.client import BaseClient
-        >>> client = BaseClient()
+        >>> from las.client import Client
+        >>> client = Client()
         >>> client.delete_workflow('<workflow_id>')
 
         :param workflow_id: Id of the workflow
@@ -883,9 +880,9 @@ class BaseClient:
     def execute_workflow(self, workflow_id: str, content: dict) -> Dict:
         """Start a workflow execution, calls the POST /workflows/{workflowId}/executions endpoint.
 
-        >>> from las.client import BaseClient
+        >>> from las.client import Client
         >>> from pathlib import Path
-        >>> client = BaseClient()
+        >>> client = Client()
         >>> content = {...}
         >>> client.execute_workflow('<workflow_id>', content)
 
@@ -914,8 +911,8 @@ class BaseClient:
     ) -> Dict:
         """List executions in a workflow, calls the GET /workflows/{workflowId}/executions endpoint.
 
-        >>> from las.client import BaseClient
-        >>> client = BaseClient()
+        >>> from las.client import Client
+        >>> client = Client()
         >>> client.list_workflow_executions('<workflow_id>', '<status>')
 
         :param workflow_id: Id of the workflow
@@ -950,8 +947,8 @@ class BaseClient:
         """Stops the execution with the provided execution_id from workflow_id,
         calls the DELETE /workflows/{workflowId}/executions/{executionId} endpoint.
 
-        >>> from las.client import BaseClient
-        >>> client = BaseClient()
+        >>> from las.client import Client
+        >>> client = Client()
         >>> client.stop_workflow_execution('<workflow_id>', '<execution_id>')
 
         :param workflow_id: Id of the workflow
@@ -965,76 +962,3 @@ class BaseClient:
  :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
         """
         return self._make_request(requests.delete, f'/workflows/{workflow_id}/executions/{execution_id}')
-
-
-class Client(BaseClient):
-    """A high level client to invoke api methods from Lucidtech AI Services."""
-    def predict(
-        self,
-        document_path: str,
-        model_id: str,
-        *,
-        consent_id: Optional[str] = None,
-    ) -> Prediction:
-        """Create a prediction on a document specified by path using specified model.
-        This method takes care of creating and uploading a document specified by document_path.
-        as well as running inference using model specified by model_id to create prediction on the document.
-
-        >>> from las import Client
-        >>> client = Client()
-        >>> client.predict(document_path='document.jpeg', model_id='las:model:<hex-uuid>')
-
-        :param document_path: Path to document to run inference on
-        :type document_path: str
-        :param model_id: Id for the model to use for inference
-        :type model_id: str
-        :param consent_id: Id to mark the owner of the document handle
-        :type consent_id: str
-        :return: Prediction on document
-        :rtype: Prediction
-
-        :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
- :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
-        """
-        content_type = self._get_content_type(document_path)
-        document = pathlib.Path(document_path).read_bytes()
-        response = self.create_document(document, content_type, consent_id=consent_id)
-        document_id = response['documentId']
-        prediction_response = self.create_prediction(document_id, model_id)
-        return Prediction(document_id, model_id, prediction_response, consent_id=consent_id)
-
-    def send_ground_truth(self, document_id: str, ground_truth: List[Field]) -> Dict:
-        """Send ground truth to the model.
-        This method takes care of sending ground truth related to document specified by document_id.
-
-        >>> from las import Client
-        >>> client = Client()
-        >>> ground_truth = [Field(label='total_amount', value='120.00'), Field(label='due_date', value='2019-03-10')]
-        >>> client.send_ground_truth('<document id>', ground_truth)
-
-        :param document_id: Id of the document that will receive the ground truth
-        :type document_id: str
-        :param ground_truth: List of :py:class:`~las.Field` representing the ground truth values for the document
-        :type ground_truth: List[Field]
-        :return: GroundTruth response
-        :rtype: dict
-
-        :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
- :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
-        """
-        return self.update_document(document_id, ground_truth)
-
-    @staticmethod
-    def _get_content_type(document_path: str) -> str:
-        supported_formats = {
-            'image/jpeg',
-            'application/pdf',
-        }
-
-        content = pathlib.Path(document_path).read_bytes()
-        guessed_type = filetype.guess(content)
-
-        if guessed_type and guessed_type.mime in supported_formats:
-            return guessed_type.mime
-        else:
-            raise FileFormatException

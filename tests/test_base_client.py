@@ -46,7 +46,8 @@ def client_with_access_token(client):
     (create_too_many_requests_mock(), TooManyRequestsException),
     (create_limit_exceeded_mock(), LimitExceededException),
 ])
-def test_invalid_credentials(post_mock,
+def test_invalid_credentials(
+    post_mock,
     patch_mock,
     delete_mock,
     error_mock,

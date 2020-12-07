@@ -3,7 +3,7 @@ import random
 
 import pytest
 
-from las.client import BaseClient
+from las.client import Client
 from . import util
 
 
@@ -13,7 +13,7 @@ from . import util
     ('foobar', None),
     ('foobar', {'email': 'foo@bar.com'}),
 ])
-def test_create_workflow(client: BaseClient, description, error_config):
+def test_create_workflow(client: Client, description, error_config):
     specification = {'definition': {}}
     name = 'foobar'
     response = client.create_workflow(specification, name, description=description, error_config=error_config)
@@ -23,7 +23,7 @@ def test_create_workflow(client: BaseClient, description, error_config):
         assert 'description' in response, 'Missing description in response'
 
 
-def test_list_workflows(client: BaseClient):
+def test_list_workflows(client: Client):
     response = client.list_workflows()
     assert 'workflows' in response, 'Missing workflows in response'
     for workflow in response['workflows']:
@@ -35,7 +35,7 @@ def test_list_workflows(client: BaseClient):
     (random.randint(1, 100), 'foo'),
     (None, None),
 ])
-def test_list_workflows_with_pagination(client: BaseClient, max_results, next_token):
+def test_list_workflows_with_pagination(client: Client, max_results, next_token):
     response = client.list_workflows(max_results=max_results, next_token=next_token)
     assert 'workflows' in response, 'Missing workflows in response'
     assert 'nextToken' in response, 'Missing nextToken in response'
@@ -46,7 +46,7 @@ def test_list_workflows_with_pagination(client: BaseClient, max_results, next_to
     (None, 'foo'),
     ('foo', 'bar'),
 ])
-def test_update_workflow(client: BaseClient, name, description):
+def test_update_workflow(client: Client, name, description):
     response = client.update_workflow(
         util.workflow_id(),
         name=name,
@@ -62,7 +62,7 @@ def test_update_workflow(client: BaseClient, name, description):
     'running',
     None,
 ])
-def test_list_workflow_executions(client: BaseClient, status):
+def test_list_workflow_executions(client: Client, status):
     workflow_id = util.workflow_id()
     response = client.list_workflow_executions(workflow_id, status=status)
     logging.info(response)
@@ -75,7 +75,7 @@ def test_list_workflow_executions(client: BaseClient, status):
     (random.randint(1, 100), 'foo'),
     (None, None),
 ])
-def test_list_workflow_executions_with_pagination(client: BaseClient, max_results, next_token):
+def test_list_workflow_executions_with_pagination(client: Client, max_results, next_token):
     workflow_id = util.workflow_id()
     response = client.list_workflow_executions(workflow_id=workflow_id, max_results=max_results, next_token=next_token)
     assert 'workflowId' in response, 'Missing workflowId in response'
@@ -83,7 +83,7 @@ def test_list_workflow_executions_with_pagination(client: BaseClient, max_result
     assert 'nextToken' in response, 'Missing nextToken in response'
 
 
-def test_execute_workflow(client: BaseClient):
+def test_execute_workflow(client: Client):
     workflow_id = util.workflow_id()
     response = client.execute_workflow(workflow_id, content={})
     logging.info(response)
@@ -91,7 +91,7 @@ def test_execute_workflow(client: BaseClient):
 
 
 @pytest.mark.skip(reason='DELETE does not work for the mocked API')
-def test_delete_workflow_execution(client: BaseClient):
+def test_delete_workflow_execution(client: Client):
     workflow_id = util.workflow_id()
     execution_id = util.workflow_execution_id()
     response = client.delete_workflow_execution(workflow_id, execution_id)
@@ -100,7 +100,7 @@ def test_delete_workflow_execution(client: BaseClient):
 
 
 @pytest.mark.skip(reason='DELETE does not work for the mocked API')
-def test_delete_workflow(client: BaseClient):
+def test_delete_workflow(client: Client):
     workflow_id = util.workflow_id()
     response = client.delete_workflow(workflow_id)
     logging.info(response)

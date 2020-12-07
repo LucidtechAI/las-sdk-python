@@ -9,7 +9,6 @@ from uuid import uuid4
 
 import pytest
 from las import Client
-from las.client import BaseClient
 from requests_mock import Mocker
 from . import util
 
