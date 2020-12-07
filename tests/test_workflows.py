@@ -4,7 +4,7 @@ import random
 import pytest
 
 from las.client import Client
-from . import util
+from . import service
 
 
 @pytest.mark.parametrize('description,error_config', [
@@ -48,7 +48,7 @@ def test_list_workflows_with_pagination(client: Client, max_results, next_token)
 ])
 def test_update_workflow(client: Client, name, description):
     response = client.update_workflow(
-        util.workflow_id(),
+        service.create_workflow_id(),
         name=name,
         description=description,
     )
@@ -63,7 +63,7 @@ def test_update_workflow(client: Client, name, description):
     None,
 ])
 def test_list_workflow_executions(client: Client, status):
-    workflow_id = util.workflow_id()
+    workflow_id = service.create_workflow_id()
     response = client.list_workflow_executions(workflow_id, status=status)
     logging.info(response)
     assert 'workflowId' in response, 'Missing workflowId in response'
@@ -76,7 +76,7 @@ def test_list_workflow_executions(client: Client, status):
     (None, None),
 ])
 def test_list_workflow_executions_with_pagination(client: Client, max_results, next_token):
-    workflow_id = util.workflow_id()
+    workflow_id = service.create_workflow_id()
     response = client.list_workflow_executions(workflow_id=workflow_id, max_results=max_results, next_token=next_token)
     assert 'workflowId' in response, 'Missing workflowId in response'
     assert 'executions' in response, 'Missing executions in response'
@@ -84,7 +84,7 @@ def test_list_workflow_executions_with_pagination(client: Client, max_results, n
 
 
 def test_execute_workflow(client: Client):
-    workflow_id = util.workflow_id()
+    workflow_id = service.create_workflow_id()
     response = client.execute_workflow(workflow_id, content={})
     logging.info(response)
     assert_workflow_execution(response)
@@ -92,8 +92,8 @@ def test_execute_workflow(client: Client):
 
 @pytest.mark.skip(reason='DELETE does not work for the mocked API')
 def test_delete_workflow_execution(client: Client):
-    workflow_id = util.workflow_id()
-    execution_id = util.workflow_execution_id()
+    workflow_id = service.create_workflow_id()
+    execution_id = service.create_workflow_execution_id()
     response = client.delete_workflow_execution(workflow_id, execution_id)
     logging.info(response)
     assert_workflow_execution(response)
@@ -101,7 +101,7 @@ def test_delete_workflow_execution(client: Client):
 
 @pytest.mark.skip(reason='DELETE does not work for the mocked API')
 def test_delete_workflow(client: Client):
-    workflow_id = util.workflow_id()
+    workflow_id = service.create_workflow_id()
     response = client.delete_workflow(workflow_id)
     logging.info(response)
     assert_workflow(response)

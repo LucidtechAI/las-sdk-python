@@ -4,7 +4,7 @@ import random
 import pytest
 
 from las.client import Client
-from . import util
+from . import service
 
 
 def test_create_user(client: Client):
@@ -31,7 +31,7 @@ def test_list_users_with_pagination(client: Client, max_results, next_token):
 
 
 def test_get_user(client: Client):
-    user_id = util.user_id()
+    user_id = service.create_user_id()
     response = client.get_user(user_id)
     assert 'userId' in response, 'Missing userId in response'
     assert 'email' in response, 'Missing email in response'
@@ -39,7 +39,7 @@ def test_get_user(client: Client):
 
 @pytest.mark.skip(reason='DELETE does not work for the mocked API')
 def test_delete_user(client: Client):
-    user_id = util.user_id()
+    user_id = service.create_user_id()
     response = client.delete_user(user_id)
     logging.info(response)
     assert 'userId' in response, 'Missing userId in response'

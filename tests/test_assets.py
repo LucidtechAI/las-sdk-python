@@ -5,7 +5,7 @@ from pathlib import Path
 import pytest
 
 from las.client import Client
-from . import util
+from . import service
 
 
 def test_create_asset(client: Client):
@@ -32,14 +32,14 @@ def test_list_assets_with_pagination(client: Client, max_results, next_token):
 
 
 def test_get_asset(client: Client):
-    asset_id = util.asset_id()
+    asset_id = service.create_asset_id()
     response = client.get_asset(asset_id)
     assert 'assetId' in response, 'Missing assetId in response'
     assert 'content' in response, 'Missing content in response'
 
 
 def test_update_asset(client: Client):
-    asset_id = util.asset_id()
+    asset_id = service.create_asset_id()
     content = Path('tests/remote_component.js').read_bytes()
     response = client.update_asset(asset_id, content)
     assert 'assetId' in response, 'Missing assetId in response'

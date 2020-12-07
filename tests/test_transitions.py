@@ -4,16 +4,16 @@ import random
 
 from las.client import Client
 
-from . import util
+from . import service, util
 
 
 @pytest.mark.parametrize('transition_type,params', [
     ('docker', {'imageUrl': 'python3.8'}),
     ('manual', None),
-    ('manual', {'assets': {'jsRemoteComponent': util.asset_id()}}),
+    ('manual', {'assets': {'jsRemoteComponent': service.create_asset_id()}}),
 ])
 def test_create_transition(client: Client, transition_type, params):
-    schema = util.json_schema()
+    schema = util.create_json_schema()
     response = client.create_transition('name', transition_type, schema, schema, params=params)
     logging.info(response)
     assert_transition(response)
@@ -49,7 +49,7 @@ def test_list_transitions_with_pagination(client: Client, max_results, next_toke
 ])
 def test_update_transition(client: Client, name, description, in_schema, out_schema):
     response = client.update_transition(
-        util.transition_id(),
+        service.create_transition_id(),
         name=name,
         description=description,
         in_schema=in_schema,
@@ -60,7 +60,7 @@ def test_update_transition(client: Client, name, description, in_schema, out_sch
 
 
 def test_execute_transition(client: Client):
-    response = client.execute_transition(util.transition_id())
+    response = client.execute_transition(service.create_transition_id())
     logging.info(response)
     assert 'transitionId' in response, 'Missing transitionId in response'
     assert 'executionId' in response, 'Missing executionId in response'
@@ -72,8 +72,8 @@ def test_execute_transition(client: Client):
     ('failed', None, {'message': 'foobar'}),
 ])
 def test_update_transition_execution(client: Client, status, output, error):
-    transition_id = util.transition_id()
-    execution_id = util.transition_execution_id()
+    transition_id = service.create_transition_id()
+    execution_id = service.create_transition_execution_id()
     response = client.update_transition_execution(transition_id, execution_id, status, output=output, error=error)
     logging.info(response)
     assert 'transitionId' in response, 'Missing transitionId in response'

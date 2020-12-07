@@ -4,7 +4,7 @@ import requests_mock
 import pytest
 
 from las.client import InvalidCredentialsException, LimitExceededException, TooManyRequestsException
-from . import util
+from . import service
 
 
 @pytest.fixture(scope='module')
@@ -28,9 +28,9 @@ def test_invalid_credentials(
 ):
 
     client = client_with_access_token
-    consent_id = util.consent_id()
-    document_id = util.document_id()
-    model_id = util.model_id()
+    consent_id = service.create_consent_id()
+    document_id = service.create_document_id()
+    model_id = service.create_model_id()
 
     with requests_mock.Mocker() as m:
         m.post('/'.join([client.endpoint, 'documents']), status_code=error_code, content=error_content)

@@ -4,7 +4,7 @@ import random
 import pytest
 
 from las.client import Client
-from . import util
+from . import service
 
 
 def test_create_secret(client: Client):
@@ -31,7 +31,7 @@ def test_list_secrets_with_pagination(client: Client, max_results, next_token):
 
 
 def test_update_secret(client: Client):
-    secret_id = util.secret_id()
+    secret_id = service.create_secret_id()
     data = {'username': 'foo', 'password': 'bar'}
     response = client.update_secret(secret_id, data)
     assert 'secretId' in response, 'Missing secretId in response'

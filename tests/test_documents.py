@@ -3,7 +3,7 @@ import random
 from typing import Iterable
 import pytest
 from las.client import Client
-from . import util
+from . import service
 
 pytestmark = pytest.mark.integration
 
@@ -14,7 +14,7 @@ def test_create_document(
     content,
     mime_type,
 ):
-    consent_id = util.consent_id()
+    consent_id = service.create_consent_id()
     post_documents_response = client.create_document(content, mime_type, consent_id=consent_id)
 
     assert 'documentId' in post_documents_response, 'Missing documentId in response'
@@ -24,9 +24,9 @@ def test_create_document(
 
 @pytest.mark.parametrize('batch_id,consent_id', [
     (None, None),
-    (util.batch_id(), None),
-    (None, util.consent_id()),
-    ([util.batch_id()], [util.consent_id()]),
+    (service.create_batch_id(), None),
+    (None, service.create_consent_id()),
+    ([service.create_batch_id()], [service.create_consent_id()]),
 ])
 def test_list_documents(client: Client, batch_id, consent_id):
     response = client.list_documents(consent_id=consent_id, batch_id=batch_id)
@@ -45,7 +45,7 @@ def test_list_documents_with_pagination(client: Client, max_results, next_token)
 
 
 def test_get_document(client: Client):
-    document_id = util.document_id()
+    document_id = service.create_document_id()
     response = client.get_document(document_id)
     assert 'documentId' in response, 'Missing documentId in response'
     assert 'consentId' in response, 'Missing consentId in response'
@@ -54,7 +54,7 @@ def test_get_document(client: Client):
 
 
 def test_update_document(client: Client):
-    document_id = util.document_id()
+    document_id = service.create_document_id()
     ground_truth = [
         {'label': 'total_amount', 'value': '54.50'},
         {'label': 'purchase_date', 'value': '2007-07-30'},
@@ -68,7 +68,7 @@ def test_update_document(client: Client):
     assert 'consentId' in post_document_id_response, 'Missing consentId in response'
 
 
-@pytest.mark.parametrize('consent_id', [None, [util.consent_id()]])
+@pytest.mark.parametrize('consent_id', [None, [service.create_consent_id()]])
 @pytest.mark.skip(reason='DELETE does not work for the mocked API')
 def test_delete_documents(client: Client, consent_id):
     delete_documents_response = client.delete_documents(consent_id=consent_id)
