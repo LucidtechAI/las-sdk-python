@@ -11,20 +11,15 @@ pytestmark = pytest.mark.integration
 def test_create_document(
     monkeypatch,
     client: Client,
-    document_paths: Iterable[str],
-    document_mime_types: Iterable[str],
     content,
+    mime_type,
 ):
-    monkeypatch.setattr(pathlib.Path, 'read_bytes', lambda _: content)
+    consent_id = util.consent_id()
+    post_documents_response = client.create_document(content, mime_type, consent_id=consent_id)
 
-    for document_path, document_mime_type in zip(document_paths, document_mime_types):
-        consent_id = util.consent_id()
-        content = pathlib.Path(document_path).read_bytes()
-        post_documents_response = client.create_document(content, document_mime_type, consent_id=consent_id)
-
-        assert 'documentId' in post_documents_response, 'Missing documentId in response'
-        assert 'consentId' in post_documents_response, 'Missing consentId in response'
-        assert 'contentType' in post_documents_response, 'Missing contentType in response'
+    assert 'documentId' in post_documents_response, 'Missing documentId in response'
+    assert 'consentId' in post_documents_response, 'Missing consentId in response'
+    assert 'contentType' in post_documents_response, 'Missing contentType in response'
 
 
 @pytest.mark.parametrize('batch_id,consent_id', [

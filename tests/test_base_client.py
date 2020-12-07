@@ -52,7 +52,8 @@ def test_invalid_credentials(
     delete_mock,
     error_mock,
     error_name,
-    typed_content,
+    content,
+    mime_type,
     client_with_access_token,
 ):
 
@@ -61,7 +62,6 @@ def test_invalid_credentials(
     post_mock.return_value = error_mock
     patch_mock.return_value = error_mock
 
-    content, mime_type = typed_content
     consent_id = util.consent_id()
     document_id = util.document_id()
     model_id = util.model_id()
