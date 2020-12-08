@@ -84,8 +84,13 @@ class Client:
 
     @on_exception(expo, TooManyRequestsException, max_tries=4)
     @on_exception(expo, RequestException, max_tries=3, giveup=_fatal_code)
-    def _make_request(self, requests_fn: Callable, signing_path: str,
-                      body: Optional[dict] = None, params: Optional[dict] = None) -> Dict:
+    def _make_request(
+        self,
+        requests_fn: Callable,
+        signing_path: str,
+        body: Optional[dict] = None,
+        params: Optional[dict] = None,
+    ) -> Dict:
         """Make signed headers, use them to make a HTTP request of arbitrary form and return the result
         as decoded JSON. Optionally pass a payload to JSON-dump and parameters for the request call."""
 
