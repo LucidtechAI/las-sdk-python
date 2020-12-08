@@ -1,46 +1,51 @@
-import pathlib
-import tempfile
-from typing import Iterable
+import json
 
+import requests_mock
 import pytest
 
-from las import Client, Field
-from las.client import FileFormatException
-
-pytestmark = pytest.mark.integration
+from las.client import InvalidCredentialsException, LimitExceededException, TooManyRequestsException
+from . import service
 
 
-def test_send_feedback(client: Client, document_id: str):
-    feedback = [Field(label='total_amount', value='120.00'), Field(label='purchase_date', value='2019-03-10')]
-    response = client.send_feedback(document_id, feedback)
-
-    assert 'feedback' in response, 'Missing feedback in response'
-    assert 'documentId' in response, 'Missing documentId in response'
-    assert 'consentId' in response, 'Missing consentId in response'
+@pytest.fixture(scope='module')
+def client_with_access_token(client):
+    _ = client.credentials.access_token
+    return client
 
 
-def test_invalid_file_format(client: Client, model_names: Iterable[str]):
-    for model_name in model_names:
-        with tempfile.NamedTemporaryFile() as fp:
-            with pytest.raises(FileFormatException):
-                client.predict(fp.name, model_name=model_name)
+@pytest.mark.parametrize('error_code,error_content,error_name', [
+    (429, json.dumps({'message': 'Limit Exceeded'}).encode(), LimitExceededException),
+    (429, json.dumps({'message': 'Too Many Requests'}).encode(), TooManyRequestsException),
+    (403, json.dumps({'message': 'Forbidden'}).encode(), InvalidCredentialsException),
+])
+def test_invalid_credentials(
+    error_code,
+    error_content,
+    error_name,
+    content,
+    mime_type,
+    client_with_access_token,
+):
 
+    client = client_with_access_token
+    consent_id = service.create_consent_id()
+    document_id = service.create_document_id()
+    model_id = service.create_model_id()
 
-def test_predict(monkeypatch, client: Client, document_paths: Iterable[str],
-                 model_names: Iterable[str], content: bytes):
-    monkeypatch.setattr(pathlib.Path, 'read_bytes', lambda _: content)
+    with requests_mock.Mocker() as m:
+        m.post('/'.join([client.endpoint, 'documents']), status_code=error_code, content=error_content)
+        m.post('/'.join([client.endpoint, 'predictions']), status_code=error_code, content=error_content)
+        m.patch('/'.join([client.endpoint, 'documents', document_id]), status_code=error_code, content=error_content)
+        m.delete('/'.join([client.endpoint, 'documents']), status_code=error_code, content=error_content)
 
-    for document_path, model_name in zip(document_paths, model_names):
-        prediction = client.predict(document_path, model_name=model_name)
+        with pytest.raises(error_name):
+            client.create_document(content, mime_type, consent_id=consent_id)
 
-        assert prediction.document_id, 'Missing document_id in prediction'
-        assert prediction.consent_id, 'Missing consent_id in prediction'
-        assert prediction.model_name, 'Missing model_name in prediction'
-        assert prediction.fields, 'Missing fields in prediction'
+        with pytest.raises(error_name):
+            client.create_prediction(document_id, model_id)
 
-        for field in prediction.fields:
-            assert field.label, 'Missing label in field'
-            assert type(field.label) == str, 'Label is not str'
-            assert field.confidence, 'Missing confidence in field'
-            assert 0.0 <= field.confidence <= 1.0, 'Confidence not between 0 and 1'
-            assert type(field.value) == str, 'Value is not str'
+        with pytest.raises(error_name):
+            client.update_document(document_id, [{'foo': 'bar'}])
+
+        with pytest.raises(error_name):
+            client.delete_documents(consent_id=consent_id)

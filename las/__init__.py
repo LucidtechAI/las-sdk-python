@@ -1,15 +1,11 @@
 import logging
 
-from .client import BaseClient, Client
+from .client import Client
 from .credentials import Credentials
-from .prediction import Field, Prediction
 
 __all__ = [
-    'BaseClient',
     'Client',
     'Credentials',
-    'Prediction',
-    'Field'
 ]
 
 logger = logging.getLogger('las')
