@@ -204,7 +204,7 @@ class Client:
  :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
         """
         body = {
-            'content': b64encode(content).decode(),
+            'content': b64encode(content).decode() if content is not None else None,
             'name': name,
             'description': description,
         }
