@@ -109,7 +109,7 @@ class Client:
         )
         return _json_decode(response)
 
-    def create_asset(self, content: bytes) -> Dict:
+    def create_asset(self, content: bytes, name: Optional[str] = None, description: Optional[str] = None) -> Dict:
         """Creates an asset handle, calls the POST /assets endpoint.
 
         >>> from las.client import Client
@@ -118,14 +118,22 @@ class Client:
 
         :param content: Content to POST
         :type content: bytes
+        :param name: Name of the asset
+        :type name: str
+        :param description: Description of the asset
+        :type description: str
         :return: Asset response from REST API
         :rtype: dict
 
         :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
  :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
         """
-        body = {'content': b64encode(content).decode()}
-        return self._make_request(requests.post, '/assets', body=body)
+        body = {
+            'name': name,
+            'description': description,
+            'content': b64encode(content).decode(),
+        }
+        return self._make_request(requests.post, '/assets', body=dictstrip(body))
 
     def list_assets(self, *, max_results: Optional[int] = None, next_token: Optional[str] = None) -> Dict:
         """List assets available, calls the GET /assets endpoint.
@@ -167,33 +175,50 @@ class Client:
         """
         return self._make_request(requests.get, f'/assets/{asset_id}')
 
-    def update_asset(self, asset_id: str, content: bytes) -> Dict:
+    def update_asset(
+        self,
+        asset_id: str,
+        *,
+        content: Optional[bytes] = None,
+        name: Optional[str] = None,
+        description: Optional[str] = None,
+    ) -> Dict:
         """Updates an asset, calls the PATCH /assets/assetId endpoint.
 
         >>> from las.client import Client
         >>> client = Client()
-        >>> client.update_asset('<asset id>', b'<bytes data>')
+        >>> client.update_asset('<asset id>', content=b'<bytes data>')
 
         :param asset_id: Id of the asset
         :type asset_id: str
         :param content: Content to PATCH
         :type content: bytes
+        :param name: Name of the asset
+        :type name: str
+        :param description: Description of the asset
+        :type description: str
         :return: Asset response from REST API
         :rtype: dict
 
         :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
  :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
         """
-        body = {'content': b64encode(content).decode()}
-        return self._make_request(requests.patch, f'/assets/{asset_id}', body=body)
+        body = {
+            'content': b64encode(content).decode(),
+            'name': name,
+            'description': description,
+        }
+        return self._make_request(requests.patch, f'/assets/{asset_id}', body=dictstrip(body))
 
-    def create_batch(self, description: str) -> Dict:
+    def create_batch(self, name: Optional[str] = None, description: Optional[str] = None) -> Dict:
         """Creates a batch, calls the POST /batches endpoint.
 
         >>> from las.client import Client
         >>> client = Client()
         >>> client.create_batch(description='<description>')
 
+        :param name: Name of the batch
+        :type name: str
         :param description: Description of the batch
         :type description: str
         :return: Batch response from REST API
@@ -202,7 +227,11 @@ class Client:
         :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
  :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
         """
-        return self._make_request(requests.post, '/batches', body={'description': description})
+        body = {
+            'name': name,
+            'description': description,
+        }
+        return self._make_request(requests.post, '/batches', body=dictstrip(body))
 
     def create_document(
             self,
@@ -396,7 +425,7 @@ class Client:
         }
         return self._make_request(requests.post, '/predictions', body=dictstrip(body))
 
-    def create_secret(self, data: dict, *, description: Optional[str] = None) -> Dict:
+    def create_secret(self, data: dict, *, name: Optional[str] = None, description: Optional[str] = None) -> Dict:
         """Creates an secret handle, calls the POST /secrets endpoint.
 
         >>> from las.client import Client
@@ -406,6 +435,8 @@ class Client:
 
         :param data: Dict containing the data you want to keep secret
         :type data: str
+        :param name: Name of the secret
+        :type name: str
         :param description: Description of the secret
         :type description: str
         :return: Secret response from REST API
@@ -416,6 +447,7 @@ class Client:
         """
         body = {
             'data': data,
+            'name': name,
             'description': description,
         }
         return self._make_request(requests.post, '/secrets', body=dictstrip(body))
@@ -443,18 +475,27 @@ class Client:
         }
         return self._make_request(requests.get, '/secrets', params=params)
 
-    def update_secret(self, secret_id: str, data: dict, *, description: Optional[str] = None) -> Dict:
+    def update_secret(
+        self,
+        secret_id: str,
+        *,
+        data: Optional[dict] = None,
+        name: Optional[str] = None,
+        description: Optional[str] = None,
+    ) -> Dict:
         """Updates an secret, calls the PATCH /secrets/secretId endpoint.
 
         >>> from las.client import Client
         >>> client = Client()
         >>> data = {'username': '<username>', 'password': '<password>'}
-        >>> client.update_secret('<secret id>', data, '<description>')
+        >>> client.update_secret('<secret id>', data, description='<description>')
 
         :param secret_id: Id of the secret
         :type secret_id: str
         :param data: Dict containing the data you want to keep secret
         :type data: str
+        :param name: Name of the secret
+        :type name: Optional[str]
         :param description: Description of the secret
         :type description: Optional[str]
         :return: Secret response from REST API
@@ -465,17 +506,18 @@ class Client:
         """
         body = {
             'data': data,
+            'name': name,
             'description': description,
         }
         return self._make_request(requests.patch, f'/secrets/{secret_id}', body=dictstrip(body))
 
     def create_transition(
         self,
-        name,
         transition_type: str,
-        in_schema: dict,
-        out_schema: dict,
         *,
+        name: Optional[str] = None,
+        in_schema: Optional[dict] = None,
+        out_schema: Optional[dict] = None,
         params: Optional[dict] = None,
         description: Optional[str] = None,
     ) -> Dict:
@@ -492,11 +534,11 @@ class Client:
         >>>     'imageUrl': '<image_url>',
         >>>     'credentials': {'username': '<username>', 'password': '<password>'}
         >>> }
-        >>> client.create_transition('<name>', 'docker', in_schema, out_schema, docker_params)
+        >>> client.create_transition('docker', in_schema=in_schema, out_schema=out_schema, params=docker_params)
         >>> # A typical manual transitions
         >>> assets = {'jsRemoteComponent': 'las:asset:<hex-uuid>', '<other asset name>': 'las:asset:<hex-uuid>'}
         >>> manual_params = {'assets': assets}
-        >>> client.create_transition('<name>', 'manual', in_schema, out_schema, manual_params)
+        >>> client.create_transition('manual', in_schema=in_schema, out_schema=out_schema, params=manual_params)
 
         :param in_schema: Json-schema that defines the input to the transition
         :type in_schema: dict
@@ -563,9 +605,9 @@ class Client:
         self,
         transition_id: str,
         *,
-        name: Optional[str],
-        in_schema: Optional[dict],
-        out_schema: Optional[dict],
+        name: Optional[str] = None,
+        in_schema: Optional[dict] = None,
+        out_schema: Optional[dict] = None,
         description: Optional[str] = None,
     ) -> Dict:
         """Creates a transition handle, calls the PATCH /transitions/{transitionId} endpoint.
@@ -778,8 +820,8 @@ class Client:
     def create_workflow(
         self,
         specification: dict,
-        name: str,
         *,
+        name: Optional[str] = None,
         description: Optional[str] = None,
         error_config: Optional[dict] = None,
     ) -> Dict:
@@ -790,7 +832,7 @@ class Client:
         >>> client = Client()
         >>> specification = {'language': 'ASL', 'version': '1.0.0', 'definition': {...}}
         >>> error_config = {'email': '<error-recipient>'}
-        >>> client.create_workflow(specification, '<name>', '<description>', error_config)
+        >>> client.create_workflow(specification, error_config=error_config)
 
         :param specification: Specification of the workflow,
             currently supporting ASL: https://states-language.net/spec.html

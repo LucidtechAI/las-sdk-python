@@ -41,6 +41,6 @@ def test_get_asset(client: Client):
 def test_update_asset(client: Client):
     asset_id = service.create_asset_id()
     content = Path('tests/remote_component.js').read_bytes()
-    response = client.update_asset(asset_id, content)
+    response = client.update_asset(asset_id, content=content)
     assert 'assetId' in response, 'Missing assetId in response'
 

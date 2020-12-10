@@ -14,7 +14,13 @@ from . import service, util
 ])
 def test_create_transition(client: Client, transition_type, params):
     schema = util.create_json_schema()
-    response = client.create_transition('name', transition_type, schema, schema, params=params)
+    response = client.create_transition(
+        transition_type,
+        name='name',
+        in_schema=schema,
+        out_schema=schema,
+        params=params,
+    )
     logging.info(response)
     assert_transition(response)
 

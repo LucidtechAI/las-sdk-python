@@ -16,7 +16,7 @@ from . import service
 def test_create_workflow(client: Client, description, error_config):
     specification = {'definition': {}}
     name = 'foobar'
-    response = client.create_workflow(specification, name, description=description, error_config=error_config)
+    response = client.create_workflow(specification, name=name, description=description, error_config=error_config)
     logging.info(response)
     assert_workflow(response)
     if description:
@@ -94,7 +94,7 @@ def test_execute_workflow(client: Client):
 def test_delete_workflow_execution(client: Client):
     workflow_id = service.create_workflow_id()
     execution_id = service.create_workflow_execution_id()
-    response = client.delete_workflow_execution(workflow_id, execution_id)
+    response = client.stop_workflow_execution(workflow_id, execution_id)
     logging.info(response)
     assert_workflow_execution(response)
 

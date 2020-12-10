@@ -33,6 +33,6 @@ def test_list_secrets_with_pagination(client: Client, max_results, next_token):
 def test_update_secret(client: Client):
     secret_id = service.create_secret_id()
     data = {'username': 'foo', 'password': 'bar'}
-    response = client.update_secret(secret_id, data)
+    response = client.update_secret(secret_id, data=data)
     assert 'secretId' in response, 'Missing secretId in response'
 
