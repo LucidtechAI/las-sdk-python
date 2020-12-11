@@ -109,7 +109,7 @@ class Client:
         )
         return _json_decode(response)
 
-    def create_asset(self, content: bytes, name: Optional[str] = None, description: Optional[str] = None) -> Dict:
+    def create_asset(self, content: bytes, **optional_args) -> Dict:
         """Creates an asset handle, calls the POST /assets endpoint.
 
         >>> from las.client import Client
@@ -129,11 +129,10 @@ class Client:
  :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
         """
         body = {
-            'name': name,
-            'description': description,
             'content': b64encode(content).decode(),
+            **optional_args,
         }
-        return self._make_request(requests.post, '/assets', body=dictstrip(body))
+        return self._make_request(requests.post, '/assets', body=body)
 
     def list_assets(self, *, max_results: Optional[int] = None, next_token: Optional[str] = None) -> Dict:
         """List assets available, calls the GET /assets endpoint.
@@ -178,10 +177,7 @@ class Client:
     def update_asset(
         self,
         asset_id: str,
-        *,
-        content: Optional[bytes] = None,
-        name: Optional[str] = None,
-        description: Optional[str] = None,
+        **optional_args,
     ) -> Dict:
         """Updates an asset, calls the PATCH /assets/assetId endpoint.
 
@@ -203,12 +199,10 @@ class Client:
         :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
  :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
         """
-        body = {
-            'content': b64encode(content).decode() if content is not None else None,
-            'name': name,
-            'description': description,
-        }
-        return self._make_request(requests.patch, f'/assets/{asset_id}', body=dictstrip(body))
+        if content := optional_args.get('content'):
+            optional_args['content'] = b64encode(content).decode()
+
+        return self._make_request(requests.patch, f'/assets/{asset_id}', body=optional_args)
 
     def create_batch(self, name: Optional[str] = None, description: Optional[str] = None) -> Dict:
         """Creates a batch, calls the POST /batches endpoint.
