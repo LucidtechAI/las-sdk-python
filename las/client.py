@@ -204,7 +204,7 @@ class Client:
 
         return self._make_request(requests.patch, f'/assets/{asset_id}', body=optional_args)
 
-    def create_batch(self, name: Optional[str] = None, description: Optional[str] = None) -> Dict:
+    def create_batch(self, **optional_args) -> Dict:
         """Creates a batch, calls the POST /batches endpoint.
 
         >>> from las.client import Client
@@ -221,11 +221,7 @@ class Client:
         :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
  :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
         """
-        body = {
-            'name': name,
-            'description': description,
-        }
-        return self._make_request(requests.post, '/batches', body=dictstrip(body))
+        return self._make_request(requests.post, '/batches', body=optional_args)
 
     def create_document(
             self,
@@ -419,13 +415,13 @@ class Client:
         }
         return self._make_request(requests.post, '/predictions', body=dictstrip(body))
 
-    def create_secret(self, data: dict, *, name: Optional[str] = None, description: Optional[str] = None) -> Dict:
+    def create_secret(self, data: dict, **optional_args) -> Dict:
         """Creates an secret handle, calls the POST /secrets endpoint.
 
         >>> from las.client import Client
         >>> client = Client()
         >>> data = {'username': '<username>', 'password': '<password>'}
-        >>> client.create_secret(data, '<description>')
+        >>> client.create_secret(data, description='<description>')
 
         :param data: Dict containing the data you want to keep secret
         :type data: str
@@ -441,10 +437,9 @@ class Client:
         """
         body = {
             'data': data,
-            'name': name,
-            'description': description,
+            **optional_args,
         }
-        return self._make_request(requests.post, '/secrets', body=dictstrip(body))
+        return self._make_request(requests.post, '/secrets', body=body)
 
     def list_secrets(self, *, max_results: Optional[int] = None, next_token: Optional[str] = None) -> Dict:
         """List secrets available, calls the GET /secrets endpoint.
@@ -474,8 +469,7 @@ class Client:
         secret_id: str,
         *,
         data: Optional[dict] = None,
-        name: Optional[str] = None,
-        description: Optional[str] = None,
+        **optional_args,
     ) -> Dict:
         """Updates an secret, calls the PATCH /secrets/secretId endpoint.
 
@@ -498,22 +492,18 @@ class Client:
         :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
  :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
         """
-        body = {
-            'data': data,
-            'name': name,
-            'description': description,
-        }
-        return self._make_request(requests.patch, f'/secrets/{secret_id}', body=dictstrip(body))
+        body = dictstrip({'data': data})
+        body.update(**optional_args)
+        return self._make_request(requests.patch, f'/secrets/{secret_id}', body=body)
 
     def create_transition(
         self,
         transition_type: str,
         *,
-        name: Optional[str] = None,
         in_schema: Optional[dict] = None,
         out_schema: Optional[dict] = None,
         params: Optional[dict] = None,
-        description: Optional[str] = None,
+        **optional_args,
     ) -> Dict:
         """Creates a transition handle, calls the POST /transitions endpoint.
 
@@ -552,15 +542,14 @@ class Client:
         :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
  :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
         """
-        body = {
-            'name': name,
-            'description': description,
+        body = dictstrip({
             'inputJsonSchema': in_schema,
             'outputJsonSchema': out_schema,
             'transitionType': transition_type,
             'params': params,
-        }
-        return self._make_request(requests.post, '/transitions', body=dictstrip(body))
+        })
+        body.update(**optional_args)
+        return self._make_request(requests.post, '/transitions', body=body)
 
     def list_transitions(
         self,
@@ -593,16 +582,15 @@ class Client:
             'maxResults': max_results,
             'nextToken': next_token,
         }
-        return self._make_request(requests.get, url, params=params)
+        return self._make_request(requests.get, url, params=dictstrip(params))
 
     def update_transition(
         self,
         transition_id: str,
         *,
-        name: Optional[str] = None,
         in_schema: Optional[dict] = None,
         out_schema: Optional[dict] = None,
-        description: Optional[str] = None,
+        **optional_args,
     ) -> Dict:
         """Creates a transition handle, calls the PATCH /transitions/{transitionId} endpoint.
 
@@ -628,13 +616,12 @@ class Client:
         :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
  :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
         """
-        body = {
-            'name': name,
-            'description': description,
+        body = dictstrip({
             'inputJsonSchema': in_schema,
             'outputJsonSchema': out_schema,
-        }
-        return self._make_request(requests.patch, f'/transitions/{transition_id}', body=dictstrip(body))
+        })
+        body.update(**optional_args)
+        return self._make_request(requests.patch, f'/transitions/{transition_id}', body=body)
 
     def execute_transition(self, transition_id: str) -> Dict:
         """Start executing a manual transition, calls the POST /transitions/{transitionId}/executions endpoint.
@@ -692,7 +679,7 @@ class Client:
             'maxResults': max_results,
             'nextToken': next_token,
         }
-        return self._make_request(requests.get, url, params=params)
+        return self._make_request(requests.get, url, params=dictstrip(params))
 
     def update_transition_execution(
         self,
@@ -815,9 +802,8 @@ class Client:
         self,
         specification: dict,
         *,
-        name: Optional[str] = None,
-        description: Optional[str] = None,
         error_config: Optional[dict] = None,
+        **optional_args,
     ) -> Dict:
         """Creates a new workflow, calls the POST /workflows endpoint.
 
@@ -843,13 +829,13 @@ class Client:
         :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
  :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
         """
-        body = {
+        body = dictstrip({
             'specification': specification,
-            'name': name,
-            'description': description,
             'errorConfig': error_config,
-        }
-        return self._make_request(requests.post, '/workflows', body=dictstrip(body))
+        })
+        body.update(**optional_args)
+
+        return self._make_request(requests.post, '/workflows', body=body)
 
     def list_workflows(self, *, max_results: Optional[int] = None, next_token: Optional[str] = None) -> Dict:
         """List workflows, calls the GET /workflows endpoint.
@@ -874,7 +860,7 @@ class Client:
         }
         return self._make_request(requests.get, '/workflows', params=params)
 
-    def update_workflow(self, workflow_id: str, *, name: Optional[str], description: Optional[str] = None) -> Dict:
+    def update_workflow(self, workflow_id: str, **optional_args) -> Dict:
         """Creates a workflow handle, calls the PATCH /workflows/{workflowId} endpoint.
 
         >>> import json
@@ -895,11 +881,8 @@ class Client:
         :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
  :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
         """
-        body = {
-            'name': name,
-            'description': description,
-        }
-        return self._make_request(requests.patch, f'/workflows/{workflow_id}', body=dictstrip(body))
+        body = optional_args
+        return self._make_request(requests.patch, f'/workflows/{workflow_id}', body=optional_args)
 
     def delete_workflow(self, workflow_id: str) -> Dict:
         """Delete the workflow with the provided workflow_id, calls the DELETE /workflows/{workflowId} endpoint.
