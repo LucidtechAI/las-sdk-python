@@ -649,6 +649,8 @@ class Client:
         execution_id: Optional[Queryparam] = None,
         max_results: Optional[int] = None,
         next_token: Optional[str] = None,
+        sort_by: Optional[str] = None,
+        order: Optional[str] = None,
     ) -> Dict:
         """List executions in a transition, calls the GET /transitions/{transitionId}/executions endpoint.
 
@@ -660,6 +662,10 @@ class Client:
         :type transition_id: str
         :param status: Statuses of the executions
         :type status: Queryparam
+        :param order: Order of the executions, either 'ascending' or 'descending'
+        :type order: Optional str
+        :param sort_by: the sorting variable of the executions, either 'endTime', or 'startTime'
+        :type sort_by: Optional str
         :param execution_id: Ids of the executions
         :type execution_id: Queryparam
         :param max_results: Maximum number of results to be returned
@@ -678,6 +684,8 @@ class Client:
             'executionId': execution_id,
             'maxResults': max_results,
             'nextToken': next_token,
+            'order': order,
+            'sortBy': sort_by,
         }
         return self._make_request(requests.get, url, params=dictstrip(params))
 
