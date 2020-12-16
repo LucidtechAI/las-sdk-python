@@ -1,4 +1,5 @@
 import binascii
+import io
 import json
 import logging
 from base64 import b64encode, b64decode
@@ -49,14 +50,24 @@ def _json_decode(response):
 
 
 def parse_content(content):
-    if isinstance(content, (str, Path)) and Path(content).is_file():
+
+    def is_path(x): return isinstance(x, (str, Path)) and Path(x).is_file()
+
+    def is_content(x): return isinstance(x, (str, bytes))
+
+    def is_stream(x): return isinstance(x, (io.TextIOBase, io.BufferedIOBase, io.RawIOBase, io.IOBase))
+
+    if is_path(content):
         raw = Path(content).read_bytes()
-    elif isinstance(content, (str, bytes)):
+    elif is_content(content):
         content = content if isinstance(content, bytes) else content.encode()
         try:
             raw = b64decode(content, validate=True)
         except binascii.Error:
             raw = content
+    elif is_stream(content):
+        raw = content.read()
+        raw = raw.encode() if isinstance(raw, str) else raw
     else:
         raise Exception(f'Could not parse content {content} of type {type(content)}')
     return b64encode(raw).decode()
