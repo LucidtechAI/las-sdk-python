@@ -53,7 +53,7 @@ def parse_content(content):
 
     def is_path(x): return isinstance(x, (str, Path)) and Path(x).is_file()
 
-    def is_content(x): return isinstance(x, (str, bytes))
+    def is_content(x): return isinstance(x, bytes)
 
     def is_stream(x): return isinstance(x, io.IOBase)
 
