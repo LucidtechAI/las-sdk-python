@@ -7,13 +7,13 @@ from las.client import Client
 from . import service
 
 
-@pytest.mark.parametrize('description,error_config', [
-    ('', None),
-    ('', {'email': 'foo@bar.com'}),
-    ('foobar', None),
-    ('foobar', {'email': 'foo@bar.com'}),
+@pytest.mark.parametrize('name,description,error_config', [
+    ('foo', '', None),
+    ('foo', 'bar', {'email': 'foo@bar.com'}),
+    ('', '', None),
+    ('', 'bar', {'email': 'foo@bar.com'}),
 ])
-def test_create_workflow(client: Client, description, error_config):
+def test_create_workflow(client: Client, name, description, error_config):
     specification = {'definition': {}}
     name = 'foobar'
     response = client.create_workflow(specification, name=name, description=description, error_config=error_config)
