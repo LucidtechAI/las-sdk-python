@@ -55,7 +55,7 @@ def parse_content(content):
 
     def is_content(x): return isinstance(x, (str, bytes))
 
-    def is_stream(x): return isinstance(x, (io.TextIOBase, io.BufferedIOBase, io.RawIOBase, io.IOBase))
+    def is_stream(x): return isinstance(x, io.IOBase)
 
     if is_path(content):
         raw = Path(content).read_bytes()
@@ -136,7 +136,7 @@ class Client:
         )
         return _json_decode(response)
 
-    def create_asset(self, content: Union[bytes, str, Path], **optional_args) -> Dict:
+    def create_asset(self, content: Union[bytes, str, Path, io.IOBase], **optional_args) -> Dict:
         """Creates an asset handle, calls the POST /assets endpoint.
 
         >>> from las.client import Client
