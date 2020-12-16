@@ -174,11 +174,7 @@ class Client:
         """
         return self._make_request(requests.get, f'/assets/{asset_id}')
 
-    def update_asset(
-        self,
-        asset_id: str,
-        **optional_args,
-    ) -> Dict:
+    def update_asset(self, asset_id: str, **optional_args) -> Dict:
         """Updates an asset, calls the PATCH /assets/assetId endpoint.
 
         >>> from las.client import Client
@@ -487,13 +483,7 @@ class Client:
         }
         return self._make_request(requests.get, '/secrets', params=params)
 
-    def update_secret(
-        self,
-        secret_id: str,
-        *,
-        data: Optional[dict] = None,
-        **optional_args,
-    ) -> Dict:
+    def update_secret(self, secret_id: str, *, data: Optional[dict] = None, **optional_args) -> Dict:
         """Updates an secret, calls the PATCH /secrets/secretId endpoint.
 
         >>> from las.client import Client
@@ -829,13 +819,7 @@ class Client:
         """
         return self._make_request(requests.delete, f'/users/{user_id}')
 
-    def create_workflow(
-        self,
-        specification: dict,
-        *,
-        error_config: Optional[dict] = None,
-        **optional_args,
-    ) -> Dict:
+    def create_workflow(self, specification: dict, *, error_config: Optional[dict] = None, **optional_args) -> Dict:
         """Creates a new workflow, calls the POST /workflows endpoint.
 
         >>> from las.client import Client
