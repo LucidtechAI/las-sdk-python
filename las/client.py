@@ -1,6 +1,8 @@
+import binascii
 import json
 import logging
-from base64 import b64encode
+from base64 import b64encode, b64decode
+from pathlib import Path
 from json.decoder import JSONDecodeError
 from typing import Any, Callable, Dict, List, Optional, Sequence, Union
 from urllib.parse import urlparse
@@ -44,6 +46,20 @@ def _json_decode(response):
             raise LimitExceededException('You have reached the limit of total requests per month.')
 
         raise e
+
+
+def parse_content(content):
+    if isinstance(content, (str, Path)) and Path(content).is_file():
+        raw = Path(content).read_bytes()
+    elif isinstance(content, (str, bytes)):
+        content = content if isinstance(content, bytes) else content.encode()
+        try:
+            raw = b64decode(content, validate=True)
+        except binascii.Error:
+            raw = content
+    else:
+        raise Exception(f'Could not parse content {content} of type {type(content)}')
+    return b64encode(raw).decode()
 
 
 class ClientException(Exception):
@@ -109,7 +125,7 @@ class Client:
         )
         return _json_decode(response)
 
-    def create_asset(self, content: bytes, **optional_args) -> Dict:
+    def create_asset(self, content: Union[bytes, str, Path], **optional_args) -> Dict:
         """Creates an asset handle, calls the POST /assets endpoint.
 
         >>> from las.client import Client
@@ -129,7 +145,7 @@ class Client:
  :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
         """
         body = {
-            'content': b64encode(content).decode(),
+            'content': parse_content(content),
             **optional_args,
         }
         return self._make_request(requests.post, '/assets', body=body)
