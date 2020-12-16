@@ -47,10 +47,10 @@ def test_list_transitions_with_pagination(client: Client, max_results, next_toke
 
 
 @pytest.mark.parametrize('name,description,in_schema,out_schema', [
-    ('foo', None, None, None),
-    (None, 'foo', None, None),
-    (None, None, {'foo': 'bar'}, None),
-    (None, None, None, {'foo': 'bar'}),
+    ('foo', '', None, None),
+    ('', 'foo', None, None),
+    ('', '', {'foo': 'bar'}, None),
+    ('', '', None, {'foo': 'bar'}),
     ('foo', 'bar', {'foo': 'bar'}, {'foo': 'bar'}),
 ])
 def test_update_transition(client: Client, name, description, in_schema, out_schema):

@@ -8,8 +8,8 @@ from . import service
 
 
 @pytest.mark.parametrize('description,error_config', [
-    (None, None),
-    (None, {'email': 'foo@bar.com'}),
+    ('', None),
+    ('', {'email': 'foo@bar.com'}),
     ('foobar', None),
     ('foobar', {'email': 'foo@bar.com'}),
 ])
@@ -42,8 +42,8 @@ def test_list_workflows_with_pagination(client: Client, max_results, next_token)
 
 
 @pytest.mark.parametrize('name,description', [
-    ('foo', None),
-    (None, 'foo'),
+    ('foo', ''),
+    ('', 'foo'),
     ('foo', 'bar'),
 ])
 def test_update_workflow(client: Client, name, description):
@@ -110,6 +110,7 @@ def test_delete_workflow(client: Client):
 def assert_workflow(response):
     assert 'workflowId' in response, 'Missing workflowId in response'
     assert 'name' in response, 'Missing name in response'
+    assert 'description' in response, 'Missing description in response'
 
 
 def assert_workflow_execution(response):
