@@ -195,7 +195,8 @@ class Client:
         :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
  :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
         """
-        if content := optional_args.get('content'):
+        content = optional_args.get('content')
+        if content:
             optional_args['content'] = b64encode(content).decode()
 
         return self._make_request(requests.patch, f'/assets/{asset_id}', body=optional_args)
