@@ -415,6 +415,29 @@ class Client:
         }
         return self._make_request(requests.post, '/predictions', body=dictstrip(body))
 
+    def list_predictions(self, *, max_results: Optional[int] = None, next_token: Optional[str] = None) -> Dict:
+        """List predictions available, calls the GET /predictions endpoint.
+
+        >>> from las.client import Client
+        >>> client = Client()
+        >>> client.list_predictions()
+
+        :param max_results: Maximum number of results to be returned
+        :type max_results: int
+        :param next_token: A unique token for each page, use the returned token to retrieve the next page.
+        :type next_token: str
+        :return: Predictions response from REST API without the content of each prediction
+        :rtype: dict
+
+        :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
+ :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
+        """
+        params = {
+            'maxResults': max_results,
+            'nextToken': next_token,
+        }
+        return self._make_request(requests.get, '/predictions', params=params)
+
     def create_secret(self, data: dict, **optional_args) -> Dict:
         """Creates an secret handle, calls the POST /secrets endpoint.
 
