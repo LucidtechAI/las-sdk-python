@@ -1,4 +1,5 @@
 import json
+import uuid
 from base64 import b64encode, b64decode
 from pathlib import Path
 
@@ -66,7 +67,22 @@ def test_invalid_credentials(
     Path(__file__).read_text().encode(),
     b64encode(Path(__file__).read_bytes()),
 ])
-def test_parse_content_as_file(content):
+def test_parse_content(content):
     expected_result = b64encode(Path(__file__).read_bytes()).decode()
     result = parse_content(content)
     assert result == expected_result
+
+
+@pytest.mark.parametrize(('content', 'error'), [
+    (uuid.uuid4().hex, FileNotFoundError),
+    (Path(uuid.uuid4().hex), FileNotFoundError),
+    (Path(__file__).read_bytes().decode(), OSError),
+    (Path(__file__).read_text()[0:30], FileNotFoundError),
+    (b64encode(Path(__file__).read_bytes()).decode()[0:30], FileNotFoundError),
+    (1, TypeError),
+    (0.1, TypeError),
+    (bytearray(b'abc'), TypeError),
+])
+def test_parse_erroneous_content(content, error):
+    with pytest.raises(error):
+        parse_content(content)

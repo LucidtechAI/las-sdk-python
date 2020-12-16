@@ -53,7 +53,7 @@ def _json_decode(response):
 
 @singledispatch
 def parse_content(content):
-    raise Exception(
+    raise TypeError(
         '\n'.join([
             f'Could not parse content {content} of type {type(content)}',
             'Specify content by using one of the options below:',
