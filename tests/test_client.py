@@ -1,8 +1,10 @@
 import json
+from base64 import b64encode, b64decode
+from pathlib import Path
 
 import requests_mock
 import pytest
-from las.client import InvalidCredentialsException, LimitExceededException, TooManyRequestsException
+from las.client import InvalidCredentialsException, LimitExceededException, TooManyRequestsException, parse_content
 
 from . import service
 
@@ -49,3 +51,22 @@ def test_invalid_credentials(
 
         with pytest.raises(error_name):
             client.delete_documents(consent_id=consent_id)
+
+
+@pytest.mark.parametrize('content', [
+    __file__,
+    Path(__file__),
+    open(__file__, 'rb'),
+    open(__file__, 'r'),
+    open(__file__),
+    Path(__file__).open(),
+    Path(__file__).open('rb'),
+    Path(__file__).open('r'),
+    Path(__file__).read_bytes(),
+    Path(__file__).read_text().encode(),
+    b64encode(Path(__file__).read_bytes()),
+])
+def test_parse_content_as_file(content):
+    expected_result = b64encode(Path(__file__).read_bytes()).decode()
+    result = parse_content(content)
+    assert result == expected_result
