@@ -2,8 +2,8 @@ import logging
 import random
 
 import pytest
-
 from las.client import Client
+
 from . import service
 
 

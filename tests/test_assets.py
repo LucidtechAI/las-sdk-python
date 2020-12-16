@@ -3,14 +3,15 @@ import random
 from pathlib import Path
 
 import pytest
-
 from las.client import Client
-from . import service
+
+from . import service, util
 
 
-def test_create_asset(client: Client):
+@pytest.mark.parametrize('name_and_description', util.name_and_description_combinations())
+def test_create_asset(client: Client, name_and_description):
     content = Path('tests/remote_component.js').read_bytes()
-    response = client.create_asset(content)
+    response = client.create_asset(content, **name_and_description)
     assert 'assetId' in response, 'Missing assetId in response'
 
 
@@ -38,9 +39,10 @@ def test_get_asset(client: Client):
     assert 'content' in response, 'Missing content in response'
 
 
-def test_update_asset(client: Client):
+@pytest.mark.parametrize('name_and_description', util.name_and_description_combinations())
+def test_update_asset(client: Client, name_and_description):
     asset_id = service.create_asset_id()
     content = Path('tests/remote_component.js').read_bytes()
-    response = client.update_asset(asset_id, content)
+    response = client.update_asset(asset_id, content=content, **name_and_description)
     assert 'assetId' in response, 'Missing assetId in response'
 

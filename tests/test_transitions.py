@@ -1,7 +1,7 @@
-import pytest
 import logging
 import random
 
+import pytest
 from las.client import Client
 
 from . import service, util
@@ -12,9 +12,16 @@ from . import service, util
     ('manual', None),
     ('manual', {'assets': {'jsRemoteComponent': service.create_asset_id()}}),
 ])
-def test_create_transition(client: Client, transition_type, params):
+@pytest.mark.parametrize('name_and_description', util.name_and_description_combinations())
+def test_create_transition(client: Client, transition_type, params, name_and_description):
     schema = util.create_json_schema()
-    response = client.create_transition('name', transition_type, schema, schema, params=params)
+    response = client.create_transition(
+        transition_type,
+        in_schema=schema,
+        out_schema=schema,
+        params=params,
+        **name_and_description,
+    )
     logging.info(response)
     assert_transition(response)
 
@@ -40,20 +47,19 @@ def test_list_transitions_with_pagination(client: Client, max_results, next_toke
     assert 'nextToken' in response, 'Missing nextToken in response'
 
 
-@pytest.mark.parametrize('name,description,in_schema,out_schema', [
-    ('foo', None, None, None),
-    (None, 'foo', None, None),
-    (None, None, {'foo': 'bar'}, None),
-    (None, None, None, {'foo': 'bar'}),
-    ('foo', 'bar', {'foo': 'bar'}, {'foo': 'bar'}),
+@pytest.mark.parametrize('in_schema,out_schema', [
+    (None, None),
+    ({'foo': 'bar'}, None),
+    (None, {'foo': 'bar'}),
+    ({'foo': 'bar'}, {'foo': 'bar'}),
 ])
-def test_update_transition(client: Client, name, description, in_schema, out_schema):
+@pytest.mark.parametrize('name_and_description', util.name_and_description_combinations(True))
+def test_update_transition(client: Client, name_and_description, in_schema, out_schema):
     response = client.update_transition(
         service.create_transition_id(),
-        name=name,
-        description=description,
         in_schema=in_schema,
         out_schema=out_schema,
+        **name_and_description,
     )
     logging.info(response)
     assert_transition(response)

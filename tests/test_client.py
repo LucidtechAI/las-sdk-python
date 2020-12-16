@@ -2,8 +2,8 @@ import json
 
 import requests_mock
 import pytest
-
 from las.client import InvalidCredentialsException, LimitExceededException, TooManyRequestsException
+
 from . import service
 
 
