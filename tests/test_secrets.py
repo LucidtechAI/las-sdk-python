@@ -2,19 +2,15 @@ import logging
 import random
 
 import pytest
-
 from las.client import Client
-from . import service
+
+from . import service, util
 
 
-@pytest.mark.parametrize('name,description', [
-    ('foo', ''),
-    ('', 'foo'),
-    ('foo', 'bar'),
-])
-def test_create_secret(client: Client, name, description):
+@pytest.mark.parametrize('name_and_description', util.name_and_description_combinations())
+def test_create_secret(client: Client, name_and_description):
     data = {'username': 'foo', 'password': 'bar'}
-    response = client.create_secret(data, name=name, description=description)
+    response = client.create_secret(data, **name_and_description)
     assert 'secretId' in response, 'Missing secretId in response'
 
 
@@ -35,14 +31,10 @@ def test_list_secrets_with_pagination(client: Client, max_results, next_token):
     assert 'nextToken' in response, 'Missing nextToken in response'
 
 
-@pytest.mark.parametrize('name,description', [
-    ('foo', ''),
-    ('', 'foo'),
-    ('foo', 'bar'),
-])
-def test_update_secret(client: Client, name, description):
+@pytest.mark.parametrize('name_and_description', util.name_and_description_combinations())
+def test_update_secret(client: Client, name_and_description):
     secret_id = service.create_secret_id()
     data = {'username': 'foo', 'password': 'bar'}
-    response = client.update_secret(secret_id, data=data, name=name, description=description)
+    response = client.update_secret(secret_id, data=data, **name_and_description)
     assert 'secretId' in response, 'Missing secretId in response'
 

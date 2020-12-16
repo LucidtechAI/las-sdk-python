@@ -896,7 +896,6 @@ class Client:
         :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
  :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
         """
-        body = optional_args
         return self._make_request(requests.patch, f'/workflows/{workflow_id}', body=optional_args)
 
     def delete_workflow(self, workflow_id: str) -> Dict:

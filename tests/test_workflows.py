@@ -2,25 +2,18 @@ import logging
 import random
 
 import pytest
-
 from las.client import Client
-from . import service
+
+from . import service, util
 
 
-@pytest.mark.parametrize('name,description,error_config', [
-    ('foo', '', None),
-    ('foo', 'bar', {'email': 'foo@bar.com'}),
-    ('', '', None),
-    ('', 'bar', {'email': 'foo@bar.com'}),
-])
-def test_create_workflow(client: Client, name, description, error_config):
+@pytest.mark.parametrize('error_config', [None, {'email': 'foo@bar.com'}])
+@pytest.mark.parametrize('name_and_description', util.name_and_description_combinations(True))
+def test_create_workflow(client: Client, name_and_description, error_config):
     specification = {'definition': {}}
-    name = 'foobar'
-    response = client.create_workflow(specification, name=name, description=description, error_config=error_config)
+    response = client.create_workflow(specification, **name_and_description, error_config=error_config)
     logging.info(response)
     assert_workflow(response)
-    if description:
-        assert 'description' in response, 'Missing description in response'
 
 
 def test_list_workflows(client: Client):
@@ -41,16 +34,11 @@ def test_list_workflows_with_pagination(client: Client, max_results, next_token)
     assert 'nextToken' in response, 'Missing nextToken in response'
 
 
-@pytest.mark.parametrize('name,description', [
-    ('foo', ''),
-    ('', 'foo'),
-    ('foo', 'bar'),
-])
-def test_update_workflow(client: Client, name, description):
+@pytest.mark.parametrize('name_and_description', util.name_and_description_combinations(True))
+def test_update_workflow(client: Client, name_and_description):
     response = client.update_workflow(
         service.create_workflow_id(),
-        name=name,
-        description=description,
+        **name_and_description,
     )
     logging.info(response)
     assert_workflow(response)
