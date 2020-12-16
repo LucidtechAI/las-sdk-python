@@ -3,6 +3,7 @@ import io
 import json
 import logging
 from base64 import b64encode, b64decode
+from functools import singledispatch
 from pathlib import Path
 from json.decoder import JSONDecodeError
 from typing import Any, Callable, Dict, List, Optional, Sequence, Union
@@ -49,27 +50,40 @@ def _json_decode(response):
         raise e
 
 
+@singledispatch
 def parse_content(content):
+    raise Exception(
+        '\n'.join([
+            f'Could not parse content {content} of type {type(content)}',
+            'Specify content by using one of the options below:',
+            '1. Path to a file either as a string or as a Path object',
+            '2. Bytes object with b64encoding',
+            '3. Bytes object without b64encoding',
+            '4. IO Stream of either bytes or text',
+        ])
+    )
 
-    def is_path(x): return isinstance(x, (str, Path)) and Path(x).is_file()
 
-    def is_content(x): return isinstance(x, bytes)
+@parse_content.register(str)
+@parse_content.register(Path)
+def _(content):
+    raw = Path(content).read_bytes()
+    return b64encode(raw).decode()
 
-    def is_stream(x): return isinstance(x, io.IOBase)
 
-    if is_path(content):
-        raw = Path(content).read_bytes()
-    elif is_content(content):
-        content = content if isinstance(content, bytes) else content.encode()
-        try:
-            raw = b64decode(content, validate=True)
-        except binascii.Error:
-            raw = content
-    elif is_stream(content):
-        raw = content.read()
-        raw = raw.encode() if isinstance(raw, str) else raw
-    else:
-        raise Exception(f'Could not parse content {content} of type {type(content)}')
+@parse_content.register(bytes)
+def _(content):
+    try:
+        raw = b64decode(content, validate=True)
+    except binascii.Error:
+        raw = content
+    return b64encode(raw).decode()
+
+
+@parse_content.register(io.IOBase)
+def _(content):
+    raw = content.read()
+    raw = raw.encode() if isinstance(raw, str) else raw
     return b64encode(raw).decode()
 
 
