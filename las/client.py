@@ -982,13 +982,13 @@ class Client:
         }
         return self._make_request(requests.get, url, params=params)
 
-    def stop_workflow_execution(self, workflow_id: str, execution_id: str) -> Dict:
-        """Stops the execution with the provided execution_id from workflow_id,
+    def delete_workflow_execution(self, workflow_id: str, execution_id: str) -> Dict:
+        """Deletes the execution with the provided execution_id from workflow_id,
         calls the DELETE /workflows/{workflowId}/executions/{executionId} endpoint.
 
         >>> from las.client import Client
         >>> client = Client()
-        >>> client.stop_workflow_execution('<workflow_id>', '<execution_id>')
+        >>> client.delete_workflow_execution('<workflow_id>', '<execution_id>')
 
         :param workflow_id: Id of the workflow
         :type workflow_id: str
