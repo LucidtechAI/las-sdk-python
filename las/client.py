@@ -16,6 +16,7 @@ from requests.exceptions import RequestException
 from .credentials import Credentials, guess_credentials
 
 logger = logging.getLogger('las')
+Content = Union[bytes, str, Path, io.IOBase]
 Queryparam = Union[str, List[str]]
 
 
@@ -150,7 +151,7 @@ class Client:
         )
         return _json_decode(response)
 
-    def create_asset(self, content: Union[bytes, str, Path, io.IOBase], **optional_args) -> Dict:
+    def create_asset(self, content: Content, **optional_args) -> Dict:
         """Creates an asset handle, calls the POST /assets endpoint.
 
         >>> from las.client import Client
@@ -158,7 +159,7 @@ class Client:
         >>> client.create_asset(b'<bytes data>')
 
         :param content: Content to POST
-        :type content: bytes
+        :type content: Content
         :param name: Name of the asset
         :type name: str
         :param description: Description of the asset
@@ -225,7 +226,7 @@ class Client:
         :param asset_id: Id of the asset
         :type asset_id: str
         :param content: Content to PATCH
-        :type content: bytes
+        :type content: Content
         :param name: Name of the asset
         :type name: str
         :param description: Description of the asset
@@ -238,7 +239,7 @@ class Client:
         """
         content = optional_args.get('content')
         if content:
-            optional_args['content'] = b64encode(content).decode()
+            optional_args['content'] = parse_content(content)
 
         return self._make_request(requests.patch, f'/assets/{asset_id}', body=optional_args)
 
@@ -263,7 +264,7 @@ class Client:
 
     def create_document(
             self,
-            content: bytes,
+            content: Content,
             content_type: str,
             *,
             consent_id: Optional[str] = None,
@@ -277,7 +278,7 @@ class Client:
         >>> client.create_document(b'<bytes data>', 'image/jpeg', '<consent id>')
 
         :param content: Content to POST
-        :type content: bytes
+        :type content: Content
         :param content_type: MIME type for the document handle
         :type content_type: str
         :param consent_id: Id of the consent that marks the owner of the document handle
@@ -293,7 +294,7 @@ class Client:
  :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
         """
         body = {
-            'content': b64encode(content).decode(),
+            'content': parse_content(content),
             'contentType': content_type,
             'consentId': consent_id,
             'batchId': batch_id,
