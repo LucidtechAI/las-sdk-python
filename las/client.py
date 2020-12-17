@@ -73,6 +73,7 @@ def _(content):
 
 
 @parse_content.register(bytes)
+@parse_content.register(bytearray)
 def _(content):
     try:
         raw = b64decode(content, validate=True)

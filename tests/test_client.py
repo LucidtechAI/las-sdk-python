@@ -66,6 +66,7 @@ def test_invalid_credentials(
     Path(__file__).read_bytes(),
     Path(__file__).read_text().encode(),
     b64encode(Path(__file__).read_bytes()),
+    bytearray(Path(__file__).read_bytes()),
 ])
 def test_parse_content(content):
     expected_result = b64encode(Path(__file__).read_bytes()).decode()
@@ -81,7 +82,6 @@ def test_parse_content(content):
     (b64encode(Path(__file__).read_bytes()).decode()[0:30], FileNotFoundError),
     (1, TypeError),
     (0.1, TypeError),
-    (bytearray(b'abc'), TypeError),
 ])
 def test_parse_erroneous_content(content, error):
     with pytest.raises(error):
