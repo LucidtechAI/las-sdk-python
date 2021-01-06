@@ -1,3 +1,4 @@
+from pathlib import Path
 from uuid import uuid4
 
 
@@ -44,3 +45,6 @@ def create_workflow_id():
 def create_workflow_execution_id():
     return f'las:workflow-execution:{uuid4().hex}'
 
+
+def document_path():
+    return Path(__file__)

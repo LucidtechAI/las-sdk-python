@@ -1,6 +1,10 @@
+import binascii
+import io
 import json
 import logging
-from base64 import b64encode
+from base64 import b64encode, b64decode
+from functools import singledispatch
+from pathlib import Path
 from json.decoder import JSONDecodeError
 from typing import Any, Callable, Dict, List, Optional, Sequence, Union
 from urllib.parse import urlparse
@@ -12,6 +16,7 @@ from requests.exceptions import RequestException
 from .credentials import Credentials, guess_credentials
 
 logger = logging.getLogger('las')
+Content = Union[bytes, bytearray, str, Path, io.IOBase]
 Queryparam = Union[str, List[str]]
 
 
@@ -44,6 +49,44 @@ def _json_decode(response):
             raise LimitExceededException('You have reached the limit of total requests per month.')
 
         raise e
+
+
+@singledispatch
+def parse_content(content):
+    raise TypeError(
+        '\n'.join([
+            f'Could not parse content {content} of type {type(content)}',
+            'Specify content by using one of the options below:',
+            '1. Path to a file either as a string or as a Path object',
+            '2. Bytes object with b64encoding',
+            '3. Bytes object without b64encoding',
+            '4. IO Stream of either bytes or text',
+        ])
+    )
+
+
+@parse_content.register(str)
+@parse_content.register(Path)
+def _(content):
+    raw = Path(content).read_bytes()
+    return b64encode(raw).decode()
+
+
+@parse_content.register(bytes)
+@parse_content.register(bytearray)
+def _(content):
+    try:
+        raw = b64decode(content, validate=True)
+    except binascii.Error:
+        raw = content
+    return b64encode(raw).decode()
+
+
+@parse_content.register(io.IOBase)
+def _(content):
+    raw = content.read()
+    raw = raw.encode() if isinstance(raw, str) else raw
+    return b64encode(raw).decode()
 
 
 class ClientException(Exception):
@@ -109,7 +152,7 @@ class Client:
         )
         return _json_decode(response)
 
-    def create_asset(self, content: bytes, **optional_args) -> Dict:
+    def create_asset(self, content: Content, **optional_args) -> Dict:
         """Creates an asset handle, calls the POST /assets endpoint.
 
         >>> from las.client import Client
@@ -117,7 +160,7 @@ class Client:
         >>> client.create_asset(b'<bytes data>')
 
         :param content: Content to POST
-        :type content: bytes
+        :type content: Content
         :param name: Name of the asset
         :type name: str
         :param description: Description of the asset
@@ -129,7 +172,7 @@ class Client:
  :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
         """
         body = {
-            'content': b64encode(content).decode(),
+            'content': parse_content(content),
             **optional_args,
         }
         return self._make_request(requests.post, '/assets', body=body)
@@ -184,7 +227,7 @@ class Client:
         :param asset_id: Id of the asset
         :type asset_id: str
         :param content: Content to PATCH
-        :type content: bytes
+        :type content: Content
         :param name: Name of the asset
         :type name: str
         :param description: Description of the asset
@@ -197,7 +240,7 @@ class Client:
         """
         content = optional_args.get('content')
         if content:
-            optional_args['content'] = b64encode(content).decode()
+            optional_args['content'] = parse_content(content)
 
         return self._make_request(requests.patch, f'/assets/{asset_id}', body=optional_args)
 
@@ -222,7 +265,7 @@ class Client:
 
     def create_document(
             self,
-            content: bytes,
+            content: Content,
             content_type: str,
             *,
             consent_id: Optional[str] = None,
@@ -236,7 +279,7 @@ class Client:
         >>> client.create_document(b'<bytes data>', 'image/jpeg', '<consent id>')
 
         :param content: Content to POST
-        :type content: bytes
+        :type content: Content
         :param content_type: MIME type for the document handle
         :type content_type: str
         :param consent_id: Id of the consent that marks the owner of the document handle
@@ -252,7 +295,7 @@ class Client:
  :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
         """
         body = {
-            'content': b64encode(content).decode(),
+            'content': parse_content(content),
             'contentType': content_type,
             'consentId': consent_id,
             'batchId': batch_id,

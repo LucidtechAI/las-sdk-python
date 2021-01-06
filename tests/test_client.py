@@ -1,8 +1,11 @@
 import json
+import uuid
+from base64 import b64encode, b64decode
+from pathlib import Path
 
 import requests_mock
 import pytest
-from las.client import InvalidCredentialsException, LimitExceededException, TooManyRequestsException
+from las.client import InvalidCredentialsException, LimitExceededException, TooManyRequestsException, parse_content
 
 from . import service
 
@@ -49,3 +52,37 @@ def test_invalid_credentials(
 
         with pytest.raises(error_name):
             client.delete_documents(consent_id=consent_id)
+
+
+@pytest.mark.parametrize('content', [
+    service.document_path(),
+    service.document_path(),
+    open(service.document_path(), 'rb'),
+    open(service.document_path(), 'r'),
+    open(service.document_path()),
+    service.document_path().open(),
+    service.document_path().open('rb'),
+    service.document_path().open('r'),
+    service.document_path().read_bytes(),
+    service.document_path().read_text().encode(),
+    b64encode(service.document_path().read_bytes()),
+    bytearray(service.document_path().read_bytes()),
+])
+def test_parse_content(content):
+    expected_result = b64encode(service.document_path().read_bytes()).decode()
+    result = parse_content(content)
+    assert result == expected_result
+
+
+@pytest.mark.parametrize(('content', 'error'), [
+    (Path(uuid.uuid4().hex), FileNotFoundError),
+    (uuid.uuid4().hex, FileNotFoundError),
+    (service.document_path().read_bytes().decode(), OSError),
+    (service.document_path().read_text()[0:30], FileNotFoundError),
+    (b64encode(service.document_path().read_bytes()).decode()[0:30], FileNotFoundError),
+    (1, TypeError),
+    (0.1, TypeError),
+])
+def test_parse_erroneous_content(content, error):
+    with pytest.raises(error):
+        parse_content(content)
