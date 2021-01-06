@@ -16,7 +16,7 @@ from requests.exceptions import RequestException
 from .credentials import Credentials, guess_credentials
 
 logger = logging.getLogger('las')
-Content = Union[bytes, str, Path, io.IOBase]
+Content = Union[bytes, bytearray, str, Path, io.IOBase]
 Queryparam = Union[str, List[str]]
 
 
