@@ -55,31 +55,31 @@ def test_invalid_credentials(
 
 
 @pytest.mark.parametrize('content', [
-    __file__,
-    Path(__file__),
-    open(__file__, 'rb'),
-    open(__file__, 'r'),
-    open(__file__),
-    Path(__file__).open(),
-    Path(__file__).open('rb'),
-    Path(__file__).open('r'),
-    Path(__file__).read_bytes(),
-    Path(__file__).read_text().encode(),
-    b64encode(Path(__file__).read_bytes()),
-    bytearray(Path(__file__).read_bytes()),
+    service.document_path().name,
+    service.document_path(),
+    open(service.document_path().name, 'rb'),
+    open(service.document_path().name, 'r'),
+    open(service.document_path().name),
+    service.document_path().open(),
+    service.document_path().open('rb'),
+    service.document_path().open('r'),
+    service.document_path().read_bytes(),
+    service.document_path().read_text().encode(),
+    b64encode(service.document_path().read_bytes()),
+    bytearray(service.document_path().read_bytes()),
 ])
 def test_parse_content(content):
-    expected_result = b64encode(Path(__file__).read_bytes()).decode()
+    expected_result = b64encode(service.document_path().read_bytes()).decode()
     result = parse_content(content)
     assert result == expected_result
 
 
 @pytest.mark.parametrize(('content', 'error'), [
-    (uuid.uuid4().hex, FileNotFoundError),
+    (service.document_path().read_bytes().decode(), FileNotFoundError),
     (Path(uuid.uuid4().hex), FileNotFoundError),
-    (Path(__file__).read_bytes().decode(), OSError),
-    (Path(__file__).read_text()[0:30], FileNotFoundError),
-    (b64encode(Path(__file__).read_bytes()).decode()[0:30], FileNotFoundError),
+    (uuid.uuid4().hex, FileNotFoundError),
+    (service.document_path().read_text()[0:30], FileNotFoundError),
+    (b64encode(service.document_path().read_bytes()).decode()[0:30], FileNotFoundError),
     (1, TypeError),
     (0.1, TypeError),
 ])
