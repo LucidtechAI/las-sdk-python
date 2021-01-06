@@ -55,11 +55,11 @@ def test_invalid_credentials(
 
 
 @pytest.mark.parametrize('content', [
-    service.document_path().name,
     service.document_path(),
-    open(service.document_path().name, 'rb'),
-    open(service.document_path().name, 'r'),
-    open(service.document_path().name),
+    service.document_path(),
+    open(service.document_path(), 'rb'),
+    open(service.document_path(), 'r'),
+    open(service.document_path()),
     service.document_path().open(),
     service.document_path().open('rb'),
     service.document_path().open('r'),
@@ -75,9 +75,9 @@ def test_parse_content(content):
 
 
 @pytest.mark.parametrize(('content', 'error'), [
-    (service.document_path().read_bytes().decode(), FileNotFoundError),
     (Path(uuid.uuid4().hex), FileNotFoundError),
     (uuid.uuid4().hex, FileNotFoundError),
+    (service.document_path().read_bytes().decode(), OSError),
     (service.document_path().read_text()[0:30], FileNotFoundError),
     (b64encode(service.document_path().read_bytes()).decode()[0:30], FileNotFoundError),
     (1, TypeError),
