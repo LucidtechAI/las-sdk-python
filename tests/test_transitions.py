@@ -7,19 +7,19 @@ from las.client import Client
 from . import service, util
 
 
-@pytest.mark.parametrize('transition_type,params', [
+@pytest.mark.parametrize('transition_type,parameters', [
     ('docker', {'imageUrl': 'python3.8'}),
     ('manual', None),
     ('manual', {'assets': {'jsRemoteComponent': service.create_asset_id()}}),
 ])
 @pytest.mark.parametrize('name_and_description', util.name_and_description_combinations())
-def test_create_transition(client: Client, transition_type, params, name_and_description):
+def test_create_transition(client: Client, transition_type, parameters, name_and_description):
     schema = util.create_json_schema()
     response = client.create_transition(
         transition_type,
         in_schema=schema,
         out_schema=schema,
-        params=params,
+        parameters=parameters,
         **name_and_description,
     )
     logging.info(response)
