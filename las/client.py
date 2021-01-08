@@ -559,7 +559,7 @@ class Client:
         *,
         in_schema: Optional[dict] = None,
         out_schema: Optional[dict] = None,
-        params: Optional[dict] = None,
+        parameters: Optional[dict] = None,
         **optional_args,
     ) -> Dict:
         """Creates a transition handle, calls the POST /transitions endpoint.
@@ -603,7 +603,7 @@ class Client:
             'inputJsonSchema': in_schema,
             'outputJsonSchema': out_schema,
             'transitionType': transition_type,
-            'params': params,
+            'parameters': parameters,
         })
         body.update(**optional_args)
         return self._make_request(requests.post, '/transitions', body=body)
