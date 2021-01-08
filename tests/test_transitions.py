@@ -47,6 +47,17 @@ def test_list_transitions_with_pagination(client: Client, max_results, next_toke
     assert 'nextToken' in response, 'Missing nextToken in response'
 
 
+def test_get_transition_execution(client: Client):
+    response = client.get_transition_execution(
+        service.create_transition_id(),
+        service.create_transition_execution_id(),
+    )
+    logging.info(response)
+    assert 'transitionId' in response, 'Missing transitionId in response'
+    assert 'executionId' in response, 'Missing executionId in response'
+    assert 'status' in response, 'Missing status in response'
+
+
 @pytest.mark.parametrize('in_schema,out_schema', [
     (None, None),
     ({'foo': 'bar'}, None),

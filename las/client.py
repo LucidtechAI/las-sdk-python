@@ -746,6 +746,26 @@ class Client:
         }
         return self._make_request(requests.get, url, params=dictstrip(params))
 
+    def get_transition_execution(self, transition_id: str, execution_id: str) -> Dict:
+        """Get an execution of a transition, calls the GET /transitions/{transitionId}/executions/{executionId} endpoint
+
+        >>> from las.client import Client
+        >>> client = Client()
+        >>> client.get_transition_execution('<transition_id>', '<execution_id>')
+
+        :param transition_id: Id of the transition
+        :type transition_id: str
+        :param execution_id: Id of the executions
+        :type execution_id: str
+        :return: Transition execution responses from REST API
+        :rtype: dict
+
+        :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
+ :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
+        """
+        url = f'/transitions/{transition_id}/executions/{execution_id}'
+        return self._make_request(requests.get, url)
+
     def update_transition_execution(
         self,
         transition_id: str,
