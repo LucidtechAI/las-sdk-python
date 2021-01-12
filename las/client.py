@@ -218,7 +218,7 @@ class Client:
         return self._make_request(requests.get, f'/assets/{asset_id}')
 
     def update_asset(self, asset_id: str, **optional_args) -> Dict:
-        """Updates an asset, calls the PATCH /assets/assetId endpoint.
+        """Updates an asset, calls the PATCH /assets/{assetId} endpoint.
 
         >>> from las.client import Client
         >>> client = Client()
@@ -394,6 +394,23 @@ class Client:
  :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
         """
         return self._make_request(requests.patch, f'/documents/{document_id}', body={'groundTruth': ground_truth})
+
+    def get_log(self, log_id) -> Dict:
+        """get log, calls the GET /logs/{logId} endpoint.
+
+        >>> from las.client import Client
+        >>> client = Client()
+        >>> client.get_log('<log_id>')
+
+        :param log_id: Id of the log
+        :type log_id: str
+        :return: Log response from REST API
+        :rtype: dict
+
+        :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
+ :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
+        """
+        return self._make_request(requests.get, f'/logs/{log_id}')
 
     def list_models(self, *, max_results: Optional[int] = None, next_token: Optional[str] = None) -> Dict:
         """List models available, calls the GET /models endpoint.

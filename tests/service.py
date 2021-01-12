@@ -18,6 +18,10 @@ def create_document_id():
     return f'las:document:{uuid4().hex}'
 
 
+def create_log_id():
+    return f'las:log:{uuid4().hex}'
+
+
 def create_model_id():
     return f'las:model:{uuid4().hex}'
 
