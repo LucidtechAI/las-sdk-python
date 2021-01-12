@@ -6,7 +6,7 @@ from las.client import Client
 from . import service
 
 
-@pytest.mark.parametrize('max_pages', [1, 3, 10, None])
+@pytest.mark.parametrize('max_pages', [1, 2, 3, None])
 @pytest.mark.parametrize('auto_rotate', [True, False, None])
 def test_create_prediction(client: Client, max_pages, auto_rotate):
     document_id = service.create_document_id()
