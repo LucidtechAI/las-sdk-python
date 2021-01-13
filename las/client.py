@@ -902,7 +902,7 @@ class Client:
 
     def create_workflow(self, specification: dict, *, error_config: Optional[dict] = None, **optional_args) -> Dict:
         """Creates a new workflow, calls the POST /workflows endpoint.
-        Check out Lucidtechs tutorials for more info on how to create a workflow.
+        Check out Lucidtech's tutorials for more info on how to create a workflow.
 
         >>> from las.client import Client
         >>> from pathlib import Path
