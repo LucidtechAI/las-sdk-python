@@ -587,13 +587,13 @@ class Client:
         >>> client = Client()
         >>> in_schema = {'$schema': 'https://json-schema.org/draft-04/schema#', 'title': 'in', 'properties': {...} }
         >>> out_schema = {'$schema': 'https://json-schema.org/draft-04/schema#', 'title': 'out', 'properties': {...} }
-        >>> # A typical docker transitions
+        >>> # A typical docker transition
         >>> docker_params = {
         >>>     'imageUrl': '<image_url>',
         >>>     'credentials': {'username': '<username>', 'password': '<password>'}
         >>> }
         >>> client.create_transition('docker', in_schema=in_schema, out_schema=out_schema, params=docker_params)
-        >>> # A typical manual transitions
+        >>> # A manual transitions with UI
         >>> assets = {'jsRemoteComponent': 'las:asset:<hex-uuid>', '<other asset name>': 'las:asset:<hex-uuid>'}
         >>> manual_params = {'assets': assets}
         >>> client.create_transition('manual', in_schema=in_schema, out_schema=out_schema, params=manual_params)
@@ -902,6 +902,7 @@ class Client:
 
     def create_workflow(self, specification: dict, *, error_config: Optional[dict] = None, **optional_args) -> Dict:
         """Creates a new workflow, calls the POST /workflows endpoint.
+        Check out Lucidtechs tutorials for more info on how to create a workflow.
 
         >>> from las.client import Client
         >>> from pathlib import Path
