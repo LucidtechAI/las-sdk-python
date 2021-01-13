@@ -276,7 +276,7 @@ class Client:
 
         >>> from las.client import Client
         >>> client = Client()
-        >>> client.create_document(b'<bytes data>', 'image/jpeg', '<consent id>')
+        >>> client.create_document(b'<bytes data>', 'image/jpeg', consent_id='<consent id>')
 
         :param content: Content to POST
         :type content: Content
@@ -344,7 +344,7 @@ class Client:
 
         >>> from las.client import Client
         >>> client = Client()
-        >>> client.delete_documents('<consent id>')
+        >>> client.delete_documents(consent_id='<consent id>')
 
         :param consent_id: Ids of the consents that marks the owner of the document handle
         :type consent_id: Optional[Queryparam]
@@ -361,7 +361,7 @@ class Client:
 
         >>> from las.client import Client
         >>> client = Client()
-        >>> client.get_document(document_id='<document id>')
+        >>> client.get_document('<document id>')
 
         :param document_id: Id of the document
         :type document_id: str
