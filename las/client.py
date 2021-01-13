@@ -593,7 +593,7 @@ class Client:
         >>>     'credentials': {'username': '<username>', 'password': '<password>'}
         >>> }
         >>> client.create_transition('docker', in_schema=in_schema, out_schema=out_schema, params=docker_params)
-        >>> # A manual transitions with UI
+        >>> # A manual transition with UI
         >>> assets = {'jsRemoteComponent': 'las:asset:<hex-uuid>', '<other asset name>': 'las:asset:<hex-uuid>'}
         >>> manual_params = {'assets': assets}
         >>> client.create_transition('manual', in_schema=in_schema, out_schema=out_schema, params=manual_params)
