@@ -15,7 +15,10 @@ from requests.exceptions import RequestException
 
 from .credentials import Credentials, guess_credentials
 
+log_handler = logging.StreamHandler()
+log_handler.setLevel(logging.DEBUG)
 logger = logging.getLogger('las')
+logger.addHandler(log_handler)
 Content = Union[bytes, bytearray, str, Path, io.IOBase]
 Queryparam = Union[str, List[str]]
 
