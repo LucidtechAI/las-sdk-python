@@ -847,7 +847,7 @@ class Client:
         return self._make_request(requests.post, '/users', body={'email': email})
 
     def update_user(self, user_id: str, **optional_args) -> Dict:
-        """Updates an user, calls the PATCH /users/{userId} endpoint.
+        """Updates a user, calls the PATCH /users/{userId} endpoint.
 
         >>> from las.client import Client
         >>> client = Client()
@@ -857,7 +857,7 @@ class Client:
         :type user_id: str
         :param name: Name of the user
         :type name: Optional[str]
-        :param avatar: base64 encoded JPEG Avatar of the user
+        :param avatar: base64 encoded JPEG avatar of the user
         :type avatar: Optional[str]
         :return: User response from REST API
         :rtype: dict
