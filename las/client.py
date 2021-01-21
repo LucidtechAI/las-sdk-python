@@ -846,6 +846,28 @@ class Client:
         """
         return self._make_request(requests.post, '/users', body={'email': email})
 
+    def update_user(self, user_id: str, **optional_args) -> Dict:
+        """Updates an user, calls the PATCH /users/{userId} endpoint.
+
+        >>> from las.client import Client
+        >>> client = Client()
+        >>> client.update_user('<user id>', name='John Doe')
+
+        :param user_id: Id of the user
+        :type user_id: str
+        :param name: Name of the user
+        :type name: Optional[str]
+        :param avatar: base64 encoded JPEG Avatar of the user
+        :type avatar: Optional[str]
+        :return: User response from REST API
+        :rtype: dict
+
+        :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
+ :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
+        """
+
+        return self._make_request(requests.patch, f'/users/{user_id}', body=optional_args)
+
     def list_users(self, *, max_results: Optional[int] = None, next_token: Optional[str] = None) -> Dict:
         """List users, calls the GET /users endpoint.
 
