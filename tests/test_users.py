@@ -1,3 +1,5 @@
+import base64
+import pathlib
 import logging
 import random
 
@@ -35,6 +37,17 @@ def test_get_user(client: Client):
     response = client.get_user(user_id)
     assert 'userId' in response, 'Missing userId in response'
     assert 'email' in response, 'Missing email in response'
+
+
+def test_update_user(client: Client):
+    user_id = service.create_user_id()
+    name = 'John Doe'
+    avatar = base64.b64encode(pathlib.Path('tests/avatar.jpeg').read_bytes()).decode()
+    response = client.update_user(user_id, name=name, avatar=avatar)
+    assert 'userId' in response, 'Missing userId in response'
+    assert 'email' in response, 'Missing email in response'
+    assert 'name' in response, 'Missing name in response'
+    assert 'avatar' in response, 'Missing avatar in response'
 
 
 @pytest.mark.skip(reason='DELETE does not work for the mocked API')
