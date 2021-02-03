@@ -198,7 +198,7 @@ class Client:
  :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
         """
         params = {
-            'maxResults': max_results,
+            'maxResult': max_results,
             'nextToken': next_token,
         }
         return self._make_request(requests.get, '/assets', params=params)
