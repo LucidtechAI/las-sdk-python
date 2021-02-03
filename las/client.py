@@ -609,8 +609,8 @@ class Client:
         :type out_schema: Optional[dict]
         :param name: Name of the transition
         :type name: Optional[str]
-        :param params: Parameters to the corresponding transition type
-        :type params: Optional[dict]
+        :param parameters: Parameters to the corresponding transition type
+        :type parameters: Optional[dict]
         :param description: Description of the transition
         :type description: Optional[str]
         :return: Transition response from REST API
