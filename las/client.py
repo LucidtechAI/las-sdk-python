@@ -156,7 +156,7 @@ class Client:
         return _json_decode(response)
 
     def create_asset(self, content: Content, **optional_args) -> Dict:
-        """Creates an asset handle, calls the POST /assets endpoint.
+        """Creates an asset, calls the POST /assets endpoint.
 
         >>> from las.client import Client
         >>> client = Client()
@@ -204,7 +204,7 @@ class Client:
         return self._make_request(requests.get, '/assets', params=params)
 
     def get_asset(self, asset_id: str) -> Dict:
-        """Get asset from the REST API, calls the GET /assets/{assetId} endpoint.
+        """Get asset, calls the GET /assets/{assetId} endpoint.
 
         >>> from las.client import Client
         >>> client = Client()
@@ -275,7 +275,7 @@ class Client:
             batch_id: str = None,
             ground_truth: Sequence[Dict[str, str]] = None,
     ) -> Dict:
-        """Creates a document handle, calls the POST /documents endpoint.
+        """Creates a document, calls the POST /documents endpoint.
 
         >>> from las.client import Client
         >>> client = Client()
@@ -283,9 +283,9 @@ class Client:
 
         :param content: Content to POST
         :type content: Content
-        :param content_type: MIME type for the document handle
+        :param content_type: MIME type for the document
         :type content_type: str
-        :param consent_id: Id of the consent that marks the owner of the document handle
+        :param consent_id: Id of the consent that marks the owner of the document
         :type consent_id: Optional[str]
         :param batch_id: Id of the associated batch
         :type batch_id: Optional[str]
@@ -322,7 +322,7 @@ class Client:
 
         :param batch_id: Ids of batches that contains the documents of interest
         :type batch_id: Optional[Queryparam]
-        :param consent_id: Ids of the consents that marks the owner of the document handle
+        :param consent_id: Ids of the consents that marks the owner of the document
         :type consent_id: Optional[Queryparam]
         :param max_results: Maximum number of results to be returned
         :type max_results: Optional[int]
@@ -349,7 +349,7 @@ class Client:
         >>> client = Client()
         >>> client.delete_documents(consent_id='<consent id>')
 
-        :param consent_id: Ids of the consents that marks the owner of the document handle
+        :param consent_id: Ids of the consents that marks the owner of the document
         :type consent_id: Optional[Queryparam]
         :return: Documents response from REST API
         :rtype: dict
@@ -360,7 +360,7 @@ class Client:
         return self._make_request(requests.delete, '/documents', params={'consentId': consent_id})
 
     def get_document(self, document_id: str) -> Dict:
-        """Get document from the REST API, calls the GET /documents/{documentId} endpoint.
+        """Get document, calls the GET /documents/{documentId} endpoint.
 
         >>> from las.client import Client
         >>> client = Client()
@@ -377,8 +377,8 @@ class Client:
         return self._make_request(requests.get, f'/documents/{document_id}')
 
     def update_document(self, document_id: str, ground_truth: Sequence[Dict[str, Union[Optional[str], bool]]]) -> Dict:
-        """Post ground truth to the REST API, calls the PATCH /documents/{documentId} endpoint.
-        Posting ground truth means posting the ground truth data for the particular document.
+        """Update ground truth for a document, calls the PATCH /documents/{documentId} endpoint.
+        Updating ground truth means adding the ground truth data for the particular document.
         This enables the API to learn from past mistakes.
 
         >>> from las.client import Client
@@ -499,7 +499,7 @@ class Client:
         return self._make_request(requests.get, '/predictions', params=params)
 
     def create_secret(self, data: dict, **optional_args) -> Dict:
-        """Creates an secret handle, calls the POST /secrets endpoint.
+        """Creates an secret, calls the POST /secrets endpoint.
 
         >>> from las.client import Client
         >>> client = Client()
@@ -582,7 +582,7 @@ class Client:
         parameters: Optional[dict] = None,
         **optional_args,
     ) -> Dict:
-        """Creates a transition handle, calls the POST /transitions endpoint.
+        """Creates a transition, calls the POST /transitions endpoint.
 
         >>> import json
         >>> from pathlib import Path
@@ -669,7 +669,7 @@ class Client:
         out_schema: Optional[dict] = None,
         **optional_args,
     ) -> Dict:
-        """Creates a transition handle, calls the PATCH /transitions/{transitionId} endpoint.
+        """Updates a transition, calls the PATCH /transitions/{transitionId} endpoint.
 
         >>> import json
         >>> from pathlib import Path
@@ -854,28 +854,6 @@ class Client:
         }
         return self._make_request(requests.post, '/users', body=body)
 
-    def update_user(self, user_id: str, **optional_args) -> Dict:
-        """Updates a user, calls the PATCH /users/{userId} endpoint.
-
-        >>> from las.client import Client
-        >>> client = Client()
-        >>> client.update_user('<user id>', name='John Doe')
-
-        :param user_id: Id of the user
-        :type user_id: str
-        :param name: Name of the user
-        :type name: Optional[str]
-        :param avatar: base64 encoded JPEG avatar of the user
-        :type avatar: Optional[str]
-        :return: User response from REST API
-        :rtype: dict
-
-        :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
- :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
-        """
-
-        return self._make_request(requests.patch, f'/users/{user_id}', body=optional_args)
-
     def list_users(self, *, max_results: Optional[int] = None, next_token: Optional[str] = None) -> Dict:
         """List users, calls the GET /users endpoint.
 
@@ -915,6 +893,28 @@ class Client:
  :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
         """
         return self._make_request(requests.get, f'/users/{user_id}')
+
+    def update_user(self, user_id: str, **optional_args) -> Dict:
+        """Updates a user, calls the PATCH /users/{userId} endpoint.
+
+        >>> from las.client import Client
+        >>> client = Client()
+        >>> client.update_user('<user id>', name='John Doe')
+
+        :param user_id: Id of the user
+        :type user_id: str
+        :param name: Name of the user
+        :type name: Optional[str]
+        :param avatar: base64 encoded JPEG avatar of the user
+        :type avatar: Optional[str]
+        :return: User response from REST API
+        :rtype: dict
+
+        :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
+ :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
+        """
+
+        return self._make_request(requests.patch, f'/users/{user_id}', body=optional_args)
 
     def delete_user(self, user_id: str) -> Dict:
         """Delete the user with the provided user_id, calls the DELETE /users/{userId} endpoint.
@@ -991,7 +991,7 @@ class Client:
         return self._make_request(requests.get, '/workflows', params=params)
 
     def update_workflow(self, workflow_id: str, **optional_args) -> Dict:
-        """Creates a workflow handle, calls the PATCH /workflows/{workflowId} endpoint.
+        """Updates a workflow, calls the PATCH /workflows/{workflowId} endpoint.
 
         >>> import json
         >>> from pathlib import Path
