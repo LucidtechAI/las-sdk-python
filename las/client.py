@@ -737,6 +737,7 @@ class Client:
 
     def delete_transition(self, transition_id: str) -> Dict:
         """Delete the transition with the provided transition_id, calls the DELETE /transitions/{transitionId} endpoint.
+           Will fail if transition is in use by one or more workflows.
 
         >>> from las.client import Client
         >>> client = Client()
