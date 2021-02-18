@@ -34,6 +34,13 @@ def test_list_workflows_with_pagination(client: Client, max_results, next_token)
     assert 'nextToken' in response, 'Missing nextToken in response'
 
 
+def test_get_workflow(client: Client):
+    workflow_id = service.create_workflow_id()
+    response = client.get_workflow(workflow_id)
+    logging.info(response)
+    assert_workflow(response)
+
+
 @pytest.mark.parametrize('name_and_description', util.name_and_description_combinations(True))
 def test_update_workflow(client: Client, name_and_description):
     response = client.update_workflow(

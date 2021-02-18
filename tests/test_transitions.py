@@ -26,6 +26,19 @@ def test_create_transition(client: Client, transition_type, parameters, name_and
     assert_transition(response)
 
 
+def test_get_transition(client: Client):
+    response = client.get_transition(service.create_transition_id())
+    logging.info(response)
+    assert_transition(response)
+
+
+@pytest.mark.skip(reason='DELETE does not work for the mocked API')
+def test_delete_transition(client: Client):
+    response = client.delete_transition(service.create_transition_id())
+    logging.info(response)
+    assert_transition(response)
+
+
 @pytest.mark.parametrize('transition_type', [['docker'], ['manual'], 'docker', 'manual', None])
 def test_list_transitions(client: Client, transition_type):
     response = client.list_transitions(transition_type=transition_type)

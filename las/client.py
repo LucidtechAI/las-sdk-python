@@ -661,6 +661,23 @@ class Client:
         }
         return self._make_request(requests.get, url, params=dictstrip(params))
 
+    def get_transition(self, transition_id: str) -> Dict:
+        """Get the transition with the provided transition_id, calls the GET /transitions/{transitionId} endpoint.
+
+        >>> from las.client import Client
+        >>> client = Client()
+        >>> client.get_transition('<transition_id>')
+
+        :param transition_id: Id of the transition
+        :type transition_id: str
+        :return: Transition response from REST API
+        :rtype: dict
+
+        :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
+ :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
+        """
+        return self._make_request(requests.get, f'/transitions/{transition_id}')
+
     def update_transition(
         self,
         transition_id: str,
@@ -717,6 +734,24 @@ class Client:
         """
         endpoint = f'/transitions/{transition_id}/executions'
         return self._make_request(requests.post, endpoint, body={})
+
+    def delete_transition(self, transition_id: str) -> Dict:
+        """Delete the transition with the provided transition_id, calls the DELETE /transitions/{transitionId} endpoint.
+           Will fail if transition is in use by one or more workflows.
+
+        >>> from las.client import Client
+        >>> client = Client()
+        >>> client.delete_transition('<transition_id>')
+
+        :param transition_id: Id of the transition
+        :type transition_id: str
+        :return: Transition response from REST API
+        :rtype: dict
+
+        :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
+ :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
+        """
+        return self._make_request(requests.delete, f'/transitions/{transition_id}')
 
     def list_transition_executions(
         self,
@@ -989,6 +1024,23 @@ class Client:
             'nextToken': next_token,
         }
         return self._make_request(requests.get, '/workflows', params=params)
+
+    def get_workflow(self, workflow_id: str) -> Dict:
+        """Get the workflow with the provided workflow_id, calls the GET /workflows/{workflowId} endpoint.
+
+        >>> from las.client import Client
+        >>> client = Client()
+        >>> client.get_workflow('<workflow_id>')
+
+        :param workflow_id: Id of the workflow
+        :type workflow_id: str
+        :return: Workflow response from REST API
+        :rtype: dict
+
+        :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
+ :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
+        """
+        return self._make_request(requests.get, f'/workflows/{workflow_id}')
 
     def update_workflow(self, workflow_id: str, **optional_args) -> Dict:
         """Updates a workflow, calls the PATCH /workflows/{workflowId} endpoint.

@@ -22,7 +22,9 @@ prism-start:
 		--detach \
 		-p 4010:4010 \
 		stoplight/prism:3.2.8 mock -d -h 0.0.0.0 \
-		https://raw.githubusercontent.com/LucidtechAI/las-docs/master/apis/dev/oas.json > /tmp/prism.cid
+		https://raw.githubusercontent.com/LucidtechAI/las-docs/master/reference/restapi/oas.json \
+		> /tmp/prism.cid
+
 
 .PHONY: prism-stop
 prism-stop:
