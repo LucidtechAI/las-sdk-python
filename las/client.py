@@ -829,6 +829,7 @@ class Client:
         *,
         output: Optional[dict] = None,
         error: Optional[dict] = None,
+        start_time: Optional[str] = None,
     ) -> Dict:
         """Ends the processing of the transition execution,
         calls the PATCH /transitions/{transition_id}/executions/{execution_id} endpoint.
@@ -847,9 +848,11 @@ class Client:
         :param status: Status of the execution 'succeeded|failed'
         :type status: str
         :param output: Output from the execution, required when status is 'succeded'
-        :type output: Optional[str]
+        :type output: Optional[dict]
         :param error: Error from the execution, required when status is 'failed', needs to contain 'message'
-        :type error: Optional[str]
+        :type error: Optional[dict]
+        :param start_time: utc start time that will replace the original start time of the execution
+        :type start_time: Optional[str]
         :return: Transition execution response from REST API
         :rtype: dict
 
@@ -861,6 +864,7 @@ class Client:
             'status': status,
             'output': output,
             'error': error,
+            'start_time': start_time,
         }
         return self._make_request(requests.patch, url, body=dictstrip(body))
 
