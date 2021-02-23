@@ -37,6 +37,10 @@ def _json_decode(response):
         response.raise_for_status()
         return response.json()
     except JSONDecodeError as e:
+
+        if response.status_code == 204:
+            return {'Your requested executed successfully': '204'}
+
         logger.error('Error in response. Returned {}'.format(response.text))
         raise e
     except Exception as e:
