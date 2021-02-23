@@ -449,6 +449,7 @@ class Client:
         *,
         max_pages: Optional[int] = None,
         auto_rotate: Optional[bool] = None,
+        image_quality: Optional[str] = None,
     ) -> Dict:
         """Create a prediction on a document using specified model, calls the POST /predictions endpoint.
 
@@ -463,8 +464,11 @@ class Client:
         :param max_pages: Maximum number of pages to run predictions on
         :type max_pages: Optional[int]
         :param auto_rotate: Whether or not to let the API try different rotations on\
- the document when running predictions
+            the document when running predictions
         :type auto_rotate: Optional[bool]
+        :param image_quality: image quality for prediction "low|medium|high". \
+            high quality could give better result but will also take longer time.
+        :type image_quality: Optional[int]
         :return: Prediction response from REST API
         :rtype: dict
 
@@ -476,6 +480,7 @@ class Client:
             'modelId': model_id,
             'maxPages': max_pages,
             'autoRotate': auto_rotate,
+            'imageQuality': image_quality,
         }
         return self._make_request(requests.post, '/predictions', body=dictstrip(body))
 
