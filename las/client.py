@@ -868,6 +868,27 @@ class Client:
         }
         return self._make_request(requests.patch, url, body=dictstrip(body))
 
+    def send_heartbeat(self, transition_id: str, execution_id: str) -> Dict:
+        """Send heartbeat for a manual execution,
+        calls the POST /transitions/{transitionId}/executions/{executionId}/heartbeats endpoint.
+
+        >>> from las.client import Client
+        >>> client = Client()
+        >>> client.send_heartbeat('<transition_id>', '<execution_id>')
+
+        :param transition_id: Id of the transition
+        :type transition_id: str
+        :param execution_id: Id of the transition execution
+        :type execution_id: str
+        :return: Transition execution response from REST API
+        :rtype: dict
+
+        :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
+ :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
+        """
+        endpoint = f'/transitions/{transition_id}/executions/{execution_id}/heartbeats'
+        return self._make_request(requests.post, endpoint, body={})
+
     def create_user(self, email: str, **optional_args) -> Dict:
         """Creates a new user, calls the POST /users endpoint.
 
