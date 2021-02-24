@@ -860,7 +860,7 @@ class Client:
         :type output: Optional[dict]
         :param error: Error from the execution, required when status is 'failed', needs to contain 'message'
         :type error: Optional[dict]
-        :param start_time: utc start time that will replace the original start time of the execution
+        :param start_time: Utc start time that will replace the original start time of the execution
         :type start_time: Optional[str]
         :return: Transition execution response from REST API
         :rtype: dict
@@ -889,8 +889,8 @@ class Client:
         :type transition_id: str
         :param execution_id: Id of the transition execution
         :type execution_id: str
-        :return: Transition execution response from REST API
-        :rtype: dict
+        :return: Empty response
+        :rtype: None
 
         :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
  :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
