@@ -102,7 +102,7 @@ def test_execute_transition(client: Client):
     ('succeeded', {'foo': 'bar'}, None),
     ('failed', None, {'message': 'foobar'}),
 ])
-@pytest.mark.parametrize('start_time', [f'{datetime.utcnow()}', None])
+@pytest.mark.parametrize('start_time', [f'{datetime.utcnow()}', datetime.utcnow(), None])
 def test_update_transition_execution(client: Client, status, output, error, start_time):
     transition_id = service.create_transition_id()
     execution_id = service.create_transition_execution_id()

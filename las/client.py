@@ -3,6 +3,7 @@ import io
 import json
 import logging
 from base64 import b64encode, b64decode
+from datetime import datetime
 from functools import singledispatch
 from pathlib import Path
 from json.decoder import JSONDecodeError
@@ -39,7 +40,7 @@ def _json_decode(response):
     except JSONDecodeError as e:
 
         if response.status_code == 204:
-            return {'Your requested executed successfully': '204'}
+            return {'Your request executed successfully': '204'}
 
         logger.error('Error in response. Returned {}'.format(response.text))
         raise e
@@ -466,7 +467,7 @@ class Client:
         :param auto_rotate: Whether or not to let the API try different rotations on\
             the document when running predictions
         :type auto_rotate: Optional[bool]
-        :param image_quality: image quality for prediction "low|medium|high". \
+        :param image_quality: image quality for prediction "LOW|HIGH". \
             high quality could give better result but will also take longer time.
         :type image_quality: Optional[int]
         :return: Prediction response from REST API
@@ -838,7 +839,7 @@ class Client:
         *,
         output: Optional[dict] = None,
         error: Optional[dict] = None,
-        start_time: Optional[str] = None,
+        start_time: Optional[Union[str, datetime]] = None,
     ) -> Dict:
         """Ends the processing of the transition execution,
         calls the PATCH /transitions/{transition_id}/executions/{execution_id} endpoint.
@@ -873,7 +874,7 @@ class Client:
             'status': status,
             'output': output,
             'error': error,
-            'start_time': start_time,
+            'start_time': f'{start_time}' if start_time else start_time,
         }
         return self._make_request(requests.patch, url, body=dictstrip(body))
 
