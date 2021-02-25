@@ -125,7 +125,7 @@ def test_send_heartbeat(client: Client):
     execution_id = service.create_transition_execution_id()
     response = client.send_heartbeat(transition_id, execution_id)
     logging.info(response)
-    assert response == {'Your requested executed successfully': '204'}
+    assert response == {'Your request executed successfully': '204'}
 
 
 def assert_transition(response):
