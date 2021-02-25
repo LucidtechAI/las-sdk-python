@@ -879,7 +879,8 @@ class Client:
         return self._make_request(requests.patch, url, body=dictstrip(body))
 
     def send_heartbeat(self, transition_id: str, execution_id: str) -> Dict:
-        """Send heartbeat for a manual execution,
+        """Send heartbeat for a manual execution to signal that we are still working on it.
+        Must be done at minimum once every 60 seconds or the transition execution will time out,
         calls the POST /transitions/{transitionId}/executions/{executionId}/heartbeats endpoint.
 
         >>> from las.client import Client
