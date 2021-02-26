@@ -1,5 +1,6 @@
 import logging
 import random
+from datetime import datetime
 
 import pytest
 from las.client import Client
@@ -101,14 +102,30 @@ def test_execute_transition(client: Client):
     ('succeeded', {'foo': 'bar'}, None),
     ('failed', None, {'message': 'foobar'}),
 ])
-def test_update_transition_execution(client: Client, status, output, error):
+@pytest.mark.parametrize('start_time', [f'{datetime.utcnow()}', datetime.utcnow(), None])
+def test_update_transition_execution(client: Client, status, output, error, start_time):
     transition_id = service.create_transition_id()
     execution_id = service.create_transition_execution_id()
-    response = client.update_transition_execution(transition_id, execution_id, status, output=output, error=error)
+    response = client.update_transition_execution(
+        transition_id,
+        execution_id,
+        status,
+        output=output,
+        error=error,
+        start_time=start_time,
+    )
     logging.info(response)
     assert 'transitionId' in response, 'Missing transitionId in response'
     assert 'executionId' in response, 'Missing executionId in response'
     assert 'status' in response, 'Missing status in response'
+
+
+def test_send_heartbeat(client: Client):
+    transition_id = service.create_transition_id()
+    execution_id = service.create_transition_execution_id()
+    response = client.send_heartbeat(transition_id, execution_id)
+    logging.info(response)
+    assert response == {'Your request executed successfully': '204'}
 
 
 def assert_transition(response):

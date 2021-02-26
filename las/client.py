@@ -3,6 +3,7 @@ import io
 import json
 import logging
 from base64 import b64encode, b64decode
+from datetime import datetime
 from functools import singledispatch
 from pathlib import Path
 from json.decoder import JSONDecodeError
@@ -37,6 +38,10 @@ def _json_decode(response):
         response.raise_for_status()
         return response.json()
     except JSONDecodeError as e:
+
+        if response.status_code == 204:
+            return {'Your request executed successfully': '204'}
+
         logger.error('Error in response. Returned {}'.format(response.text))
         raise e
     except Exception as e:
@@ -445,6 +450,7 @@ class Client:
         *,
         max_pages: Optional[int] = None,
         auto_rotate: Optional[bool] = None,
+        image_quality: Optional[str] = None,
     ) -> Dict:
         """Create a prediction on a document using specified model, calls the POST /predictions endpoint.
 
@@ -459,8 +465,11 @@ class Client:
         :param max_pages: Maximum number of pages to run predictions on
         :type max_pages: Optional[int]
         :param auto_rotate: Whether or not to let the API try different rotations on\
- the document when running predictions
+            the document when running predictions
         :type auto_rotate: Optional[bool]
+        :param image_quality: image quality for prediction "LOW|HIGH". \
+            high quality could give better result but will also take longer time.
+        :type image_quality: Optional[int]
         :return: Prediction response from REST API
         :rtype: dict
 
@@ -472,6 +481,7 @@ class Client:
             'modelId': model_id,
             'maxPages': max_pages,
             'autoRotate': auto_rotate,
+            'imageQuality': image_quality,
         }
         return self._make_request(requests.post, '/predictions', body=dictstrip(body))
 
@@ -829,6 +839,7 @@ class Client:
         *,
         output: Optional[dict] = None,
         error: Optional[dict] = None,
+        start_time: Optional[Union[str, datetime]] = None,
     ) -> Dict:
         """Ends the processing of the transition execution,
         calls the PATCH /transitions/{transition_id}/executions/{execution_id} endpoint.
@@ -847,9 +858,11 @@ class Client:
         :param status: Status of the execution 'succeeded|failed'
         :type status: str
         :param output: Output from the execution, required when status is 'succeded'
-        :type output: Optional[str]
+        :type output: Optional[dict]
         :param error: Error from the execution, required when status is 'failed', needs to contain 'message'
-        :type error: Optional[str]
+        :type error: Optional[dict]
+        :param start_time: Utc start time that will replace the original start time of the execution
+        :type start_time: Optional[str]
         :return: Transition execution response from REST API
         :rtype: dict
 
@@ -861,8 +874,31 @@ class Client:
             'status': status,
             'output': output,
             'error': error,
+            'startTime': f'{start_time}' if start_time else None,
         }
         return self._make_request(requests.patch, url, body=dictstrip(body))
+
+    def send_heartbeat(self, transition_id: str, execution_id: str) -> Dict:
+        """Send heartbeat for a manual execution to signal that we are still working on it.
+        Must be done at minimum once every 60 seconds or the transition execution will time out,
+        calls the POST /transitions/{transitionId}/executions/{executionId}/heartbeats endpoint.
+
+        >>> from las.client import Client
+        >>> client = Client()
+        >>> client.send_heartbeat('<transition_id>', '<execution_id>')
+
+        :param transition_id: Id of the transition
+        :type transition_id: str
+        :param execution_id: Id of the transition execution
+        :type execution_id: str
+        :return: Empty response
+        :rtype: None
+
+        :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
+ :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
+        """
+        endpoint = f'/transitions/{transition_id}/executions/{execution_id}/heartbeats'
+        return self._make_request(requests.post, endpoint, body={})
 
     def create_user(self, email: str, **optional_args) -> Dict:
         """Creates a new user, calls the POST /users endpoint.
