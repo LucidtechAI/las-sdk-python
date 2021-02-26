@@ -874,7 +874,7 @@ class Client:
             'status': status,
             'output': output,
             'error': error,
-            'startTime': f'{start_time}' if start_time else start_time,
+            'startTime': f'{start_time}' if start_time else None,
         }
         return self._make_request(requests.patch, url, body=dictstrip(body))
 
