@@ -1184,6 +1184,39 @@ class Client:
         }
         return self._make_request(requests.get, url, params=params)
 
+    def update_workflow_execution(
+        self,
+        workflow_id: str,
+        execution_id: str,
+        next_transition_id: str,
+    ) -> Dict:
+        """Retry or end the processing of a workflow execution,
+        calls the PATCH /workflows/{workflow_id}/executions/{execution_id} endpoint.
+
+        >>> from las.client import Client
+        >>> client = Client()
+        >>> output = {...}
+        >>> client.update_workflow_execution('<workflow_id>', '<execution_id>', '<next_transition_id>')
+
+        :param workflow_id: Id of the workflow that performs the execution
+        :type workflow_id: str
+        :param execution_id: Id of the execution to update
+        :type execution_id: str
+        :param next_transition_id: the next transition to transition into, to end the workflow-execution,
+        use: las:transition:commons-failed
+        :type next_transition_id: str
+        :return: Workflow execution response from REST API
+        :rtype: dict
+
+        :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
+ :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
+        """
+        url = f'/workflows/{workflow_id}/executions/{execution_id}'
+        body = {
+            'nextTransitionId': next_transition_id,
+        }
+        return self._make_request(requests.patch, url, body=dictstrip(body))
+
     def delete_workflow_execution(self, workflow_id: str, execution_id: str) -> Dict:
         """Deletes the execution with the provided execution_id from workflow_id,
         calls the DELETE /workflows/{workflowId}/executions/{executionId} endpoint.
