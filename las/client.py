@@ -1188,7 +1188,7 @@ class Client:
         self,
         workflow_id: str,
         execution_id: str,
-        next_transition_id: str,
+        next_transition_id: str = 'las:transition:commons-failed',
     ) -> Dict:
         """Retry or end the processing of a workflow execution,
         calls the PATCH /workflows/{workflow_id}/executions/{execution_id} endpoint.
