@@ -1004,7 +1004,14 @@ class Client:
         """
         return self._make_request(requests.delete, f'/users/{user_id}')
 
-    def create_workflow(self, specification: dict, *, error_config: Optional[dict] = None, **optional_args) -> Dict:
+    def create_workflow(
+        self,
+        specification: dict,
+        *,
+        error_config: Optional[dict] = None,
+        completed_config: Optional[dict] = None,
+        **optional_args,
+    ) -> Dict:
         """Creates a new workflow, calls the POST /workflows endpoint.
         Check out Lucidtech's tutorials for more info on how to create a workflow.
 
@@ -1024,6 +1031,8 @@ class Client:
         :type description: Optional[str]
         :param error_config: Configuration of error handler
         :type error_config: Optional[dict]
+        :param completed_config: Configuration of a job to run whenever a workflow execution ends
+        :type completed_config: Optional[dict]
         :return: Workflow response from REST API
         :rtype: dict
 
@@ -1033,6 +1042,7 @@ class Client:
         body = dictstrip({
             'specification': specification,
             'errorConfig': error_config,
+            'completedConfig': completed_config,
         })
         body.update(**optional_args)
 

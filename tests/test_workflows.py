@@ -8,10 +8,22 @@ from . import service, util
 
 
 @pytest.mark.parametrize('error_config', [None, {'email': 'foo@bar.com'}])
+@pytest.mark.parametrize('completed_config', [None, {
+    'imageUrl': 'my/docker:image',
+    'secretId': service.create_secret_id(),
+    'environment': {'FOO': 'BAR'},
+    'environmentSecrets': [service.create_secret_id()],
+    }]
+)
 @pytest.mark.parametrize('name_and_description', util.name_and_description_combinations(True))
-def test_create_workflow(client: Client, name_and_description, error_config):
+def test_create_workflow(client: Client, name_and_description, error_config, completed_config):
     specification = {'definition': {}}
-    response = client.create_workflow(specification, **name_and_description, error_config=error_config)
+    response = client.create_workflow(
+        specification,
+        **name_and_description,
+        error_config=error_config,
+        completed_config=completed_config
+    )
     logging.info(response)
     assert_workflow(response)
 
