@@ -89,7 +89,7 @@ def test_execute_workflow(client: Client):
 def test_delete_workflow_execution(client: Client):
     workflow_id = service.create_workflow_id()
     execution_id = service.create_workflow_execution_id()
-    response = client.stop_workflow_execution(workflow_id, execution_id)
+    response = client.delete_workflow_execution(workflow_id, execution_id)
     logging.info(response)
     assert_workflow_execution(response)
 
