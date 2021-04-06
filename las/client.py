@@ -871,7 +871,7 @@ class Client:
         """
         if isinstance(start_time, datetime):
             if not start_time.tzinfo:
-                start_time = start_time.astimezone(timezone.utc)
+                start_time = start_time.astimezone()
             start_time = start_time.isoformat()
 
         url = f'/transitions/{transition_id}/executions/{execution_id}'
@@ -1223,7 +1223,7 @@ class Client:
         self,
         workflow_id: str,
         execution_id: str,
-        next_transition_id: str = 'las:transition:commons-failed',
+        next_transition_id: str,
     ) -> Dict:
         """Retry or end the processing of a workflow execution,
         calls the PATCH /workflows/{workflow_id}/executions/{execution_id} endpoint.
