@@ -3,7 +3,7 @@ import io
 import json
 import logging
 from base64 import b64encode, b64decode
-from datetime import datetime, timezone
+from datetime import datetime
 from functools import singledispatch
 from pathlib import Path
 from json.decoder import JSONDecodeError
