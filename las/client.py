@@ -3,7 +3,7 @@ import io
 import json
 import logging
 from base64 import b64encode, b64decode
-from datetime import datetime
+from datetime import datetime, timezone
 from functools import singledispatch
 from pathlib import Path
 from json.decoder import JSONDecodeError
@@ -861,7 +861,7 @@ class Client:
         :type output: Optional[dict]
         :param error: Error from the execution, required when status is 'failed', needs to contain 'message'
         :type error: Optional[dict]
-        :param start_time: Utc start time that will replace the original start time of the execution
+        :param start_time: start time that will replace the original start time of the execution
         :type start_time: Optional[str]
         :return: Transition execution response from REST API
         :rtype: dict
@@ -869,12 +869,17 @@ class Client:
         :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
  :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
         """
+        if isinstance(start_time, datetime):
+            if not start_time.tzinfo:
+                start_time = start_time.astimezone(timezone.utc)
+            start_time = start_time.isoformat()
+
         url = f'/transitions/{transition_id}/executions/{execution_id}'
         body = {
             'status': status,
             'output': output,
             'error': error,
-            'startTime': f'{start_time}' if start_time else None,
+            'startTime': start_time,
         }
         return self._make_request(requests.patch, url, body=dictstrip(body))
 
