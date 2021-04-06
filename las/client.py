@@ -1184,6 +1184,26 @@ class Client:
         }
         return self._make_request(requests.get, url, params=params)
 
+    def get_workflow_execution(self, workflow_id: str, execution_id: str) -> Dict:
+        """Get a workflow execution, calls the GET /workflows/{workflow_id}/executions/{execution_id} endpoint.
+
+        >>> from las.client import Client
+        >>> client = Client()
+        >>> client.get_workflow_execution('<workflow_id>', '<execution_id>')
+
+        :param workflow_id: Id of the workflow that performs the execution
+        :type workflow_id: str
+        :param execution_id: Id of the execution to get
+        :type execution_id: str
+        :return: Workflow execution response from REST API
+        :rtype: dict
+
+        :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
+ :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
+        """
+        url = f'/workflows/{workflow_id}/executions/{execution_id}'
+        return self._make_request(requests.get, url)
+
     def update_workflow_execution(
         self,
         workflow_id: str,
@@ -1195,7 +1215,6 @@ class Client:
 
         >>> from las.client import Client
         >>> client = Client()
-        >>> output = {...}
         >>> client.update_workflow_execution('<workflow_id>', '<execution_id>', '<next_transition_id>')
 
         :param workflow_id: Id of the workflow that performs the execution

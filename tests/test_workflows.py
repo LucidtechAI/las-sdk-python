@@ -102,6 +102,12 @@ def test_delete_workflow(client: Client):
     assert_workflow(response)
 
 
+def test_get_workflow_execution(client: Client):
+    response = client.get_workflow_execution(service.create_workflow_id(), service.create_workflow_execution_id())
+    logging.info(response)
+    assert_workflow_execution(response)
+
+
 def test_update_workflow_execution(client: Client):
     response = client.update_workflow_execution(
         service.create_workflow_id(),
