@@ -102,6 +102,16 @@ def test_delete_workflow(client: Client):
     assert_workflow(response)
 
 
+def test_update_workflow_execution(client: Client):
+    response = client.update_workflow_execution(
+        service.create_workflow_id(),
+        service.create_workflow_execution_id(),
+        service.create_transition_id(),
+    )
+    logging.info(response)
+    assert_workflow_execution(response)
+
+
 def assert_workflow(response):
     assert 'workflowId' in response, 'Missing workflowId in response'
     assert 'name' in response, 'Missing name in response'
