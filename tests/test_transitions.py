@@ -90,6 +90,23 @@ def test_update_transition(client: Client, name_and_description, in_schema, out_
     assert_transition(response)
 
 
+@pytest.mark.parametrize('assets,environment,environment_secrets', [
+    (None, None, [service.create_secret_id(), service.create_secret_id()]),
+    ({'foo': service.create_asset_id()}, None, None),
+    (None, {'foo': 'bar'}, None),
+    (None, {'foo': 'bar'}, [service.create_secret_id(), service.create_secret_id()]),
+])
+def test_update_transition_parameters(client: Client, assets, environment, environment_secrets):
+    response = client.update_transition(
+        service.create_transition_id(),
+        assets=assets,
+        environment=environment,
+        environment_secrets=environment_secrets,
+    )
+    logging.info(response)
+    assert_transition(response)
+
+
 def test_execute_transition(client: Client):
     response = client.execute_transition(service.create_transition_id())
     logging.info(response)

@@ -7,14 +7,8 @@ from las.client import Client
 from . import service, util
 
 
-@pytest.mark.parametrize('error_config', [None, {'email': 'foo@bar.com'}])
-@pytest.mark.parametrize('completed_config', [None, {
-    'imageUrl': 'my/docker:image',
-    'secretId': service.create_secret_id(),
-    'environment': {'FOO': 'BAR'},
-    'environmentSecrets': [service.create_secret_id()],
-    }]
-)
+@pytest.mark.parametrize('error_config', [None, service.create_error_config()])
+@pytest.mark.parametrize('completed_config', [None, service.create_completed_config()])
 @pytest.mark.parametrize('name_and_description', util.name_and_description_combinations(True))
 def test_create_workflow(client: Client, name_and_description, error_config, completed_config):
     specification = {'definition': {}}
@@ -53,10 +47,14 @@ def test_get_workflow(client: Client):
     assert_workflow(response)
 
 
+@pytest.mark.parametrize('error_config', [None, service.create_error_config()])
+@pytest.mark.parametrize('completed_config', [None, service.create_completed_config()])
 @pytest.mark.parametrize('name_and_description', util.name_and_description_combinations(True))
-def test_update_workflow(client: Client, name_and_description):
+def test_update_workflow(client: Client, name_and_description, error_config, completed_config):
     response = client.update_workflow(
         service.create_workflow_id(),
+        error_config=error_config,
+        completed_config=completed_config,
         **name_and_description,
     )
     logging.info(response)

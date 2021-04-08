@@ -50,5 +50,18 @@ def create_workflow_execution_id():
     return f'las:workflow-execution:{uuid4().hex}'
 
 
+def create_error_config():
+    return {'email': 'foo@bar.com'}
+
+
+def create_completed_config():
+    return {
+        'imageUrl': 'my/docker:image',
+        'secretId': create_secret_id(),
+        'environment': {'FOO': 'BAR'},
+        'environmentSecrets': [create_secret_id()],
+    }
+
+
 def document_path():
     return Path(__file__)
