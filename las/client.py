@@ -252,6 +252,23 @@ class Client:
 
         return self._make_request(requests.patch, f'/assets/{asset_id}', body=optional_args)
 
+    def delete_asset(self, asset_id: str) -> Dict:
+        """Delete the asset with the provided asset_id, calls the DELETE /assets/{assetId} endpoint.
+
+        >>> from las.client import Client
+        >>> client = Client()
+        >>> client.delete_asset('<asset_id>')
+
+        :param asset_id: Id of the asset
+        :type asset_id: str
+        :return: Asset response from REST API
+        :rtype: dict
+
+        :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
+ :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
+        """
+        return self._make_request(requests.delete, f'/assets/{asset_id}')
+
     def create_batch(self, **optional_args) -> Dict:
         """Creates a batch, calls the POST /batches endpoint.
 
