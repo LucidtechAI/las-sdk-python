@@ -728,6 +728,9 @@ class Client:
         *,
         in_schema: Optional[dict] = None,
         out_schema: Optional[dict] = None,
+        assets: Optional[dict] = None,
+        environment: Optional[dict] = None,
+        environment_secrets: Optional[list] = None,
         **optional_args,
     ) -> Dict:
         """Updates a transition, calls the PATCH /transitions/{transitionId} endpoint.
@@ -739,7 +742,7 @@ class Client:
         >>> client.update_transition('<transition-id>', name='<name>', description='<description>')
 
         :param transition_id: Id of the transition
-        :type name: str
+        :type transition_id: str
         :param name: Name of the transition
         :type name: Optional[str]
         :param description: Description of the transition
@@ -748,6 +751,13 @@ class Client:
         :type in_schema: Optional[dict]
         :param out_schema: Json-schema that defines the output of the transition
         :type out_schema: Optional[dict]
+        :param assets: A dictionary where the values are assetIds that can be used in a manual transition
+        :type assets: Optional[dict]
+        :param environment: Environment variables to use for a docker transition
+        :type environment: Optional[dict]
+        :param environment_secrets:
+        A list of secretIds that contains environment variables to use for a docker transition
+        :type environment_secrets: Optional[list]
         :return: Transition response from REST API
         :rtype: dict
 
@@ -757,6 +767,9 @@ class Client:
         body = dictstrip({
             'inputJsonSchema': in_schema,
             'outputJsonSchema': out_schema,
+            'assets': assets,
+            'environment': environment,
+            'environmentSecrets': environment_secrets,
         })
         body.update(**optional_args)
         return self._make_request(requests.patch, f'/transitions/{transition_id}', body=body)
