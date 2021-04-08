@@ -600,6 +600,23 @@ class Client:
         body.update(**optional_args)
         return self._make_request(requests.patch, f'/secrets/{secret_id}', body=body)
 
+    def delete_secret(self, secret_id: str) -> Dict:
+        """Delete the secret with the provided secret_id, calls the DELETE /secrets/{secretId} endpoint.
+
+        >>> from las.client import Client
+        >>> client = Client()
+        >>> client.delete_secret('<secret_id>')
+
+        :param secret_id: Id of the secret
+        :type secret_id: str
+        :return: Secret response from REST API
+        :rtype: dict
+
+        :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
+ :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
+        """
+        return self._make_request(requests.delete, f'/secrets/{secret_id}')
+
     def create_transition(
         self,
         transition_type: str,
