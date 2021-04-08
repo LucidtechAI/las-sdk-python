@@ -1140,7 +1140,14 @@ class Client:
         """
         return self._make_request(requests.get, f'/workflows/{workflow_id}')
 
-    def update_workflow(self, workflow_id: str, **optional_args) -> Dict:
+    def update_workflow(
+        self,
+        workflow_id: str,
+        *,
+        error_config: Optional[dict] = None,
+        completed_config: Optional[dict] = None,
+        **optional_args,
+    ) -> Dict:
         """Updates a workflow, calls the PATCH /workflows/{workflowId} endpoint.
 
         >>> import json
@@ -1155,13 +1162,22 @@ class Client:
         :type name: Optional[str]
         :param description: Description of the workflow
         :type description: Optional[str]
+        :param error_config: Configuration of error handler
+        :type error_config: Optional[dict]
+        :param completed_config: Configuration of a job to run whenever a workflow execution ends
+        :type completed_config: Optional[dict]
         :return: Workflow response from REST API
         :rtype: dict
 
         :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
  :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
         """
-        return self._make_request(requests.patch, f'/workflows/{workflow_id}', body=optional_args)
+        body = dictstrip({
+            'errorConfig': error_config,
+            'completedConfig': completed_config,
+        })
+        body.update(**optional_args)
+        return self._make_request(requests.patch, f'/workflows/{workflow_id}', body=body)
 
     def delete_workflow(self, workflow_id: str) -> Dict:
         """Delete the workflow with the provided workflow_id, calls the DELETE /workflows/{workflowId} endpoint.
