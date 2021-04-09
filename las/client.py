@@ -252,6 +252,23 @@ class Client:
 
         return self._make_request(requests.patch, f'/assets/{asset_id}', body=optional_args)
 
+    def delete_asset(self, asset_id: str) -> Dict:
+        """Delete the asset with the provided asset_id, calls the DELETE /assets/{assetId} endpoint.
+
+        >>> from las.client import Client
+        >>> client = Client()
+        >>> client.delete_asset('<asset_id>')
+
+        :param asset_id: Id of the asset
+        :type asset_id: str
+        :return: Asset response from REST API
+        :rtype: dict
+
+        :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
+ :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
+        """
+        return self._make_request(requests.delete, f'/assets/{asset_id}')
+
     def create_batch(self, **optional_args) -> Dict:
         """Creates a batch, calls the POST /batches endpoint.
 
@@ -583,6 +600,23 @@ class Client:
         body.update(**optional_args)
         return self._make_request(requests.patch, f'/secrets/{secret_id}', body=body)
 
+    def delete_secret(self, secret_id: str) -> Dict:
+        """Delete the secret with the provided secret_id, calls the DELETE /secrets/{secretId} endpoint.
+
+        >>> from las.client import Client
+        >>> client = Client()
+        >>> client.delete_secret('<secret_id>')
+
+        :param secret_id: Id of the secret
+        :type secret_id: str
+        :return: Secret response from REST API
+        :rtype: dict
+
+        :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
+ :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
+        """
+        return self._make_request(requests.delete, f'/secrets/{secret_id}')
+
     def create_transition(
         self,
         transition_type: str,
@@ -694,6 +728,9 @@ class Client:
         *,
         in_schema: Optional[dict] = None,
         out_schema: Optional[dict] = None,
+        assets: Optional[dict] = None,
+        environment: Optional[dict] = None,
+        environment_secrets: Optional[list] = None,
         **optional_args,
     ) -> Dict:
         """Updates a transition, calls the PATCH /transitions/{transitionId} endpoint.
@@ -705,7 +742,7 @@ class Client:
         >>> client.update_transition('<transition-id>', name='<name>', description='<description>')
 
         :param transition_id: Id of the transition
-        :type name: str
+        :type transition_id: str
         :param name: Name of the transition
         :type name: Optional[str]
         :param description: Description of the transition
@@ -714,6 +751,13 @@ class Client:
         :type in_schema: Optional[dict]
         :param out_schema: Json-schema that defines the output of the transition
         :type out_schema: Optional[dict]
+        :param assets: A dictionary where the values are assetIds that can be used in a manual transition
+        :type assets: Optional[dict]
+        :param environment: Environment variables to use for a docker transition
+        :type environment: Optional[dict]
+        :param environment_secrets:
+        A list of secretIds that contains environment variables to use for a docker transition
+        :type environment_secrets: Optional[list]
         :return: Transition response from REST API
         :rtype: dict
 
@@ -723,6 +767,9 @@ class Client:
         body = dictstrip({
             'inputJsonSchema': in_schema,
             'outputJsonSchema': out_schema,
+            'assets': assets,
+            'environment': environment,
+            'environmentSecrets': environment_secrets,
         })
         body.update(**optional_args)
         return self._make_request(requests.patch, f'/transitions/{transition_id}', body=body)
@@ -1093,7 +1140,14 @@ class Client:
         """
         return self._make_request(requests.get, f'/workflows/{workflow_id}')
 
-    def update_workflow(self, workflow_id: str, **optional_args) -> Dict:
+    def update_workflow(
+        self,
+        workflow_id: str,
+        *,
+        error_config: Optional[dict] = None,
+        completed_config: Optional[dict] = None,
+        **optional_args,
+    ) -> Dict:
         """Updates a workflow, calls the PATCH /workflows/{workflowId} endpoint.
 
         >>> import json
@@ -1108,13 +1162,22 @@ class Client:
         :type name: Optional[str]
         :param description: Description of the workflow
         :type description: Optional[str]
+        :param error_config: Configuration of error handler
+        :type error_config: Optional[dict]
+        :param completed_config: Configuration of a job to run whenever a workflow execution ends
+        :type completed_config: Optional[dict]
         :return: Workflow response from REST API
         :rtype: dict
 
         :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
  :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
         """
-        return self._make_request(requests.patch, f'/workflows/{workflow_id}', body=optional_args)
+        body = dictstrip({
+            'errorConfig': error_config,
+            'completedConfig': completed_config,
+        })
+        body.update(**optional_args)
+        return self._make_request(requests.patch, f'/workflows/{workflow_id}', body=body)
 
     def delete_workflow(self, workflow_id: str) -> Dict:
         """Delete the workflow with the provided workflow_id, calls the DELETE /workflows/{workflowId} endpoint.
