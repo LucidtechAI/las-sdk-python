@@ -364,7 +364,13 @@ class Client:
         }
         return self._make_request(requests.get, '/documents', params=params)
 
-    def delete_documents(self, *, consent_id: Optional[Queryparam] = None) -> Dict:
+    def delete_documents(
+        self,
+        *,
+        consent_id: Optional[Queryparam] = None,
+        max_results: Optional[int] = None,
+        next_token: Optional[str] = None
+    ) -> Dict:
         """Delete documents with the provided consent_id, calls the DELETE /documents endpoint.
 
         >>> from las.client import Client
@@ -373,13 +379,22 @@ class Client:
 
         :param consent_id: Ids of the consents that marks the owner of the document
         :type consent_id: Optional[Queryparam]
+        :param max_results: Maximum number of documents that will be deleted
+        :type max_results: Optional[int]
+        :param next_token: A unique token for each page, use the returned token to retrieve the next page.
+        :type next_token: Optional[str]
         :return: Documents response from REST API
         :rtype: dict
 
         :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
  :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
         """
-        return self._make_request(requests.delete, '/documents', params={'consentId': consent_id})
+        params = {
+            'consentId': consent_id,
+            'nextToken': next_token,
+            'maxResults': max_results,
+        }
+        return self._make_request(requests.delete, '/documents', params=params)
 
     def get_document(self, document_id: str) -> Dict:
         """Get document, calls the GET /documents/{documentId} endpoint.

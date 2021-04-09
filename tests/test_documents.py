@@ -71,4 +71,16 @@ def test_update_document(client: Client):
 def test_delete_documents(client: Client, consent_id):
     delete_documents_response = client.delete_documents(consent_id=consent_id)
 
-    assert 'documentIds' in delete_documents_response, 'Missing documentIds in response'
+    assert 'documents' in delete_documents_response, 'Missing documents in response'
+
+
+@pytest.mark.parametrize('max_results,next_token', [
+    (random.randint(1, 100), None),
+    (random.randint(1, 100), 'foo'),
+    (None, None),
+])
+@pytest.mark.skip(reason='DELETE does not work for the mocked API')
+def test_delete_documents_with_pagination(client: Client, max_results, next_token):
+    response = client.delete_documents(max_results=max_results, next_token=next_token)
+    assert 'documents' in response, 'Missing documents in response'
+    assert 'nextToken' in response, 'Missing nextToken in response'
