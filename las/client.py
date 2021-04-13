@@ -160,6 +160,68 @@ class Client:
         )
         return _json_decode(response)
 
+    def create_app_client(self, **optional_args) -> Dict:
+        """Creates an appClient, calls the POST /appClients endpoint.
+
+        >>> from las.client import Client
+        >>> client = Client()
+        >>> client.create_app_client(name='<name>', description='<description>')
+
+        :param name: Name of the appClient
+        :type name: Optional[str]
+        :param description: Description of the appClient
+        :type description: Optional[str]
+        :return: AppClient response from REST API
+        :rtype: dict
+
+        :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
+ :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
+        """
+        body = {
+            **optional_args,
+        }
+        return self._make_request(requests.post, '/appClients', body=body)
+
+    def list_app_clients(self, *, max_results: Optional[int] = None, next_token: Optional[str] = None) -> Dict:
+        """List appClients available, calls the GET /appClients endpoint.
+
+        >>> from las.client import Client
+        >>> client = Client()
+        >>> client.list_app_clients()
+
+        :param max_results: Maximum number of results to be returned
+        :type max_results: Optional[int]
+        :param next_token: A unique token for each page, use the returned token to retrieve the next page.
+        :type next_token: Optional[str]
+        :return: AppClients response from REST API without the content of each appClient
+        :rtype: dict
+
+        :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
+ :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
+        """
+        params = {
+            'maxResults': max_results,
+            'nextToken': next_token,
+        }
+        return self._make_request(requests.get, '/appClients', params=params)
+
+    def delete_app_client(self, app_client_id: str) -> Dict:
+        """Delete the appClient with the provided appClientId, calls the DELETE /appClients/{appClientId} endpoint.
+
+        >>> from las.client import Client
+        >>> client = Client()
+        >>> client.delete_app_client('<app_client_id>')
+
+        :param app_client_id: Id of the appClient
+        :type app_client_id: str
+        :return: AppClient response from REST API
+        :rtype: dict
+
+        :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
+ :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
+        """
+        return self._make_request(requests.delete, f'/appClients/{app_client_id}')
+
     def create_asset(self, content: Content, **optional_args) -> Dict:
         """Creates an asset, calls the POST /assets endpoint.
 

@@ -2,6 +2,10 @@ from pathlib import Path
 from uuid import uuid4
 
 
+def create_app_client_id():
+    return f'las:app-client:{uuid4().hex}'
+
+
 def create_asset_id():
     return f'las:asset:{uuid4().hex}'
 
