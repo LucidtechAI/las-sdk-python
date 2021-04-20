@@ -160,7 +160,7 @@ class Client:
         )
         return _json_decode(response)
 
-    def create_app_client(self, **optional_args) -> Dict:
+    def create_app_client(self, generate_secret=True, logout_urls=None, callback_urls=None, **optional_args) -> Dict:
         """Creates an appClient, calls the POST /appClients endpoint.
 
         >>> from las.client import Client
@@ -171,15 +171,24 @@ class Client:
         :type name: Optional[str]
         :param description: Description of the appClient
         :type description: Optional[str]
+        :param generate_secret: Set to False to ceate a Public app client, default: True
+        :type generate_secret: Boolean
+        :param logout_urls: List of logout urls
+        :type logout_urls: List[str]
+        :param callback_urls: List of callback urls
+        :type callback_urls: List[str]
         :return: AppClient response from REST API
         :rtype: dict
 
         :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
  :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
         """
-        body = {
+        body = dictstrip({
+            'logoutUrls': logout_urls,
+            'callbackUrls': callback_urls,
             **optional_args,
-        }
+        })
+        body['generateSecret'] = generate_secret
         return self._make_request(requests.post, '/appClients', body=body)
 
     def list_app_clients(self, *, max_results: Optional[int] = None, next_token: Optional[str] = None) -> Dict:
@@ -349,6 +358,29 @@ class Client:
  :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
         """
         return self._make_request(requests.post, '/batches', body=optional_args)
+
+    def list_batches(self, *, max_results: Optional[int] = None, next_token: Optional[str] = None) -> Dict:
+        """List batches available, calls the GET /batches endpoint.
+
+        >>> from las.client import Client
+        >>> client = Client()
+        >>> client.list_batches()
+
+        :param max_results: Maximum number of results to be returned
+        :type max_results: Optional[int]
+        :param next_token: A unique token for each page, use the returned token to retrieve the next page.
+        :type next_token: Optional[str]
+        :return: Batches response from REST API without the content of each batch
+        :rtype: dict
+
+        :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
+ :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
+        """
+        params = {
+            'maxResults': max_results,
+            'nextToken': next_token,
+        }
+        return self._make_request(requests.get, '/batches', params=params)
 
     def create_document(
             self,
