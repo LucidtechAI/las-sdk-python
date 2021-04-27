@@ -382,6 +382,23 @@ class Client:
         }
         return self._make_request(requests.get, '/batches', params=params)
 
+    def delete_batch(self, batch_id: str) -> Dict:
+        """Delete the batch with the provided batch_id, calls the DELETE /batches/{batchId} endpoint.
+
+        >>> from las.client import Client
+        >>> client = Client()
+        >>> client.delete_batch('<batch_id>')
+
+        :param batch_id: Id of the batch
+        :type batch_id: str
+        :return: Batch response from REST API
+        :rtype: dict
+
+        :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
+ :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
+        """
+        return self._make_request(requests.delete, f'/batches/{batch_id}')
+
     def create_document(
             self,
             content: Content,
