@@ -4,7 +4,7 @@
 
 ## Documentation
 
-[Link to docs](https://docs.lucidtech.ai/python/v1/index.html)
+[Link to docs](https://docs.lucidtech.ai/reference/python)
 
 ## Installation
 
