@@ -463,6 +463,7 @@ class Client:
         self,
         *,
         consent_id: Optional[Queryparam] = None,
+        batch_id: Optional[Queryparam] = None,
         max_results: Optional[int] = None,
         next_token: Optional[str] = None
     ) -> Dict:
@@ -472,6 +473,8 @@ class Client:
         >>> client = Client()
         >>> client.delete_documents(consent_id='<consent id>')
 
+        :param batch_id: Ids of the batches to be deleted
+        :type batch_id: Optional[Queryparam]
         :param consent_id: Ids of the consents that marks the owner of the document
         :type consent_id: Optional[Queryparam]
         :param max_results: Maximum number of documents that will be deleted
@@ -486,6 +489,7 @@ class Client:
         """
         params = {
             'consentId': consent_id,
+            'batchId': batch_id,
             'nextToken': next_token,
             'maxResults': max_results,
         }
