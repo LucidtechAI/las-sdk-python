@@ -382,7 +382,7 @@ class Client:
         }
         return self._make_request(requests.get, '/batches', params=params)
 
-    def delete_batch(self, batch_id: str) -> Dict:
+    def delete_batch(self, batch_id: str, delete_documents=False) -> Dict:
         """Delete the batch with the provided batch_id, calls the DELETE /batches/{batchId} endpoint.
 
         >>> from las.client import Client
@@ -391,12 +391,20 @@ class Client:
 
         :param batch_id: Id of the batch
         :type batch_id: str
+        :param delete_documents: Set to true to delete documents in batch before deleting batch
+        :type delete_documents: str
         :return: Batch response from REST API
         :rtype: dict
 
         :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
  :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
         """
+        if delete_documents:
+            response = self.delete_documents(batch_id=batch_id)
+            while next_token := response['nextToken']:
+                response = self.delete_documents(batch_id=batch_id, next_token=next_token)
+            logger.info('All documents deleted')
+
         return self._make_request(requests.delete, f'/batches/{batch_id}')
 
     def create_document(
@@ -510,7 +518,7 @@ class Client:
             'nextToken': next_token,
             'maxResults': max_results,
         }
-        return self._make_request(requests.delete, '/documents', params=params)
+        return self._make_request(requests.delete, '/documents', params=dictstrip(params))
 
     def get_document(self, document_id: str) -> Dict:
         """Get document, calls the GET /documents/{documentId} endpoint.
