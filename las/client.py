@@ -382,6 +382,32 @@ class Client:
         }
         return self._make_request(requests.get, '/batches', params=params)
 
+    def delete_batch(self, batch_id: str, delete_documents=False) -> Dict:
+        """Delete the batch with the provided batch_id, calls the DELETE /batches/{batchId} endpoint.
+
+        >>> from las.client import Client
+        >>> client = Client()
+        >>> client.delete_batch('<batch_id>')
+
+        :param batch_id: Id of the batch
+        :type batch_id: str
+        :param delete_documents: Set to true to delete documents in batch before deleting batch
+        :type delete_documents: bool
+        :return: Batch response from REST API
+        :rtype: dict
+
+        :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
+ :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
+        """
+        if delete_documents:
+            response = self.delete_documents(batch_id=batch_id)
+            next_token = response['nextToken']
+            while next_token:
+                response = self.delete_documents(batch_id=batch_id, next_token=next_token)
+                next_token = response['nextToken']
+
+        return self._make_request(requests.delete, f'/batches/{batch_id}')
+
     def create_document(
             self,
             content: Content,
@@ -405,7 +431,8 @@ class Client:
         :type consent_id: Optional[str]
         :param batch_id: Id of the associated batch
         :type batch_id: Optional[str]
-        :param ground_truth: List of items {label: value} representing the ground truth values for the document
+        :param ground_truth: List of items {'label': label, 'value': value}
+        representing the ground truth values for the document
         :type ground_truth: Optional[Sequence[Dict[str, str]]]
         :return: Document response from REST API
         :rtype: dict
@@ -462,6 +489,7 @@ class Client:
         self,
         *,
         consent_id: Optional[Queryparam] = None,
+        batch_id: Optional[Queryparam] = None,
         max_results: Optional[int] = None,
         next_token: Optional[str] = None
     ) -> Dict:
@@ -471,6 +499,8 @@ class Client:
         >>> client = Client()
         >>> client.delete_documents(consent_id='<consent id>')
 
+        :param batch_id: Ids of the batches to be deleted
+        :type batch_id: Optional[Queryparam]
         :param consent_id: Ids of the consents that marks the owner of the document
         :type consent_id: Optional[Queryparam]
         :param max_results: Maximum number of documents that will be deleted
@@ -485,10 +515,11 @@ class Client:
         """
         params = {
             'consentId': consent_id,
+            'batchId': batch_id,
             'nextToken': next_token,
             'maxResults': max_results,
         }
-        return self._make_request(requests.delete, '/documents', params=params)
+        return self._make_request(requests.delete, '/documents', params=dictstrip(params))
 
     def get_document(self, document_id: str) -> Dict:
         """Get document, calls the GET /documents/{documentId} endpoint.
@@ -528,6 +559,52 @@ class Client:
  :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
         """
         return self._make_request(requests.patch, f'/documents/{document_id}', body={'groundTruth': ground_truth})
+
+    def list_logs(
+        self,
+        *,
+        workflow_id: Optional[Queryparam] = None,
+        workflow_execution_id: Optional[Queryparam] = None,
+        transition_id: Optional[Queryparam] = None,
+        transition_execution_id: Optional[Queryparam] = None,
+        max_results: Optional[int] = None,
+        next_token: Optional[str] = None,
+    ) -> Dict:
+        """List logs, calls the GET /logs endpoint.
+
+        >>> from las.client import Client
+        >>> client = Client()
+        >>> client.list_logs()
+
+        :param workflow_id:
+        :type workflow_id: Optional[Queryparam]
+        :param workflow_execution_id:
+        :type workflow_execution_id: Optional[Queryparam]
+        :param transition_id:
+        :type transition_id: Optional[Queryparam]
+        :param transition_execution_id:
+        :type transition_execution_id: Optional[Queryparam]
+        :param max_results: Maximum number of results to be returned
+        :type max_results: Optional[int]
+        :param next_token: A unique token for each page, use the returned token to retrieve the next page.
+        :type next_token: Optional[str]
+        :return: Logs response from REST API
+        :rtype: dict
+
+        :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
+ :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
+        """
+        url = '/logs'
+        params = {
+            'maxResults': max_results,
+            'nextToken': next_token,
+            'workflowId': workflow_id,
+            'workflowExecutionId': workflow_execution_id,
+            'transitionId': transition_id,
+            'transitionExecutionId': transition_execution_id,
+        }
+
+        return self._make_request(requests.get, url, params=dictstrip(params))
 
     def get_log(self, log_id) -> Dict:
         """get log, calls the GET /logs/{logId} endpoint.

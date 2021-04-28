@@ -4,7 +4,7 @@
 
 ## Documentation
 
-[Link to docs](https://docs.lucidtech.ai/python/v1/index.html)
+[Link to docs](https://docs.lucidtech.ai/reference/python)
 
 ## Installation
 
@@ -24,10 +24,11 @@ $ pip install lucidtech-las
 
 ```python
 import json
-from las import ApiClient
+from las import Client
 
-api_client = ApiClient('<api endpoint>')
-prediction = api_client.predict('document.pdf', model_name='invoice')
+client = Client()
+document = client.create_document('path/to/document.pdf', 'application/pdf')
+prediction = client.create_prediction(document['documentId'], model_id='las:model:<hex-uuid>')
 print(json.dumps(prediction, indent=2))
 ```
 

@@ -21,7 +21,7 @@ prism-start:
 		--init \
 		--detach \
 		-p 4010:4010 \
-		stoplight/prism:3.2.8 mock -d -h 0.0.0.0 \
+		stoplight/prism:4.2.0 mock -d -h 0.0.0.0 \
 		https://raw.githubusercontent.com/LucidtechAI/las-docs/master/reference/restapi/oas.json \
 		> /tmp/prism.cid
 

@@ -38,7 +38,6 @@ def test_invalid_credentials(
     with requests_mock.Mocker() as m:
         m.post('/'.join([client.endpoint, 'documents']), status_code=error_code, content=error_content)
         m.post('/'.join([client.endpoint, 'predictions']), status_code=error_code, content=error_content)
-        m.patch('/'.join([client.endpoint, 'documents', document_id]), status_code=error_code, content=error_content)
         m.delete('/'.join([client.endpoint, 'documents']), status_code=error_code, content=error_content)
 
         with pytest.raises(error_name):
@@ -46,9 +45,6 @@ def test_invalid_credentials(
 
         with pytest.raises(error_name):
             client.create_prediction(document_id, model_id)
-
-        with pytest.raises(error_name):
-            client.update_document(document_id, [{'foo': 'bar'}])
 
         with pytest.raises(error_name):
             client.delete_documents(consent_id=consent_id)
