@@ -401,8 +401,10 @@ class Client:
         """
         if delete_documents:
             response = self.delete_documents(batch_id=batch_id)
-            while next_token := response['nextToken']:
+            next_token = response['nextToken']
+            while next_token:
                 response = self.delete_documents(batch_id=batch_id, next_token=next_token)
+                next_token = response['nextToken']
 
         return self._make_request(requests.delete, f'/batches/{batch_id}')
 
