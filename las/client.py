@@ -422,7 +422,7 @@ class Client:
         :type consent_id: Optional[str]
         :param batch_id: Id of the associated batch
         :type batch_id: Optional[str]
-        :param ground_truth: List of items {'label': label: 'value': value}
+        :param ground_truth: List of items {'label': label, 'value': value}
         representing the ground truth values for the document
         :type ground_truth: Optional[Sequence[Dict[str, str]]]
         :return: Document response from REST API
