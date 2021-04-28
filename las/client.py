@@ -392,7 +392,7 @@ class Client:
         :param batch_id: Id of the batch
         :type batch_id: str
         :param delete_documents: Set to true to delete documents in batch before deleting batch
-        :type delete_documents: str
+        :type delete_documents: bool
         :return: Batch response from REST API
         :rtype: dict
 
@@ -403,7 +403,6 @@ class Client:
             response = self.delete_documents(batch_id=batch_id)
             while next_token := response['nextToken']:
                 response = self.delete_documents(batch_id=batch_id, next_token=next_token)
-            logger.info('All documents deleted')
 
         return self._make_request(requests.delete, f'/batches/{batch_id}')
 
