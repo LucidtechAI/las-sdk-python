@@ -563,10 +563,10 @@ class Client:
     def list_logs(
         self,
         *,
-        workflow_id: Optional[Queryparam] = None,
-        workflow_execution_id: Optional[Queryparam] = None,
-        transition_id: Optional[Queryparam] = None,
-        transition_execution_id: Optional[Queryparam] = None,
+        workflow_id: Optional[str] = None,
+        workflow_execution_id: Optional[str] = None,
+        transition_id: Optional[str] = None,
+        transition_execution_id: Optional[str] = None,
         max_results: Optional[int] = None,
         next_token: Optional[str] = None,
     ) -> Dict:
@@ -576,14 +576,14 @@ class Client:
         >>> client = Client()
         >>> client.list_logs()
 
-        :param workflow_id:
-        :type workflow_id: Optional[Queryparam]
-        :param workflow_execution_id:
-        :type workflow_execution_id: Optional[Queryparam]
-        :param transition_id:
-        :type transition_id: Optional[Queryparam]
-        :param transition_execution_id:
-        :type transition_execution_id: Optional[Queryparam]
+        :param workflow_id: Only show logs from this workflow
+        :type workflow_id: Optional[str]
+        :param workflow_execution_id: Only show logs from this workflow execution
+        :type workflow_execution_id: Optional[str]
+        :param transition_id: Only show logs from this transition
+        :type transition_id: Optional[str]
+        :param transition_execution_id: Only show logs from this transition execution
+        :type transition_execution_id: Optional[str]
         :param max_results: Maximum number of results to be returned
         :type max_results: Optional[int]
         :param next_token: A unique token for each page, use the returned token to retrieve the next page.
