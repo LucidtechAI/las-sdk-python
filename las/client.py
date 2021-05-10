@@ -1138,7 +1138,7 @@ class Client:
         endpoint = f'/transitions/{transition_id}/executions/{execution_id}/heartbeats'
         return self._make_request(requests.post, endpoint, body={})
 
-    def create_user(self, email: str, **optional_args) -> Dict:
+    def create_user(self, email: str, *, app_client_id, **optional_args) -> Dict:
         """Creates a new user, calls the POST /users endpoint.
 
         >>> from las.client import Client
@@ -1159,9 +1159,10 @@ class Client:
         """
         body = {
             'email': email,
+            'appClientId': app_client_id,
             **optional_args,
         }
-        return self._make_request(requests.post, '/users', body=body)
+        return self._make_request(requests.post, '/users', body=dictstrip(body))
 
     def list_users(self, *, max_results: Optional[int] = None, next_token: Optional[str] = None) -> Dict:
         """List users, calls the GET /users endpoint.
