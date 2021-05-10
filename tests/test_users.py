@@ -11,7 +11,7 @@ from . import service
 
 def test_create_user(client: Client):
     email = 'foo@bar.com'
-    response = client.create_user(email)
+    response = client.create_user(email, service.create_app_client_id())
     logging.info(response)
 
 
