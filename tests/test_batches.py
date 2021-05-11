@@ -1,6 +1,5 @@
 import logging
 import random
-from pathlib import Path
 
 import pytest
 from las.client import Client
