@@ -623,6 +623,48 @@ class Client:
         """
         return self._make_request(requests.get, f'/logs/{log_id}')
 
+    def create_model(
+        self,
+        width: int,
+        height: int,
+        field_config: dict,
+        *,
+        preprocess_config: Optional[dict] = None,
+        name: Optional[str] = None,
+        description: Optional[str] = None,
+        **optional_args,
+    ) -> Dict:
+        """Creates a model, calls the POST /models endpoint.
+
+        :param width: The number of pixels to be used for the input image width of your model
+        :type width: int
+        :param height: The number of pixels to be used for the input image height of your model
+        :type height: int
+        :param field_config: Specification of the fields that the model is going to predict
+        :type field_config: dict
+        :param preprocess_config: Specification of the processing steps prior to the prediction of an image
+        :type preprocess_config: dict
+        :param name: Name of the model
+        :type name: Optional[str]
+        :param description: Description of the model
+        :type description: Optional[str]
+        :return: Model response from REST API
+        :rtype: dict
+
+        :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
+ :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
+        """
+        body = dictstrip({
+            'width': width,
+            'height': height,
+            'field_config': field_config,
+            'preprocess_config': preprocess_config,
+            'name': name,
+            'description': description,
+        })
+        body.update(**optional_args)
+        return self._make_request(requests.post, '/models', body=body)
+
     def list_models(self, *, max_results: Optional[int] = None, next_token: Optional[str] = None) -> Dict:
         """List models available, calls the GET /models endpoint.
 
