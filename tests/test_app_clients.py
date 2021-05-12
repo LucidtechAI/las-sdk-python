@@ -37,9 +37,9 @@ def test_delete_app_client(client: Client):
     assert_app_client(response)
 
 
-@pytest.mark.parametrize('name_and_description', util.name_and_description_combinations())
-def test_update_batch(client: Client, name_and_description):
-    response = client.update_batch(service.create_batch_id(), **name_and_description)
+@pytest.mark.parametrize('name_and_description', util.name_and_description_combinations(at_least_one=True))
+def test_update_app_client(client: Client, name_and_description):
+    response = client.update_app_client(service.create_app_client_id(), **name_and_description)
     assert_app_client(response)
 
 
