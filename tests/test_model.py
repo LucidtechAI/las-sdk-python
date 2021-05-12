@@ -21,13 +21,10 @@ def test_create_model(client: Client, preprocess_config, name_and_description):
     assert_model(response)
 
 
-@pytest.mark.parametrize('model_type', [['docker'], ['manual'], 'docker', 'manual', None])
-def test_list_models(client: Client, model_type):
-    response = client.list_models(model_type=model_type)
+def test_list_models(client: Client):
+    response = client.list_models()
     logging.info(response)
     assert 'models' in response, 'Missing models in response'
-    if model_type:
-        assert 'modelType' in response, 'Missing modelType in response'
 
 
 @pytest.mark.parametrize('max_results,next_token', [
@@ -42,7 +39,31 @@ def test_list_models_with_pagination(client: Client, max_results, next_token):
     assert 'nextToken' in response, 'Missing nextToken in response'
 
 
+def test_get_model(client: Client):
+    response = client.get_model(service.create_model_id())
+    logging.info(response)
+    assert_model(response)
+
+
+@pytest.mark.parametrize('preprocess_config', [service.preprocess_config(), None])
+@pytest.mark.parametrize('name_and_description', util.name_and_description_combinations())
+def test_update_model(client: Client, preprocess_config, name_and_description):
+    response = client.update_model(
+        service.create_model_id(),
+        width=300,
+        height=300,
+        field_config=service.field_config(),
+        preprocess_config=preprocess_config,
+        **name_and_description,
+    )
+    logging.info(response)
+    assert_model(response)
+
+
 def assert_model(response):
     assert 'name' in response, 'Missing name in response'
     assert 'modelId' in response, 'Missing modelId in response'
-    assert 'modelType' in response, 'Missing modelType in response'
+    assert 'status' in response, 'Missing status in response'
+    assert 'preprocessConfig' in response, 'Missing preprocessConfig in response'
+    assert 'fieldConfig' in response, 'Missing fieldConfig in response'
+    assert 'description' in response, 'Missing description in response'

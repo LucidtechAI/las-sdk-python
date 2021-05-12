@@ -10,7 +10,7 @@ from . import service, util
 @pytest.mark.parametrize('name_and_description', util.name_and_description_combinations())
 def test_create_app_client(client: Client, name_and_description):
     response = client.create_app_client(**name_and_description)
-    assert 'appClientId' in response, 'Missing appClientId in response'
+    assert_app_client(response)
 
 
 def test_list_app_clients(client: Client):
@@ -34,6 +34,17 @@ def test_list_app_clients_with_pagination(client: Client, max_results, next_toke
 def test_delete_app_client(client: Client):
     app_client_id = service.create_app_client_id()
     response = client.delete_app_client(app_client_id)
+    assert_app_client(response)
+
+
+@pytest.mark.parametrize('name_and_description', util.name_and_description_combinations())
+def test_update_batch(client: Client, name_and_description):
+    response = client.update_batch(service.create_batch_id(), **name_and_description)
+    assert_app_client(response)
+
+
+def assert_app_client(response):
     assert 'appClientId' in response, 'Missing appClientId in response'
-    assert 'content' in response, 'Missing content in response'
+    assert 'name' in response, 'Missing name in response'
+    assert 'description' in response, 'Missing description in response'
 
