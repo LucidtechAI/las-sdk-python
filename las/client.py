@@ -691,8 +691,8 @@ class Client:
         body = dictstrip({
             'width': width,
             'height': height,
-            'field_config': field_config,
-            'preprocess_config': preprocess_config,
+            'fieldConfig': field_config,
+            'preprocessConfig': preprocess_config,
             'name': name,
             'description': description,
         })
@@ -773,8 +773,8 @@ class Client:
         body = dictstrip({
             'width': width,
             'height': height,
-            'field_config': field_config,
-            'preprocess_config': preprocess_config,
+            'fieldConfig': field_config,
+            'preprocessConfig': preprocess_config,
             'status': status,
         })
         body.update(**optional_args)
