@@ -72,13 +72,13 @@ def field_config():
         "total": {
             "description": "the total amount of the receipt",
             "type": "amount",
-            "maxLength": 10
+            "maxLength": 10,
         },
         "due_date": {
             "description": "the due date of the invoice",
             "type": "date",
-            "maxLength": 11
-        }
+            "maxLength": 10,
+        },
     }
 
 
