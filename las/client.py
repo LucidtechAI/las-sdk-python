@@ -739,10 +739,11 @@ class Client:
         self,
         model_id: str,
         *,
-        width: int,
-        height: int,
-        field_config: dict,
+        width: int = None,
+        height: int = None,
+        field_config: dict = None,
         preprocess_config: Optional[dict] = None,
+        status: str = None,
         **optional_args,
     ) -> Dict:
         """Updates a model, calls the PATCH /models/{modelId} endpoint.
@@ -757,6 +758,8 @@ class Client:
         :type field_config: dict
         :param preprocess_config: Specification of the processing steps prior to the prediction of an image
         :type preprocess_config: dict
+        :param status: New status for the model
+        :type status: str
         :param name: Name of the model
         :type name: Optional[str]
         :param description: Description of the model
@@ -772,6 +775,7 @@ class Client:
             'height': height,
             'field_config': field_config,
             'preprocess_config': preprocess_config,
+            'status': status,
         })
         body.update(**optional_args)
         return self._make_request(requests.post, f'/models/{model_id}', body=body)
