@@ -54,6 +54,7 @@ def test_update_model(client: Client, preprocess_config, name_and_description):
         height=300,
         field_config=service.field_config(),
         preprocess_config=preprocess_config,
+        status='training',
         **name_and_description,
     )
     logging.info(response)
