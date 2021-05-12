@@ -62,6 +62,8 @@ def test_update_model(client: Client, preprocess_config, name_and_description):
 
 
 def assert_model(response):
+    assert 'height' in response, 'Missing height in response'
+    assert 'width' in response, 'Missing width in response'
     assert 'name' in response, 'Missing name in response'
     assert 'modelId' in response, 'Missing modelId in response'
     assert 'status' in response, 'Missing status in response'
