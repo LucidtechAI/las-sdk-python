@@ -1,6 +1,5 @@
 import logging
 import random
-from pathlib import Path
 
 import pytest
 from las.client import Client
@@ -11,7 +10,7 @@ from . import service, util
 @pytest.mark.parametrize('name_and_description', util.name_and_description_combinations())
 def test_create_batch(client: Client, name_and_description):
     response = client.create_batch(**name_and_description)
-    assert 'batchId' in response, 'Missing batchId in response'
+    assert_batch(response)
 
 
 def test_list_batches(client: Client):
@@ -35,5 +34,17 @@ def test_list_batches_with_pagination(client: Client, max_results, next_token):
 def test_delete_batch(client: Client):
     batch_id = service.create_batch_id()
     response = client.delete_batch(batch_id)
+    assert_batch(response)
+
+
+@pytest.mark.parametrize('name_and_description', util.name_and_description_combinations(at_least_one=True))
+def test_update_batch(client: Client, name_and_description):
+    response = client.update_batch(service.create_batch_id(), **name_and_description)
+    assert_batch(response)
+
+
+def assert_batch(response):
     assert 'batchId' in response, 'Missing batchId in response'
+    assert 'name' in response, 'Missing name in response'
+    assert 'description' in response, 'Missing description in response'
 
