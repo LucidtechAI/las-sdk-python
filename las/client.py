@@ -229,7 +229,7 @@ class Client:
         :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
  :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
         """
-        return self._make_request(requests.post, f'/appClients/{app_client_id}', body=optional_args)
+        return self._make_request(requests.patch, f'/appClients/{app_client_id}', body=optional_args)
 
     def delete_app_client(self, app_client_id: str) -> Dict:
         """Delete the appClient with the provided appClientId, calls the DELETE /appClients/{appClientId} endpoint.
@@ -414,7 +414,7 @@ class Client:
         :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
  :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
         """
-        return self._make_request(requests.post, f'/batches/{batch_id}', body=optional_args)
+        return self._make_request(requests.patch, f'/batches/{batch_id}', body=optional_args)
 
     def delete_batch(self, batch_id: str, delete_documents=False) -> Dict:
         """Delete the batch with the provided batch_id, calls the DELETE /batches/{batchId} endpoint.
@@ -778,7 +778,7 @@ class Client:
             'status': status,
         })
         body.update(**optional_args)
-        return self._make_request(requests.post, f'/models/{model_id}', body=body)
+        return self._make_request(requests.patch, f'/models/{model_id}', body=body)
 
     def create_prediction(
         self,
