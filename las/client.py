@@ -739,27 +739,27 @@ class Client:
         self,
         model_id: str,
         *,
-        width: int = None,
-        height: int = None,
-        field_config: dict = None,
+        width: Optional[int] = None,
+        height: Optional[int] = None,
+        field_config: Optional[dict] = None,
         preprocess_config: Optional[dict] = None,
-        status: str = None,
+        status: Optional[str] = None,
         **optional_args,
     ) -> Dict:
         """Updates a model, calls the PATCH /models/{modelId} endpoint.
 
         :param model_id: The Id of the model
-        :type model_id: str
+        :type model_id: Optional[str]
         :param width: The number of pixels to be used for the input image width of your model
-        :type width: int
+        :type width: Optional[int]
         :param height: The number of pixels to be used for the input image height of your model
-        :type height: int
+        :type height: Optional[int]
         :param field_config: Specification of the fields that the model is going to predict
         :type field_config: dict
         :param preprocess_config: Specification of the processing steps prior to the prediction of an image
         :type preprocess_config: dict
         :param status: New status for the model
-        :type status: str
+        :type status: Optional[str]
         :param name: Name of the model
         :type name: Optional[str]
         :param description: Description of the model
