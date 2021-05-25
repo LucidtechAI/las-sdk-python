@@ -160,7 +160,15 @@ class Client:
         )
         return _json_decode(response)
 
-    def create_app_client(self, generate_secret=True, logout_urls=None, callback_urls=None, **optional_args) -> Dict:
+    def create_app_client(
+        self,
+        generate_secret=True,
+        logout_urls=None,
+        callback_urls=None,
+        login_urls=None,
+        default_login_url=None,
+        **optional_args
+    ) -> Dict:
         """Creates an appClient, calls the POST /appClients endpoint.
 
         >>> from las.client import Client
@@ -177,6 +185,10 @@ class Client:
         :type logout_urls: List[str]
         :param callback_urls: List of callback urls
         :type callback_urls: List[str]
+        :param login_urls: List of login urls
+        :type login_urls: List[str]
+        :param default_login_url: Default login url
+        :type default_login_url: str
         :return: AppClient response from REST API
         :rtype: dict
 
@@ -186,6 +198,8 @@ class Client:
         body = dictstrip({
             'logoutUrls': logout_urls,
             'callbackUrls': callback_urls,
+            'loginUrls': login_urls,
+            'defaultLoginUrl': default_login_url,
             **optional_args,
         })
         body['generateSecret'] = generate_secret

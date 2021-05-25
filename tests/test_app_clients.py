@@ -13,6 +13,19 @@ def test_create_app_client(client: Client, name_and_description):
     assert_app_client(response)
 
 
+@pytest.mark.parametrize('name_and_description', util.name_and_description_combinations())
+def test_create_app_client_without_secret(client: Client, name_and_description):
+    response = client.create_app_client(
+        **name_and_description,
+        generate_secret=False,
+        callback_urls=['http://localhost:3000/authCallback'],
+        logout_urls=['http://localhost:3000/logout'],
+        login_urls=['http://localhost:3000/login'],
+        default_login_url='http://localhost:3000/login',
+    )
+    assert_app_client(response)
+
+
 def test_list_app_clients(client: Client):
     response = client.list_app_clients()
     logging.info(response)
