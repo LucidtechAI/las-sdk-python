@@ -799,7 +799,7 @@ class Client:
 
         >>> from las.client import Client
         >>> client = Client()
-        >>> client.delete_asset('<model_id>')
+        >>> client.delete_model('<model_id>')
 
         :param model_id: Id of the model
         :type model_id: str
