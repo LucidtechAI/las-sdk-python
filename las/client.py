@@ -794,6 +794,23 @@ class Client:
         body.update(**optional_args)
         return self._make_request(requests.patch, f'/models/{model_id}', body=body)
 
+    def delete_model(self, model_id: str) -> Dict:
+        """Delete the model with the provided model_id, calls the DELETE /models/{modelId} endpoint.
+
+        >>> from las.client import Client
+        >>> client = Client()
+        >>> client.delete_model('<model_id>')
+
+        :param model_id: Id of the model
+        :type model_id: str
+        :return: Model response from REST API
+        :rtype: dict
+
+        :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
+ :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
+        """
+        return self._make_request(requests.delete, f'/models/{model_id}')
+
     def create_prediction(
         self,
         document_id: str,
