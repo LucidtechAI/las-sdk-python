@@ -14,6 +14,10 @@ def create_batch_id():
     return f'las:batch:{uuid4().hex}'
 
 
+def create_dataset_id():
+    return f'las:dataset:{uuid4().hex}'
+
+
 def create_consent_id():
     return f'las:consent:{uuid4().hex}'
 
