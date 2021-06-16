@@ -1,6 +1,6 @@
 # Changelog 
 
-## Version 3.2.16 - 2021-06-XX
+## Version 3.2.16 - 2021-06-16
 
 - Added get_organization
 - Added update_organization 
