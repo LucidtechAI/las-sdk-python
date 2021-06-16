@@ -12,7 +12,7 @@ def test_get_organization(client: Client):
     assert_organization(response)
 
 
-@pytest.mark.parametrize('name_and_description', util.name_and_description_combinations())
+@pytest.mark.parametrize('name_and_description', util.name_and_description_combinations(at_least_one=True))
 def test_update_organization(client: Client, name_and_description):
     response = client.update_organization(
         'me',
