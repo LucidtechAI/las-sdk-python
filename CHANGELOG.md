@@ -1,5 +1,10 @@
 # Changelog 
 
+## Version 3.2.16 - 2021-06-XX
+
+- Added get_organization
+- Added update_organization 
+
 ## Version 3.2.15 - 2021-05-27
 
 - Added delete_model 

@@ -811,6 +811,40 @@ class Client:
         """
         return self._make_request(requests.delete, f'/models/{model_id}')
 
+    def get_organization(self, organization_id: str) -> Dict:
+        """Get an organization, calls the GET /organizations/{organizationId} endpoint.
+
+        :param organization_id: The Id of the organization
+        :type organization_id: str
+        :return: Organization response from REST API
+        :rtype: dict
+
+        :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
+ :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
+        """
+        return self._make_request(requests.get, f'/organizations/{organization_id}')
+
+    def update_organization(
+        self,
+        organization_id: str,
+        **optional_args,
+    ) -> Dict:
+        """Updates an organization, calls the PATCH /organizations/{organizationId} endpoint.
+
+        :param organization_id: The Id of the organization
+        :type organization_id: Optional[str]
+        :param name: Name of the organization
+        :type name: Optional[str]
+        :param description: Description of the organization
+        :type description: Optional[str]
+        :return: Organization response from REST API
+        :rtype: dict
+
+        :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
+ :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
+        """
+        return self._make_request(requests.patch, f'/organizations/{organization_id}', body=optional_args)
+
     def create_prediction(
         self,
         document_id: str,
