@@ -13,6 +13,7 @@
 - Added list_datasets
 - Added update_dataset
 - Added delete_dataset
+- Added optional parameter dataset_id to create_document
 
 ## Version 3.2.15 - 2021-05-27
 
