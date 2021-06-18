@@ -8,6 +8,4 @@ __all__ = [
     'Credentials',
 ]
 
-logger = logging.getLogger('las')
-logger.addHandler(logging.NullHandler())
-logger.setLevel(logging.INFO)
+logging.getLogger(__name__).addHandler(logging.NullHandler())

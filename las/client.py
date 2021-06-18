@@ -16,10 +16,12 @@ from requests.exceptions import RequestException
 
 from .credentials import Credentials, guess_credentials
 
-log_handler = logging.StreamHandler()
-log_handler.setLevel(logging.DEBUG)
-logger = logging.getLogger('las')
-logger.addHandler(log_handler)
+
+logger = logging.getLogger(__name__)
+handler = logging.StreamHandler()
+handler.setFormatter(logging.Formatter('%(asctime)s %(name)-12s %(levelname)-8s %(message)s'))
+logger.addHandler(handler)
+
 Content = Union[bytes, bytearray, str, Path, io.IOBase]
 Queryparam = Union[str, List[str]]
 
@@ -42,10 +44,10 @@ def _json_decode(response):
         if response.status_code == 204:
             return {'Your request executed successfully': '204'}
 
-        logger.error('Error in response. Returned {}'.format(response.text))
+        logger.error('Status code {} body:\n{}'.format(response.status_code, response.text))
         raise e
     except Exception as e:
-        logger.error('Error in response. Returned {}'.format(response.text))
+        logger.error('Status code {} body:\n{}'.format(response.status_code, response.text))
 
         if response.status_code == 403 and 'Forbidden' in response.json().values():
             raise InvalidCredentialsException('Credentials provided are not valid.')
