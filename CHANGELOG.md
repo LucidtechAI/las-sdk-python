@@ -1,5 +1,10 @@
 # Changelog 
 
+## Version 3.3.1 - 2021-06-18
+
+- Updated logger to show more meta information
+- Fixed bug causing two log messages to be printed
+
 ## Version 3.3.0 - 2021-06-16
 
 - Added get_organization
