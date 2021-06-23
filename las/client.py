@@ -893,6 +893,82 @@ class Client:
         """
         return self._make_request(requests.delete, f'/models/{model_id}')
 
+    def create_data_bundle(self, model_id, dataset_ids, **optional_args) -> Dict:
+        """Creates a Data Bundle, calls the POST /models/{modelId}/dataBundles endpoint.
+
+        :param model_id: Id of the model
+        :type model_id: str
+        :param dataset_ids: Dataset Ids
+        :type dataset_ids: List[str]
+        :param name: Name of the dataset
+        :type name: Optional[str]
+        :param description: Description of the dataset
+        :type description: Optional[str]
+        :return: Dataset response from REST API
+        :rtype: dict
+
+        :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
+ :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
+        """
+
+        body = {'datasetIds': dataset_ids}
+        body.update(**optional_args)
+        return self._make_request(requests.post, f'/models/{model_id}/dataBundles', body=body)
+
+    def list_data_bundles(self, model_id, *, max_results: Optional[int] = None, next_token: Optional[str] = None) -> Dict:
+        """List data bundles available, calls the GET /models/{modelId}/dataBundles endpoint.
+
+        :param max_results: Maximum number of results to be returned
+        :type max_results: Optional[int]
+        :param next_token: A unique token for each page, use the returned token to retrieve the next page.
+        :type next_token: Optional[str]
+        :return: Predictions response from REST API without the content of each prediction
+        :rtype: dict
+
+        :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
+ :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
+        """
+        params = {
+            'maxResults': max_results,
+            'nextToken': next_token,
+        }
+        return self._make_request(requests.get, f'/models/{model_id}/dataBundles', params=params)
+
+    def update_data_bundle(
+        self,
+        model_id: str,
+        data_bundle_id: str,
+        **optional_args,
+    ) -> Dict:
+        """Updates a data bundle , calls the PATCH /organizations/{organizationId} endpoint.
+
+        :param organization_id: The Id of the organization
+        :type organization_id: Optional[str]
+        :param name: Name of the organization
+        :type name: Optional[str]
+        :param description: Description of the organization
+        :type description: Optional[str]
+        :return: Organization response from REST API
+        :rtype: dict
+
+        :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
+ :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
+        """
+        return self._make_request(requests.patch, f'/models/{model_id}/dataBundles/{data_bundle_id}', body=optional_args)
+
+    def delete_data_bundle(self, model_id: str, data_bundle_id: str) -> Dict:
+        """Delete the secret with the provided secret_id, calls the DELETE /secrets/{secretId} endpoint.
+
+        :param secret_id: Id of the secret
+        :type secret_id: str
+        :return: Secret response from REST API
+        :rtype: dict
+
+        :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
+ :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
+        """
+        return self._make_request(requests.delete, f'/models/{model_id}/dataBundles/{data_bundle_id}')
+
     def get_organization(self, organization_id: str) -> Dict:
         """Get an organization, calls the GET /organizations/{organizationId} endpoint.
 
