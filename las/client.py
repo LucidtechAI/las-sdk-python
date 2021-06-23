@@ -690,6 +690,23 @@ class Client:
         """
         return self._make_request(requests.patch, f'/documents/{document_id}', body={'groundTruth': ground_truth})
 
+    def delete_document(self, document_id: str) -> Dict:
+        """Delete the document with the provided document_id, calls the DELETE /documents/{documentId} endpoint.
+
+        >>> from las.client import Client
+        >>> client = Client()
+        >>> client.delete_document('<document_id>')
+
+        :param document_id: Id of the document
+        :type document_id: str
+        :return: Model response from REST API
+        :rtype: dict
+
+        :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
+ :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
+        """
+        return self._make_request(requests.delete, f'/documents/{document_id}')
+
     def list_logs(
         self,
         *,
