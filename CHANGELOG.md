@@ -5,10 +5,14 @@
 - Updated logger to show more meta information
 - Fixed bug causing two log messages to be printed
 
-## Version 3.3.0 - 2021-06-16
+## Version 3.3.0 - 2021-06-18
 
 - Added get_organization
 - Added update_organization 
+- Added create_dataset
+- Added list_datasets
+- Added update_dataset
+- Added delete_dataset
 
 ## Version 3.2.15 - 2021-05-27
 
