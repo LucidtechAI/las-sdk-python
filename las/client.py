@@ -668,7 +668,13 @@ class Client:
         """
         return self._make_request(requests.get, f'/documents/{document_id}')
 
-    def update_document(self, document_id: str, ground_truth: Sequence[Dict[str, Union[Optional[str], bool]]]) -> Dict:
+    def update_document(
+        self,
+        document_id: str,
+        *,
+        ground_truth: Sequence[Dict[str, Union[Optional[str], bool]]] = None,
+        dataset_id: str = None,
+    ) -> Dict:
         """Update ground truth for a document, calls the PATCH /documents/{documentId} endpoint.
         Updating ground truth means adding the ground truth data for the particular document.
         This enables the API to learn from past mistakes.
@@ -688,7 +694,11 @@ class Client:
         :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
  :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
         """
-        return self._make_request(requests.patch, f'/documents/{document_id}', body={'groundTruth': ground_truth})
+        body = {
+            'groundTruth': ground_truth,
+            'datasetId': dataset_id,
+        }
+        return self._make_request(requests.patch, f'/documents/{document_id}', body=dictstrip(body))
 
     def delete_document(self, document_id: str) -> Dict:
         """Delete the document with the provided document_id, calls the DELETE /documents/{documentId} endpoint.
