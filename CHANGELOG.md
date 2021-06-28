@@ -11,6 +11,7 @@
 - Added parameter dataset_id to list_documents
 - Added parameter dataset_id to delete_documents
 - Added parameter dataset_id to update_document
+- Added parameter delete_all to delete_documents
 - Added create_data_bundle
 - Added list_data_bundles 
 - Added update_data_bundle

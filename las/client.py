@@ -450,11 +450,7 @@ class Client:
  :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
         """
         if delete_documents:
-            response = self.delete_documents(batch_id=batch_id)
-            next_token = response['nextToken']
-            while next_token:
-                response = self.delete_documents(batch_id=batch_id, next_token=next_token)
-                next_token = response['nextToken']
+            self.delete_documents(batch_id=batch_id, delete_all=True)
 
         return self._make_request(requests.delete, f'/batches/{batch_id}')
 
@@ -523,11 +519,7 @@ class Client:
  :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
         """
         if delete_documents:
-            response = self.delete_documents(dataset_id=dataset_id)
-            next_token = response['nextToken']
-            while next_token:
-                response = self.delete_documents(dataset_id=dataset_id, next_token=next_token)
-                next_token = response['nextToken']
+            self.delete_documents(dataset_id=dataset_id, delete_all=True)
 
         return self._make_request(requests.delete, f'/datasets/{dataset_id}')
 
@@ -623,7 +615,8 @@ class Client:
         consent_id: Optional[Queryparam] = None,
         dataset_id: Optional[Queryparam] = None,
         max_results: Optional[int] = None,
-        next_token: Optional[str] = None
+        next_token: Optional[str] = None,
+        delete_all: Optional[bool] = False,
     ) -> Dict:
         """Delete documents with the provided consent_id, calls the DELETE /documents endpoint.
 
@@ -641,20 +634,38 @@ class Client:
         :type max_results: Optional[int]
         :param next_token: A unique token for each page, use the returned token to retrieve the next page.
         :type next_token: Optional[str]
+        :param delete_all: delete all documents that match the given parameters, without worrying about next-token.
+        This is not possible if max_results is specified
+        :type delete_all: Optional[bool]
         :return: Documents response from REST API
         :rtype: dict
 
         :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
  :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
         """
-        params = {
+        params = dictstrip({
             'batchId': batch_id,
             'consentId': consent_id,
             'datasetId': dataset_id,
             'nextToken': next_token,
             'maxResults': max_results,
-        }
-        return self._make_request(requests.delete, '/documents', params=dictstrip(params))
+        })
+
+        if delete_all and max_results:
+            raise ValueError('Cannot specify max results when delete_all=True')
+
+        response = self._make_request(requests.delete, '/documents', params=params)
+
+        if delete_all:
+            params['nextToken'] = response['nextToken']
+
+            while params['nextToken']:
+                intermediate_response = self._make_request(requests.delete, '/documents', params=params)
+                response['documents'].extend(intermediate_response.get('documents'))
+                params['nextToken'] = intermediate_response['nextToken']
+                logger.info(f'deleted {len(response["documents"])} so far')
+
+        return response
 
     def get_document(self, document_id: str) -> Dict:
         """Get document, calls the GET /documents/{documentId} endpoint.
