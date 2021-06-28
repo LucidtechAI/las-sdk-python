@@ -7,7 +7,7 @@ from las.client import Client
 from . import service, util
 
 
-@pytest.mark.parametrize('name_and_description', util.name_and_description_combinations()
+@pytest.mark.parametrize('name_and_description', util.name_and_description_combinations())
 def test_create_data_bundle(client: Client, name_and_description):
     response = client.create_data_bundle(service.create_model_id(), **name_and_description)
     assert_data_bundle(response)
