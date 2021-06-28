@@ -1,5 +1,19 @@
 # Changelog 
 
+## Version 3.4.0 - 2021-06-29
+
+- Added create_dataset
+- Added list_datasets 
+- Added update_dataset
+- Added delete_dataset
+- Added parameter dataset_id to create_document
+- Added parameter dataset_id to delete_documents
+- Added parameter dataset_id to update_document
+- Added create_data_bundle
+- Added list_data_bundles 
+- Added update_data_bundle
+- Added delete_data_bundle
+
 ## Version 3.3.1 - 2021-06-18
 
 - Updated logger to show more meta information
