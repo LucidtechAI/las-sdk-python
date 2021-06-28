@@ -2,11 +2,13 @@
 
 ## Version 3.4.0 - 2021-06-29
 
+- Added delete_document
 - Added create_dataset
 - Added list_datasets 
 - Added update_dataset
 - Added delete_dataset
 - Added parameter dataset_id to create_document
+- Added parameter dataset_id to list_documents
 - Added parameter dataset_id to delete_documents
 - Added parameter dataset_id to update_document
 - Added create_data_bundle
@@ -19,15 +21,10 @@
 - Updated logger to show more meta information
 - Fixed bug causing two log messages to be printed
 
-## Version 3.3.0 - 2021-06-18
+## Version 3.3.0 - 2021-06-16
 
 - Added get_organization
 - Added update_organization 
-- Added create_dataset
-- Added list_datasets
-- Added update_dataset
-- Added delete_dataset
-- Added optional parameter dataset_id to create_document
 
 ## Version 3.2.15 - 2021-05-27
 

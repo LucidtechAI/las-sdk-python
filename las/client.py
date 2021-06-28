@@ -684,17 +684,12 @@ class Client:
         Updating ground truth means adding the ground truth data for the particular document.
         This enables the API to learn from past mistakes.
 
-        >>> from las.client import Client
-        >>> client = Client()
-        >>> ground_truth = [{'label': 'total_amount', 'value': '156.00'}, {'label': 'date', 'value': '2018-10-23'}]
-        >>> client.update_document(document_id='<document id>', ground_truth=ground_truth)
-
         :param document_id: Id of the document
         :type document_id: str
         :param dataset_id: Id of the dataset you want to associate your document with
         :type dataset_id: Optional[str]
         :param ground_truth: List of items {label: value} representing the ground truth values for the document
-        :type ground_truth: Sequence[Dict[str, Union[Optional[str], bool]]]
+        :type ground_truth: Optional[Sequence[Dict[str, Union[Optional[str], bool]]]]
         :return: Document response from REST API
         :rtype: dict
 
@@ -932,13 +927,13 @@ class Client:
 
         :param model_id: Id of the model
         :type model_id: str
-        :param dataset_ids: Dataset Ids
+        :param dataset_ids: Dataset Ids that will be included in the data bundle
         :type dataset_ids: List[str]
-        :param name: Name of the dataset
+        :param name: Name of the data bundle
         :type name: Optional[str]
-        :param description: Description of the dataset
+        :param description: Description of the data bundle
         :type description: Optional[str]
-        :return: Dataset response from REST API
+        :return: Data Bundle response from REST API
         :rtype: dict
 
         :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
@@ -982,15 +977,15 @@ class Client:
         data_bundle_id: str,
         **optional_args,
     ) -> Dict:
-        """Updates a data bundle , calls the PATCH /models/{modelId}/dataBundles/{dataBundleId} endpoint.
+        """Updates a data bundle, calls the PATCH /models/{modelId}/dataBundles/{dataBundleId} endpoint.
 
         :param model_id: Id of the model
         :type model_id: str
-        :param data_bundle_id: Id of the data_bundle
+        :param data_bundle_id: Id of the data bundle
         :type data_bundle_id: str
-        :param name: Name of the organization
+        :param name: Name of the data bundle
         :type name: Optional[str]
-        :param description: Description of the organization
+        :param description: Description of the data bundle
         :type description: Optional[str]
         :return: Data Bundle response from REST API
         :rtype: dict
@@ -1006,9 +1001,9 @@ class Client:
 
         :param model_id: Id of the model
         :type model_id: str
-        :param data_bundle_id: Id of the data_bundle
+        :param data_bundle_id: Id of the data bundle
         :type data_bundle_id: str
-        :return: Secret response from REST API
+        :return: Data Bundle response from REST API
         :rtype: dict
 
         :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
