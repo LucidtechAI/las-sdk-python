@@ -20,13 +20,13 @@ def test_create_document(
     assert 'contentType' in post_documents_response, 'Missing contentType in response'
 
 
-@pytest.mark.parametrize('batch_id,consent_id', [
-    (None, None),
-    (service.create_batch_id(), None),
-    (None, service.create_consent_id()),
-    ([service.create_batch_id()], [service.create_consent_id()]),
+@pytest.mark.parametrize('batch_id,consent_id,dataset_id', [
+    (None, None, None),
+    (service.create_batch_id(), None, service.create_dataset_id()),
+    (None, service.create_consent_id(), None),
+    ([service.create_batch_id()], [service.create_consent_id()], [service.create_dataset_id()]),
 ])
-def test_list_documents(client: Client, batch_id, consent_id):
+def test_list_documents(client: Client, batch_id, consent_id, dataset_id):
     response = client.list_documents(consent_id=consent_id, batch_id=batch_id)
     assert 'documents' in response, 'Missing documents in response'
 
@@ -59,22 +59,26 @@ def test_update_document(client: Client):
         {'label': 'secure_agreement', 'value': True},
     ]
 
-    post_document_id_response = client.update_document(document_id, ground_truth)
+    post_document_id_response = client.update_document(
+        document_id,
+        ground_truth=ground_truth,
+        dataset_id=service.create_dataset_id(),
+    )
 
     assert 'groundTruth' in post_document_id_response, 'Missing groundTruth in response'
     assert 'documentId' in post_document_id_response, 'Missing documentId in response'
     assert 'consentId' in post_document_id_response, 'Missing consentId in response'
 
 
-@pytest.mark.parametrize('batch_id,consent_id', [
-    (None, None),
-    (service.create_batch_id(), None),
-    (None, service.create_consent_id()),
-    ([service.create_batch_id()], [service.create_consent_id()]),
+@pytest.mark.parametrize('batch_id,consent_id,dataset_id', [
+    (None, None, None),
+    (service.create_batch_id(), None, service.create_dataset_id()),
+    (None, service.create_consent_id(), None),
+    ([service.create_batch_id()], [service.create_consent_id()], [service.create_dataset_id()]),
 ])
 @pytest.mark.skip(reason='DELETE does not work for the mocked API')
-def test_delete_documents(client: Client, consent_id, batch_id):
-    delete_documents_response = client.delete_documents(consent_id=consent_id, batch_id=batch_id)
+def test_delete_documents(client: Client, consent_id, batch_id, dataset_id):
+    delete_documents_response = client.delete_documents(consent_id=consent_id, batch_id=batch_id, dataset_id=dataset_id)
 
     assert 'documents' in delete_documents_response, 'Missing documents in response'
 
