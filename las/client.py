@@ -663,7 +663,7 @@ class Client:
                 intermediate_response = self._make_request(requests.delete, '/documents', params=params)
                 response['documents'].extend(intermediate_response.get('documents'))
                 params['nextToken'] = intermediate_response['nextToken']
-                logger.info(f'deleted {len(response["documents"])} so far')
+                logger.info(f'Deleted {len(response["documents"])} documents so far')
 
         return response
 
