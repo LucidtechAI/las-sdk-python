@@ -7,10 +7,10 @@
 - Added list_datasets 
 - Added update_dataset
 - Added delete_dataset
-- Added parameter dataset_id to create_document
-- Added parameter dataset_id to list_documents
-- Added parameter dataset_id to delete_documents
-- Added parameter dataset_id to update_document
+- Added optional parameter dataset_id to create_document
+- Added optional parameter dataset_id to list_documents
+- Added optional parameter dataset_id to delete_documents
+- Added optional parameter dataset_id to update_document
 - Added parameter delete_all to delete_documents
 - Added create_data_bundle
 - Added list_data_bundles 
