@@ -687,8 +687,8 @@ class Client:
     def update_document(
         self,
         document_id: str,
+        ground_truth: Sequence[Dict[str, Union[Optional[str], bool]]] = None, # For backwards compatibility reasons, this is placed before the *
         *,
-        ground_truth: Sequence[Dict[str, Union[Optional[str], bool]]] = None,
         dataset_id: str = None,
     ) -> Dict:
         """Update ground truth for a document, calls the PATCH /documents/{documentId} endpoint.
