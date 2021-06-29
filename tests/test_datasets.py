@@ -47,4 +47,6 @@ def assert_dataset(response):
     assert 'datasetId' in response, 'Missing datasetId in response'
     assert 'name' in response, 'Missing name in response'
     assert 'description' in response, 'Missing description in response'
-
+    assert 'createdTime' in response, 'Missing createdTime in response'
+    assert 'updatedTime' in response, 'Missing updatedTime in response'
+    assert 'version' in response, 'Missing version in response'
