@@ -51,4 +51,5 @@ def assert_data_bundle(response):
     assert 'dataBundleId' in response, 'Missing dataBundleId in response'
     assert 'name' in response, 'Missing name in response'
     assert 'description' in response, 'Missing description in response'
-
+    assert 'createdTime' in response, 'Missing createdTime in response'
+    assert 'status' in response, 'Missing status in response'
