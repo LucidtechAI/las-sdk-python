@@ -450,13 +450,78 @@ class Client:
  :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
         """
         if delete_documents:
-            response = self.delete_documents(batch_id=batch_id)
-            next_token = response['nextToken']
-            while next_token:
-                response = self.delete_documents(batch_id=batch_id, next_token=next_token)
-                next_token = response['nextToken']
+            self.delete_documents(batch_id=batch_id, delete_all=True)
 
         return self._make_request(requests.delete, f'/batches/{batch_id}')
+
+    def create_dataset(self, **optional_args) -> Dict:
+        """Creates a dataset, calls the POST /datasets endpoint.
+
+        :param name: Name of the dataset
+        :type name: Optional[str]
+        :param description: Description of the dataset
+        :type description: Optional[str]
+        :return: Dataset response from REST API
+        :rtype: dict
+
+        :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
+ :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
+        """
+        return self._make_request(requests.post, '/datasets', body=optional_args)
+
+    def list_datasets(self, *, max_results: Optional[int] = None, next_token: Optional[str] = None) -> Dict:
+        """List datasets available, calls the GET /datasets endpoint.
+
+        :param max_results: Maximum number of results to be returned
+        :type max_results: Optional[int]
+        :param next_token: A unique token for each page, use the returned token to retrieve the next page.
+        :type next_token: Optional[str]
+        :return: Datasets response from REST API without the content of each dataset
+        :rtype: dict
+
+        :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
+ :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
+        """
+        params = {
+            'maxResults': max_results,
+            'nextToken': next_token,
+        }
+        return self._make_request(requests.get, '/datasets', params=params)
+
+    def update_dataset(self, dataset_id, **optional_args) -> Dict:
+        """Updates a dataset, calls the PATCH /datasets/{datasetId} endpoint.
+
+        :param dataset_id: Id of the dataset
+        :type dataset_id: str
+        :param name: Name of the dataset
+        :type name: Optional[str]
+        :param description: Description of the dataset
+        :type description: Optional[str]
+        :return: Dataset response from REST API
+        :rtype: dict
+
+        :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
+ :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
+        """
+        return self._make_request(requests.patch, f'/datasets/{dataset_id}', body=optional_args)
+
+    def delete_dataset(self, dataset_id: str, delete_documents: bool = False) -> Dict:
+        """Delete the dataset with the provided dataset_id, calls the DELETE /datasets/{datasetId} endpoint.
+
+        :param dataset_id: Id of the dataset
+        :type dataset_id: str
+        :param delete_documents: Set to true to delete documents in dataset before deleting dataset
+        :type delete_documents: bool
+        :return: Dataset response from REST API
+        :rtype: dict
+
+        :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
+ :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
+        """
+        if delete_documents:
+            self.delete_documents(dataset_id=dataset_id, delete_all=True)
+
+        return self._make_request(requests.delete, f'/datasets/{dataset_id}')
 
     def create_document(
             self,
@@ -465,6 +530,7 @@ class Client:
             *,
             consent_id: Optional[str] = None,
             batch_id: str = None,
+            dataset_id: str = None,
             ground_truth: Sequence[Dict[str, str]] = None,
     ) -> Dict:
         """Creates a document, calls the POST /documents endpoint.
@@ -481,6 +547,8 @@ class Client:
         :type consent_id: Optional[str]
         :param batch_id: Id of the associated batch
         :type batch_id: Optional[str]
+        :param dataset_id: Id of the associated dataset
+        :type dataset_id: Optional[str]
         :param ground_truth: List of items {'label': label, 'value': value}
         representing the ground truth values for the document
         :type ground_truth: Optional[Sequence[Dict[str, str]]]
@@ -495,6 +563,7 @@ class Client:
             'contentType': content_type,
             'consentId': consent_id,
             'batchId': batch_id,
+            'datasetId': dataset_id,
             'groundTruth': ground_truth,
         }
         return self._make_request(requests.post, '/documents', body=dictstrip(body))
@@ -504,6 +573,7 @@ class Client:
         *,
         batch_id: Optional[Queryparam] = None,
         consent_id: Optional[Queryparam] = None,
+        dataset_id: Optional[Queryparam] = None,
         max_results: Optional[int] = None,
         next_token: Optional[str] = None,
     ) -> Dict:
@@ -517,6 +587,8 @@ class Client:
         :type batch_id: Optional[Queryparam]
         :param consent_id: Ids of the consents that marks the owner of the document
         :type consent_id: Optional[Queryparam]
+        :param dataset_id: Ids of datasets that contains the documents of interest
+        :type dataset_id: Optional[Queryparam]
         :param max_results: Maximum number of results to be returned
         :type max_results: Optional[int]
         :param next_token: A unique token for each page, use the returned token to retrieve the next page.
@@ -530,6 +602,7 @@ class Client:
         params = {
             'batchId': batch_id,
             'consentId': consent_id,
+            'datasetId': dataset_id,
             'maxResults': max_results,
             'nextToken': next_token,
         }
@@ -538,10 +611,12 @@ class Client:
     def delete_documents(
         self,
         *,
-        consent_id: Optional[Queryparam] = None,
         batch_id: Optional[Queryparam] = None,
+        consent_id: Optional[Queryparam] = None,
+        dataset_id: Optional[Queryparam] = None,
         max_results: Optional[int] = None,
-        next_token: Optional[str] = None
+        next_token: Optional[str] = None,
+        delete_all: Optional[bool] = False,
     ) -> Dict:
         """Delete documents with the provided consent_id, calls the DELETE /documents endpoint.
 
@@ -553,23 +628,44 @@ class Client:
         :type batch_id: Optional[Queryparam]
         :param consent_id: Ids of the consents that marks the owner of the document
         :type consent_id: Optional[Queryparam]
+        :param dataset_id: Ids of the datasets to be deleted
+        :type dataset_id: Optional[Queryparam]
         :param max_results: Maximum number of documents that will be deleted
         :type max_results: Optional[int]
         :param next_token: A unique token for each page, use the returned token to retrieve the next page.
         :type next_token: Optional[str]
+        :param delete_all: Delete all documents that match the given parameters doing multiple API calls if necessary.
+        Will throw an error if parameter max_results is also specified.
+        :type delete_all: Optional[bool]
         :return: Documents response from REST API
         :rtype: dict
 
         :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
  :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
         """
-        params = {
-            'consentId': consent_id,
+        params = dictstrip({
             'batchId': batch_id,
+            'consentId': consent_id,
+            'datasetId': dataset_id,
             'nextToken': next_token,
             'maxResults': max_results,
-        }
-        return self._make_request(requests.delete, '/documents', params=dictstrip(params))
+        })
+
+        if delete_all and max_results:
+            raise ValueError('Cannot specify max results when delete_all=True')
+
+        response = self._make_request(requests.delete, '/documents', params=params)
+
+        if delete_all:
+            params['nextToken'] = response['nextToken']
+
+            while params['nextToken']:
+                intermediate_response = self._make_request(requests.delete, '/documents', params=params)
+                response['documents'].extend(intermediate_response.get('documents'))
+                params['nextToken'] = intermediate_response['nextToken']
+                logger.info(f'Deleted {len(response["documents"])} documents so far')
+
+        return response
 
     def get_document(self, document_id: str) -> Dict:
         """Get document, calls the GET /documents/{documentId} endpoint.
@@ -588,27 +684,51 @@ class Client:
         """
         return self._make_request(requests.get, f'/documents/{document_id}')
 
-    def update_document(self, document_id: str, ground_truth: Sequence[Dict[str, Union[Optional[str], bool]]]) -> Dict:
+    def update_document(
+        self,
+        document_id: str,
+        ground_truth: Sequence[Dict[str, Union[Optional[str], bool]]] = None, # For backwards compatibility reasons, this is placed before the *
+        *,
+        dataset_id: str = None,
+    ) -> Dict:
         """Update ground truth for a document, calls the PATCH /documents/{documentId} endpoint.
         Updating ground truth means adding the ground truth data for the particular document.
         This enables the API to learn from past mistakes.
 
-        >>> from las.client import Client
-        >>> client = Client()
-        >>> ground_truth = [{'label': 'total_amount', 'value': '156.00'}, {'label': 'date', 'value': '2018-10-23'}]
-        >>> client.update_document(document_id='<document id>', ground_truth=ground_truth)
-
         :param document_id: Id of the document
         :type document_id: str
+        :param dataset_id: Id of the dataset you want to associate your document with
+        :type dataset_id: Optional[str]
         :param ground_truth: List of items {label: value} representing the ground truth values for the document
-        :type ground_truth: Sequence[Dict[str, Union[Optional[str], bool]]]
+        :type ground_truth: Optional[Sequence[Dict[str, Union[Optional[str], bool]]]]
         :return: Document response from REST API
         :rtype: dict
 
         :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
  :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
         """
-        return self._make_request(requests.patch, f'/documents/{document_id}', body={'groundTruth': ground_truth})
+        body = {
+            'groundTruth': ground_truth,
+            'datasetId': dataset_id,
+        }
+        return self._make_request(requests.patch, f'/documents/{document_id}', body=dictstrip(body))
+
+    def delete_document(self, document_id: str) -> Dict:
+        """Delete the document with the provided document_id, calls the DELETE /documents/{documentId} endpoint.
+
+        >>> from las.client import Client
+        >>> client = Client()
+        >>> client.delete_document('<document_id>')
+
+        :param document_id: Id of the document
+        :type document_id: str
+        :return: Model response from REST API
+        :rtype: dict
+
+        :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
+ :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
+        """
+        return self._make_request(requests.delete, f'/documents/{document_id}')
 
     def list_logs(
         self,
@@ -812,6 +932,95 @@ class Client:
  :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
         """
         return self._make_request(requests.delete, f'/models/{model_id}')
+
+    def create_data_bundle(self, model_id, dataset_ids, **optional_args) -> Dict:
+        """Creates a data bundle, calls the POST /models/{modelId}/dataBundles endpoint.
+
+        :param model_id: Id of the model
+        :type model_id: str
+        :param dataset_ids: Dataset Ids that will be included in the data bundle
+        :type dataset_ids: List[str]
+        :param name: Name of the data bundle
+        :type name: Optional[str]
+        :param description: Description of the data bundle
+        :type description: Optional[str]
+        :return: Data Bundle response from REST API
+        :rtype: dict
+
+        :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
+ :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
+        """
+
+        body = {'datasetIds': dataset_ids}
+        body.update(**optional_args)
+        return self._make_request(requests.post, f'/models/{model_id}/dataBundles', body=body)
+
+    def list_data_bundles(
+        self,
+        model_id,
+        *,
+        max_results: Optional[int] = None,
+        next_token: Optional[str] = None,
+    ) -> Dict:
+        """List data bundles available, calls the GET /models/{modelId}/dataBundles endpoint.
+
+        :param model_id: Id of the model
+        :type model_id: str
+        :param max_results: Maximum number of results to be returned
+        :type max_results: Optional[int]
+        :param next_token: A unique token for each page, use the returned token to retrieve the next page.
+        :type next_token: Optional[str]
+        :return: Data Bundles response from REST API
+        :rtype: dict
+
+        :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
+ :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
+        """
+        params = {
+            'maxResults': max_results,
+            'nextToken': next_token,
+        }
+        return self._make_request(requests.get, f'/models/{model_id}/dataBundles', params=params)
+
+    def update_data_bundle(
+        self,
+        model_id: str,
+        data_bundle_id: str,
+        **optional_args,
+    ) -> Dict:
+        """Updates a data bundle, calls the PATCH /models/{modelId}/dataBundles/{dataBundleId} endpoint.
+
+        :param model_id: Id of the model
+        :type model_id: str
+        :param data_bundle_id: Id of the data bundle
+        :type data_bundle_id: str
+        :param name: Name of the data bundle
+        :type name: Optional[str]
+        :param description: Description of the data bundle
+        :type description: Optional[str]
+        :return: Data Bundle response from REST API
+        :rtype: dict
+
+        :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
+ :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
+        """
+        return self._make_request(requests.patch, f'/models/{model_id}/dataBundles/{data_bundle_id}', body=optional_args)
+
+    def delete_data_bundle(self, model_id: str, data_bundle_id: str) -> Dict:
+        """Delete the data bundle with the provided data_bundle_id,
+        calls the DELETE /models/{modelId}/dataBundles/{dataBundleId} endpoint.
+
+        :param model_id: Id of the model
+        :type model_id: str
+        :param data_bundle_id: Id of the data bundle
+        :type data_bundle_id: str
+        :return: Data Bundle response from REST API
+        :rtype: dict
+
+        :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
+ :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
+        """
+        return self._make_request(requests.delete, f'/models/{model_id}/dataBundles/{data_bundle_id}')
 
     def get_organization(self, organization_id: str) -> Dict:
         """Get an organization, calls the GET /organizations/{organizationId} endpoint.
