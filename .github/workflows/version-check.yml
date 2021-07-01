@@ -22,3 +22,8 @@ jobs:
             echo "You should probably update version number"
             exit 1
           fi
+      - name: Push new version
+        run: |
+          version_name=$(python setup.py --version)
+          git tag -a $version_name -m "new version $version_name"
+          git push origin $version_name
