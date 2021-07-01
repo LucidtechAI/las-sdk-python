@@ -24,6 +24,8 @@ jobs:
           fi
       - name: Push new version
         run: |
+          git config --global user.name "Tad Taggerson"
+          git config --global user.email "noreply@lucidtech.ai"
           version_name=$(python setup.py --version)
           git tag -a $version_name -m "new version $version_name"
           git push origin $version_name
