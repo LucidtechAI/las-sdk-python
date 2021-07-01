@@ -634,8 +634,8 @@ class Client:
         :type max_results: Optional[int]
         :param next_token: A unique token for each page, use the returned token to retrieve the next page.
         :type next_token: Optional[str]
-        :param delete_all: delete all documents that match the given parameters, without worrying about next-token.
-        This is not possible if max_results is specified
+        :param delete_all: Delete all documents that match the given parameters doing multiple API calls if necessary.
+        Will throw an error if parameter max_results is also specified.
         :type delete_all: Optional[bool]
         :return: Documents response from REST API
         :rtype: dict
