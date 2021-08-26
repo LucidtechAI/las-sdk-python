@@ -546,6 +546,7 @@ class Client:
             batch_id: str = None,
             dataset_id: str = None,
             ground_truth: Sequence[Dict[str, str]] = None,
+            retention_in_days: int = None,
     ) -> Dict:
         """Creates a document, calls the POST /documents endpoint.
 
@@ -585,6 +586,7 @@ class Client:
             'batchId': batch_id,
             'datasetId': dataset_id,
             'groundTruth': ground_truth,
+            'retentionInDays': retention_in_days,
         }
         return self._make_request(requests.post, '/documents', body=dictstrip(body))
 
