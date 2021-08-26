@@ -502,6 +502,19 @@ class Client:
         }
         return self._make_request(requests.get, '/datasets', params=params)
 
+    def get_dataset(self, dataset_id: str) -> Dict:
+        """Get dataset, calls the GET /datasets/{datasetId} endpoint.
+
+        :param dataset_id: Id of the dataset
+        :type dataset_id: str
+        :return: Dataset response from REST API
+        :rtype: dict
+
+        :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
+ :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
+        """
+        return self._make_request(requests.get, f'/datasets/{dataset_id}')
+
     def update_dataset(self, dataset_id, **optional_args) -> Dict:
         """Updates a dataset, calls the PATCH /datasets/{datasetId} endpoint.
 
