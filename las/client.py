@@ -163,7 +163,6 @@ class Client:
         uri = urlparse(f'{self.endpoint}{signing_path}')
         headers = {
             'Authorization': f'Bearer {self.credentials.access_token}',
-            'X-Api-Key': self.credentials.api_key,
             'Content-Type': 'application/json',
         }
         response = requests_fn(
