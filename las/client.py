@@ -7,7 +7,7 @@ import os
 from base64 import b64encode, b64decode
 from datetime import datetime
 from itertools import zip_longest
-from functools import singledispatch
+from functools import singledispatch, partial
 from pathlib import Path
 from json.decoder import JSONDecodeError
 from time import time
@@ -29,6 +29,16 @@ logger.addHandler(handler)
 
 Content = Union[bytes, bytearray, str, Path, io.IOBase]
 Queryparam = Union[str, List[str]]
+
+
+def _create_documents_pool(t, client, dataset_id):
+    doc, metadata = t
+    try:
+        client.create_document(content=doc, dataset_id=dataset_id, **metadata)
+        return doc, True
+    except Exception as e:
+        logger.error(e)
+        return doc, False
 
 
 def dictstrip(d):
@@ -66,8 +76,15 @@ def _json_decode(response):
         raise e
 
 
+def _guess_content_type(raw):
+    guessed_type = filetype.guess(raw)
+    assert guessed_type, 'Could not determine content type of document. ' \
+                         'Please provide it by specifying content_type'
+    return guessed_type.mime
+
+
 @singledispatch
-def parse_content(content):
+def parse_content(content, find_content_type=False):
     raise TypeError(
         '\n'.join([
             f'Could not parse content {content} of type {type(content)}',
@@ -82,26 +99,29 @@ def parse_content(content):
 
 @parse_content.register(str)
 @parse_content.register(Path)
-def _(content):
+def _(content, find_content_type=False):
     raw = Path(content).read_bytes()
-    return b64encode(raw).decode()
+    content_type = _guess_content_type(raw) if find_content_type else None
+    return b64encode(raw).decode(), content_type
 
 
 @parse_content.register(bytes)
 @parse_content.register(bytearray)
-def _(content):
+def _(content, find_content_type=False):
     try:
         raw = b64decode(content, validate=True)
     except binascii.Error:
         raw = content
-    return b64encode(raw).decode()
+    content_type = _guess_content_type(raw) if find_content_type else None
+    return b64encode(raw).decode(), content_type
 
 
 @parse_content.register(io.IOBase)
-def _(content):
+def _(content, find_content_type=False):
     raw = content.read()
     raw = raw.encode() if isinstance(raw, str) else raw
-    return b64encode(raw).decode()
+    content_type = _guess_content_type(raw) if find_content_type else None
+    return b64encode(raw).decode(), content_type
 
 
 class ClientException(Exception):
@@ -138,7 +158,6 @@ def group(iterable, group_size, fillvalue=None):
     # grouper('ABCDEFG', 4, 'x') --> ABCD EFGx"
     args = [iter(iterable)] * group_size
     return zip_longest(*args, fillvalue=fillvalue)
-
 
 
 class Client:
@@ -297,8 +316,9 @@ class Client:
         :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
  :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
         """
+        content, _ = parse_content(content)
         body = {
-            'content': parse_content(content),
+            'content': content,
             **optional_args,
         }
         return self._make_request(requests.post, '/assets', body=body)
@@ -365,8 +385,10 @@ class Client:
  :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
         """
         content = optional_args.get('content')
+
         if content:
-            optional_args['content'] = parse_content(content)
+            parsed_content, _ = parse_content(content)
+            optional_args['content'] = parsed_content
 
         return self._make_request(requests.patch, f'/assets/{asset_id}', body=optional_args)
 
@@ -572,17 +594,12 @@ class Client:
         :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
  :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
         """
-        content_bytes = parse_content(content)
-
-        if not content_type:
-            guessed_type = filetype.guess(content_bytes)
-            assert guessed_type, 'Could not determine content type of document. ' \
-                                 'Please provide it by specifying content_type'
-            content_type = guessed_type.mime
+        find_content_type = not content_type
+        content_bytes, guessed_content_type = parse_content(content, find_content_type)
 
         body = {
             'content': content_bytes,
-            'contentType': content_type,
+            'contentType': content_type or guessed_content_type,
             'consentId': consent_id,
             'batchId': batch_id,
             'datasetId': dataset_id,
@@ -595,8 +612,8 @@ class Client:
         documents: Dict,
         dataset_id,
         chunk_size=100,
-        log_file='.batch_create_document.log',
-        error_file='.batch_create_document_error.log'
+        log_file='.documents_uploaded.log',
+        error_file='.documents_failed_to_upload.log',
     ) -> Dict:
         """Creates a document, calls the POST /documents endpoint.
 
@@ -616,19 +633,31 @@ class Client:
         :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
  :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
         """
-        pool = Pool(os.cpu_count())
-        num_docs = len(documents)
-        logging.info(f'start uploading {num_docs} document in chunks of {chunk_size}...')
-        start_time = time()
+        log_file = Path(log_file)
+        error_file = Path(error_file)
+        uploaded_files = []
 
-        for n, chunk in enumerate(group(documents, chunk_size)):
-            logging.info(f'{(time() - start_time) / 60:.2f}m: {n * chunk_size} docs...')
-            pool.map(
-                lambda doc, metadata: self.create_document(content=doc, dataset_id=dataset_id, **metadata),
-                [(item, documents[item]) for item in chunk if item is not None]
-            )
+        if log_file.exists():
+            uploaded_files = log_file.read_text().splitlines()
 
-        return self._make_request(requests.post, '/documents', body=dictstrip(body))
+        if error_file.exists():
+            logger.warning(f'{error_file} exists and will be overwritten')
+
+        with log_file.open('a') as lf, error_file.open('a') as ef:
+            pool = Pool(os.cpu_count())
+            num_docs = len(documents)
+            logger.info(f'start uploading {num_docs} document in chunks of {chunk_size}...')
+            start_time = time()
+
+            for n, chunk in enumerate(group(documents, chunk_size)):
+                logger.info(f'{(time() - start_time) / 60:.2f}m: {n * chunk_size} docs...')
+
+                fn = partial(_create_documents_pool, client=self, dataset_id=dataset_id)
+                inp = [(item, documents[item]) for item in chunk if item is not None and item not in uploaded_files]
+                results = pool.map(fn, inp)
+
+                for name, uploaded in results:
+                    lf.write(name + '\n') if uploaded else ef.write(name + '\n')
 
     def list_documents(
         self,
