@@ -644,9 +644,10 @@ class Client:
             logger.warning(f'{error_file} exists and will be overwritten')
 
         with log_file.open('a') as lf, error_file.open('a') as ef:
-            pool = Pool(os.cpu_count())
+            pool = Pool(min(os.cpu_count(), 4))
             num_docs = len(documents)
             logger.info(f'start uploading {num_docs} document in chunks of {chunk_size}...')
+            print()
             start_time = time()
 
             for n, chunk in enumerate(group(documents, chunk_size)):
@@ -657,7 +658,14 @@ class Client:
                 results = pool.map(fn, inp)
 
                 for name, uploaded in results:
-                    lf.write(name + '\n') if uploaded else ef.write(name + '\n')
+                    if uploaded:
+                        lf.write(name + '\n')
+                        message = f'successfully uploaded {name}'
+                    else:
+                        ef.write(name + '\n')
+                        message = f'failed to upload {name}'
+
+                    print(message)
 
     def list_documents(
         self,
