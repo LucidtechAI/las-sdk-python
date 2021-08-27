@@ -1,18 +1,23 @@
 import binascii
+import filetype
 import io
 import json
 import logging
+import os
 from base64 import b64encode, b64decode
 from datetime import datetime
+from itertools import zip_longest
 from functools import singledispatch
 from pathlib import Path
 from json.decoder import JSONDecodeError
+from time import time
 from typing import Any, Callable, Dict, List, Optional, Sequence, Union
 from urllib.parse import urlparse
 
 import requests
 from backoff import expo, on_exception  # type: ignore
 from requests.exceptions import RequestException
+from multiprocessing import Pool
 
 from .credentials import Credentials, guess_credentials
 
@@ -125,6 +130,15 @@ class LimitExceededException(ClientException):
 class FileFormatException(ClientException):
     """A FileFormatException is raised if the file format is not supported by the api."""
     pass
+
+
+# See https://docs.python.org/3/library/itertools.html
+def group(iterable, group_size, fillvalue=None):
+    "Collect data into fixed-length chunks or blocks"
+    # grouper('ABCDEFG', 4, 'x') --> ABCD EFGx"
+    args = [iter(iterable)] * group_size
+    return zip_longest(*args, fillvalue=fillvalue)
+
 
 
 class Client:
@@ -526,7 +540,7 @@ class Client:
     def create_document(
             self,
             content: Content,
-            content_type: str,
+            content_type: str = None,
             *,
             consent_id: Optional[str] = None,
             batch_id: str = None,
@@ -558,14 +572,62 @@ class Client:
         :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
  :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
         """
+        content_bytes = parse_content(content)
+
+        if not content_type:
+            guessed_type = filetype.guess(content_bytes)
+            assert guessed_type, 'Could not determine content type of document. ' \
+                                 'Please provide it by specifying content_type'
+            content_type = guessed_type.mime
+
         body = {
-            'content': parse_content(content),
+            'content': content_bytes,
             'contentType': content_type,
             'consentId': consent_id,
             'batchId': batch_id,
             'datasetId': dataset_id,
             'groundTruth': ground_truth,
         }
+        return self._make_request(requests.post, '/documents', body=dictstrip(body))
+
+    def batch_create_document(
+        self,
+        documents: Dict,
+        dataset_id,
+        chunk_size=100,
+        log_file='.batch_create_document.log',
+        error_file='.batch_create_document_error.log'
+    ) -> Dict:
+        """Creates a document, calls the POST /documents endpoint.
+
+        >>> from las.client import Client
+        >>> client = Client()
+        >>> client.create_document(b'<bytes data>', 'image/jpeg', consent_id='<consent id>')
+
+        :param content: Content to POST
+        :type content: Content
+        :param content_type: MIME type for the document
+        :type content_type: str
+        :param consent_id: Id of the consent that marks the owner of the document
+        :type consent_id: Optional[str]
+        :return: Document response from REST API
+        :rtype: dict
+
+        :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
+ :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
+        """
+        pool = Pool(os.cpu_count())
+        num_docs = len(documents)
+        logging.info(f'start uploading {num_docs} document in chunks of {chunk_size}...')
+        start_time = time()
+
+        for n, chunk in enumerate(group(documents, chunk_size)):
+            logging.info(f'{(time() - start_time) / 60:.2f}m: {n * chunk_size} docs...')
+            pool.map(
+                lambda doc, metadata: self.create_document(content=doc, dataset_id=dataset_id, **metadata),
+                [(item, documents[item]) for item in chunk if item is not None]
+            )
+
         return self._make_request(requests.post, '/documents', body=dictstrip(body))
 
     def list_documents(
