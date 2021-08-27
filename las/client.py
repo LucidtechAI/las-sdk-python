@@ -3,21 +3,17 @@ import filetype
 import io
 import json
 import logging
-import os
 from base64 import b64encode, b64decode
 from datetime import datetime
-from itertools import zip_longest
-from functools import singledispatch, partial
+from functools import singledispatch
 from pathlib import Path
 from json.decoder import JSONDecodeError
-from time import time
 from typing import Any, Callable, Dict, List, Optional, Sequence, Union
 from urllib.parse import urlparse
 
 import requests
 from backoff import expo, on_exception  # type: ignore
 from requests.exceptions import RequestException
-from multiprocessing import Pool
 
 from .credentials import Credentials, guess_credentials
 
@@ -29,16 +25,6 @@ logger.addHandler(handler)
 
 Content = Union[bytes, bytearray, str, Path, io.IOBase]
 Queryparam = Union[str, List[str]]
-
-
-def _create_documents_pool(t, client, dataset_id):
-    doc, metadata = t
-    try:
-        client.create_document(content=doc, dataset_id=dataset_id, **metadata)
-        return doc, True
-    except Exception as e:
-        logger.error(e)
-        return doc, False
 
 
 def dictstrip(d):
@@ -150,14 +136,6 @@ class LimitExceededException(ClientException):
 class FileFormatException(ClientException):
     """A FileFormatException is raised if the file format is not supported by the api."""
     pass
-
-
-# See https://docs.python.org/3/library/itertools.html
-def group(iterable, group_size, fillvalue=None):
-    "Collect data into fixed-length chunks or blocks"
-    # grouper('ABCDEFG', 4, 'x') --> ABCD EFGx"
-    args = [iter(iterable)] * group_size
-    return zip_longest(*args, fillvalue=fillvalue)
 
 
 class Client:
@@ -606,66 +584,6 @@ class Client:
             'groundTruth': ground_truth,
         }
         return self._make_request(requests.post, '/documents', body=dictstrip(body))
-
-    def batch_create_document(
-        self,
-        documents: Dict,
-        dataset_id,
-        chunk_size=100,
-        log_file='.documents_uploaded.log',
-        error_file='.documents_failed_to_upload.log',
-    ) -> Dict:
-        """Creates a document, calls the POST /documents endpoint.
-
-        >>> from las.client import Client
-        >>> client = Client()
-        >>> client.create_document(b'<bytes data>', 'image/jpeg', consent_id='<consent id>')
-
-        :param content: Content to POST
-        :type content: Content
-        :param content_type: MIME type for the document
-        :type content_type: str
-        :param consent_id: Id of the consent that marks the owner of the document
-        :type consent_id: Optional[str]
-        :return: Document response from REST API
-        :rtype: dict
-
-        :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
- :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
-        """
-        log_file = Path(log_file)
-        error_file = Path(error_file)
-        uploaded_files = []
-
-        if log_file.exists():
-            uploaded_files = log_file.read_text().splitlines()
-
-        if error_file.exists():
-            logger.warning(f'{error_file} exists and will be overwritten')
-
-        with log_file.open('a') as lf, error_file.open('a') as ef:
-            pool = Pool(min(os.cpu_count(), 4))
-            num_docs = len(documents)
-            logger.info(f'start uploading {num_docs} document in chunks of {chunk_size}...')
-            print()
-            start_time = time()
-
-            for n, chunk in enumerate(group(documents, chunk_size)):
-                logger.info(f'{(time() - start_time) / 60:.2f}m: {n * chunk_size} docs...')
-
-                fn = partial(_create_documents_pool, client=self, dataset_id=dataset_id)
-                inp = [(item, documents[item]) for item in chunk if item is not None and item not in uploaded_files]
-                results = pool.map(fn, inp)
-
-                for name, uploaded in results:
-                    if uploaded:
-                        lf.write(name + '\n')
-                        message = f'successfully uploaded {name}'
-                    else:
-                        ef.write(name + '\n')
-                        message = f'failed to upload {name}'
-
-                    print(message)
 
     def list_documents(
         self,
