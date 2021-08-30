@@ -550,15 +550,15 @@ class Client:
         return self._make_request(requests.delete, f'/datasets/{dataset_id}')
 
     def create_document(
-            self,
-            content: Content,
-            content_type: str = None,
-            *,
-            consent_id: Optional[str] = None,
-            batch_id: str = None,
-            dataset_id: str = None,
-            ground_truth: Sequence[Dict[str, str]] = None,
-            retention_in_days: int = None,
+        self,
+        content: Content,
+        content_type: str = None,
+        *,
+        consent_id: Optional[str] = None,
+        batch_id: str = None,
+        dataset_id: str = None,
+        ground_truth: Sequence[Dict[str, str]] = None,
+        retention_in_days: int = None,
     ) -> Dict:
         """Creates a document, calls the POST /documents endpoint.
 
