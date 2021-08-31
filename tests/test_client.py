@@ -65,7 +65,7 @@ def test_invalid_credentials(
     bytearray(service.document_path().read_bytes()),
 ])
 def test_parse_content(content):
-    expected_result = b64encode(service.document_path().read_bytes()).decode()
+    expected_result = b64encode(service.document_path().read_bytes()).decode(), None
     result = parse_content(content)
     assert result == expected_result
 

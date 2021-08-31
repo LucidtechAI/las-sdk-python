@@ -1,5 +1,10 @@
 # Changelog 
 
+## Version 3.4.1 - 2021-08-31
+
+- Argument content_type is now optional for create_document
+- warning will be given if the guessed and the provided content type does not match
+
 ## Version 3.4.0 - 2021-06-29
 
 - Added delete_document

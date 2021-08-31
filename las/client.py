@@ -1,4 +1,5 @@
 import binascii
+import filetype
 import io
 import json
 import logging
@@ -61,8 +62,15 @@ def _json_decode(response):
         raise e
 
 
+def _guess_content_type(raw):
+    guessed_type = filetype.guess(raw)
+    assert guessed_type, 'Could not determine content type of document. ' \
+                         'Please provide it by specifying content_type'
+    return guessed_type.mime
+
+
 @singledispatch
-def parse_content(content):
+def parse_content(content, find_content_type=False):
     raise TypeError(
         '\n'.join([
             f'Could not parse content {content} of type {type(content)}',
@@ -77,26 +85,29 @@ def parse_content(content):
 
 @parse_content.register(str)
 @parse_content.register(Path)
-def _(content):
+def _(content, find_content_type=False):
     raw = Path(content).read_bytes()
-    return b64encode(raw).decode()
+    content_type = _guess_content_type(raw) if find_content_type else None
+    return b64encode(raw).decode(), content_type
 
 
 @parse_content.register(bytes)
 @parse_content.register(bytearray)
-def _(content):
+def _(content, find_content_type=False):
     try:
         raw = b64decode(content, validate=True)
     except binascii.Error:
         raw = content
-    return b64encode(raw).decode()
+    content_type = _guess_content_type(raw) if find_content_type else None
+    return b64encode(raw).decode(), content_type
 
 
 @parse_content.register(io.IOBase)
-def _(content):
+def _(content, find_content_type=False):
     raw = content.read()
     raw = raw.encode() if isinstance(raw, str) else raw
-    return b64encode(raw).decode()
+    content_type = _guess_content_type(raw) if find_content_type else None
+    return b64encode(raw).decode(), content_type
 
 
 class ClientException(Exception):
@@ -283,8 +294,9 @@ class Client:
         :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
  :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
         """
+        content, _ = parse_content(content)
         body = {
-            'content': parse_content(content),
+            'content': content,
             **optional_args,
         }
         return self._make_request(requests.post, '/assets', body=body)
@@ -351,8 +363,10 @@ class Client:
  :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
         """
         content = optional_args.get('content')
+
         if content:
-            optional_args['content'] = parse_content(content)
+            parsed_content, _ = parse_content(content)
+            optional_args['content'] = parsed_content
 
         return self._make_request(requests.patch, f'/assets/{asset_id}', body=optional_args)
 
@@ -526,7 +540,7 @@ class Client:
     def create_document(
             self,
             content: Content,
-            content_type: str,
+            content_type: str = None,
             *,
             consent_id: Optional[str] = None,
             batch_id: str = None,
@@ -558,9 +572,15 @@ class Client:
         :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
  :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
         """
+        content_bytes, guessed_content_type = parse_content(content, True)
+
+        if content_type and content_type != guessed_content_type:
+            logger.warning(f'The specified content type does not match the observed content type:'
+                           f' {content_type} != {guessed_content_type}')
+
         body = {
-            'content': parse_content(content),
-            'contentType': content_type,
+            'content': content_bytes,
+            'contentType': content_type or guessed_content_type,
             'consentId': consent_id,
             'batchId': batch_id,
             'datasetId': dataset_id,
