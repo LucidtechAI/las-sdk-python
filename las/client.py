@@ -572,8 +572,11 @@ class Client:
         :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
  :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
         """
-        find_content_type = not content_type
-        content_bytes, guessed_content_type = parse_content(content, find_content_type)
+        content_bytes, guessed_content_type = parse_content(content, True)
+
+        if content_type and content_type != guessed_content_type:
+            logger.warning(f'The specified content type does not match the observed content type:'
+                           f' {content_type} != {guessed_content_type}')
 
         body = {
             'content': content_bytes,
