@@ -1,4 +1,8 @@
-# Changelog 
+# Changelog
+
+## Version 3.5.0 - 2021-09-06
+
+- Added support for caching tokens. Specify use_cache = True in credentials.cfg to turn on caching. Defaults to false
 
 ## Version 3.4.1 - 2021-08-31
 
@@ -9,7 +13,7 @@
 
 - Added delete_document
 - Added create_dataset
-- Added list_datasets 
+- Added list_datasets
 - Added update_dataset
 - Added delete_dataset
 - Added optional parameter dataset_id to create_document
@@ -18,7 +22,7 @@
 - Added optional parameter dataset_id to update_document
 - Added parameter delete_all to delete_documents
 - Added create_data_bundle
-- Added list_data_bundles 
+- Added list_data_bundles
 - Added update_data_bundle
 - Added delete_data_bundle
 
@@ -30,11 +34,11 @@
 ## Version 3.3.0 - 2021-06-16
 
 - Added get_organization
-- Added update_organization 
+- Added update_organization
 
 ## Version 3.2.15 - 2021-05-27
 
-- Added delete_model 
+- Added delete_model
 
 ## Version 3.2.14 - 2021-05-25
 
