@@ -151,7 +151,7 @@ def read_from_file(credentials_path: str = expanduser('~/.lucidtech/credentials.
     api_key = config.get(section, 'api_key')
     auth_endpoint = config.get(section, 'auth_endpoint')
     api_endpoint = config.get(section, 'api_endpoint')
-    cached_profile = section if config.get(section, 'use_cache') in ['true', 'True'] else None
+    cached_profile = section if config.get(section, 'use_cache', fallback=False) in ['true', 'True'] else None
 
     return [client_id, client_secret, api_key, auth_endpoint, api_endpoint, cached_profile]
 
