@@ -1,11 +1,17 @@
 import configparser
+import json
+import logging
 import os
 import time
 from os.path import exists, expanduser
+from pathlib import Path
 from typing import List, Optional, Tuple
 
 import requests
 from requests.auth import HTTPBasicAuth
+
+
+NULL_TOKEN = '', 0
 
 
 class MissingCredentials(Exception):
@@ -26,16 +32,27 @@ class Credentials:
     :param api_endpoint: The api endpoint
     :type str:"""
 
-    def __init__(self, client_id: str, client_secret: str, api_key: str, auth_endpoint: str, api_endpoint: str):
+    def __init__(
+        self,
+        client_id: str,
+        client_secret: str,
+        api_key: str,
+        auth_endpoint: str,
+        api_endpoint: str,
+        cached_profile: str = None,
+        cache_path: Path = Path(expanduser('~/.lucidtech/token-cache.json')),
+    ):
         if not all([client_id, client_secret, api_key, auth_endpoint, api_endpoint]):
             raise MissingCredentials
 
-        self._token = ('', 0)
+        self._token = read_token_from_cache(cached_profile, cache_path) if cached_profile else NULL_TOKEN
         self.client_id = client_id
         self.client_secret = client_secret
         self.api_key = api_key
         self.auth_endpoint = auth_endpoint
         self.api_endpoint = api_endpoint
+        self.cached_profile = cached_profile
+        self.cache_path = cache_path
 
     @property
     def access_token(self) -> str:
@@ -44,6 +61,9 @@ class Credentials:
         if not access_token or time.time() > expiration:
             access_token, expiration = self._get_client_credentials()
             self._token = (access_token, expiration)
+
+            if self.cached_profile:
+                write_token_to_cache(self.cached_profile, self._token, self.cache_path)
 
         return access_token
 
@@ -57,6 +77,35 @@ class Credentials:
 
         response_data = response.json()
         return response_data['access_token'], time.time() + response_data['expires_in']
+
+
+def read_token_from_cache(cached_profile: str, cache_path: Path):
+    if not cache_path.exists():
+        return NULL_TOKEN
+
+    try:
+        cache = json.loads(cache_path.read_text())
+        return cache[cached_profile]['access_token'], cache[cached_profile]['expires_in']
+    except Exception as e:
+        logging.warning(e)
+
+    return NULL_TOKEN
+
+
+def write_token_to_cache(cached_profile, token, cache_path: Path):
+    if not cache_path.exists():
+        cache_path.parent.mkdir(parents=True, exist_ok=True)
+        cache = {}
+    else:
+        cache = json.loads(cache_path.read_text())
+
+    access_token, expires_in = token
+    cache[cached_profile] = {
+        'access_token': access_token,
+        'expires_in': expires_in,
+    }
+
+    cache_path.write_text(json.dumps(cache, indent=2))
 
 
 def read_from_environ() -> List[Optional[str]]:
@@ -75,7 +124,7 @@ def read_from_environ() -> List[Optional[str]]:
         'LAS_CLIENT_SECRET',
         'LAS_API_KEY',
         'LAS_AUTH_ENDPOINT',
-        'LAS_API_ENDPOINT'
+        'LAS_API_ENDPOINT',
     )]
 
 
@@ -102,8 +151,9 @@ def read_from_file(credentials_path: str = expanduser('~/.lucidtech/credentials.
     api_key = config.get(section, 'api_key')
     auth_endpoint = config.get(section, 'auth_endpoint')
     api_endpoint = config.get(section, 'api_endpoint')
+    cached_profile = section if config.get(section, 'use_cache') in ['true', 'True'] else None
 
-    return [client_id, client_secret, api_key, auth_endpoint, api_endpoint]
+    return [client_id, client_secret, api_key, auth_endpoint, api_endpoint, cached_profile]
 
 
 def guess_credentials() -> Credentials:

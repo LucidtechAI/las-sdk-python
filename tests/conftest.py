@@ -7,15 +7,18 @@ from las import Client
 from requests_mock import Mocker
 
 
-@pytest.fixture(scope='session', autouse=True)
-def mock_access_token_endpoint():
-    response = {
+@pytest.fixture(scope='session')
+def token():
+    return {
         'access_token': ''.join(choice(string.ascii_uppercase) for _ in range(randint(50, 50))),
         'expires_in': 123456789,
     }
 
+
+@pytest.fixture(scope='session', autouse=True)
+def mock_access_token_endpoint(token):
     with Mocker(real_http=True) as m:
-        m.post('/token', json=response)
+        m.post('/token', json=token)
         yield
 
 
