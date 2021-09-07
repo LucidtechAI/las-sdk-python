@@ -119,13 +119,17 @@ def read_from_environ() -> List[Optional[str]]:
     :return: List of client_id, client_secret, api_key, auth_endpoint, api_endpoint
     :rtype: List[Optional[str]]"""
 
-    return [os.environ.get(k) for k in (
-        'LAS_CLIENT_ID',
-        'LAS_CLIENT_SECRET',
-        'LAS_API_KEY',
-        'LAS_AUTH_ENDPOINT',
-        'LAS_API_ENDPOINT',
-    )]
+    return (
+        [os.environ.get(k) for k in (
+            'LAS_CLIENT_ID',
+            'LAS_CLIENT_SECRET',
+            'LAS_API_KEY',
+            'LAS_AUTH_ENDPOINT',
+            'LAS_API_ENDPOINT',
+        )],
+        None,
+    )
+
 
 
 def read_from_file(credentials_path: str = expanduser('~/.lucidtech/credentials.cfg'),
@@ -153,7 +157,7 @@ def read_from_file(credentials_path: str = expanduser('~/.lucidtech/credentials.
     api_endpoint = config.get(section, 'api_endpoint')
     cached_profile = section if config.get(section, 'use_cache', fallback=False) in ['true', 'True'] else None
 
-    return [client_id, client_secret, api_key, auth_endpoint, api_endpoint, cached_profile]
+    return [client_id, client_secret, api_key, auth_endpoint, api_endpoint], cached_profile
 
 
 def guess_credentials() -> Credentials:
@@ -167,7 +171,7 @@ def guess_credentials() -> Credentials:
     :raises: :py:class:`~las.MissingCredentials`"""
 
     for guesser in [read_from_environ, read_from_file]:
-        args = guesser()  # type: ignore
+        args, cached_profile = guesser()  # type: ignore
         if all(args):
-            return Credentials(*args)
+            return Credentials(*args, cached_profile=cached_profile)
     raise MissingCredentials
