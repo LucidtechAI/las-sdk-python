@@ -8,6 +8,7 @@ from las.credentials import (
     read_from_file,
     read_token_from_cache,
     write_token_to_cache,
+    guess_credentials,
 )
 
 
@@ -33,6 +34,23 @@ def credentials_path(tmp_path, section):
 @pytest.fixture(scope='function')
 def cache_path(tmp_path):
     return tmp_path / 'token-cache.json'
+
+
+def mock_read_from_environ(*args, **kwargs):
+    return ['foo', 'bar', 'baz', 'foobar', 'foobaz'], None
+
+
+def test_guess_credentials():
+    (client_id, client_secret, api_key, auth_endpoint, api_endpoint), _ = mock_read_from_environ()
+
+    with pytest.MonkeyPatch().context() as mp:
+        mp.setattr('las.credentials.read_from_environ', mock_read_from_environ)
+        credentials = guess_credentials()
+        assert client_id == credentials.client_id
+        assert client_secret == credentials.client_secret
+        assert api_key == credentials.api_key
+        assert auth_endpoint == credentials.auth_endpoint
+        assert api_endpoint == credentials.api_endpoint
 
 
 def test_read_token_from_cache(cache_path, token, section):

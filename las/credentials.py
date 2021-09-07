@@ -108,7 +108,7 @@ def write_token_to_cache(cached_profile, token, cache_path: Path):
     cache_path.write_text(json.dumps(cache, indent=2))
 
 
-def read_from_environ() -> List[Optional[str]]:
+def read_from_environ() -> Tuple[List[Optional[str]], Optional[str]]:
     """Read the following environment variables and return them:
         - LAS_CLIENT_ID
         - LAS_CLIENT_SECRET
@@ -131,9 +131,8 @@ def read_from_environ() -> List[Optional[str]]:
     )
 
 
-
 def read_from_file(credentials_path: str = expanduser('~/.lucidtech/credentials.cfg'),
-                   section: str = 'default') -> List[Optional[str]]:
+                   section: str = 'default') -> Tuple[List[Optional[str]], Optional[str]]:
     """Read a config file and return credentials from it. Defaults to '~/.lucidtech/credentials.cfg'.
 
     :param credentials_path: Path to read credentials from.
