@@ -168,6 +168,6 @@ def guess_credentials() -> Credentials:
 
     for guesser in [read_from_environ, read_from_file]:
         args = guesser()  # type: ignore
-        if all(args):
+        if all(args[:5]):
             return Credentials(*args)
     raise MissingCredentials
