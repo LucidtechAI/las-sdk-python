@@ -73,7 +73,8 @@ def test_credentials_with_empty_cache(client):
 
 def test_credentials_with_cache(cache_path, token, section):
     write_token_to_cache(section, (token['access_token'], token['expires_in']), cache_path)
-    credentials = Credentials(*read_from_environ(), cached_profile=section, cache_path=cache_path)
+    args, _ = read_from_environ()
+    credentials = Credentials(*args, cached_profile=section, cache_path=cache_path)
     assert credentials._token == (token['access_token'], token['expires_in'])
     assert credentials.cached_profile == section
 
@@ -81,9 +82,9 @@ def test_credentials_with_cache(cache_path, token, section):
 def test_read_from_file_with_cache(credentials_path, section, token, cache_path):
     write_token_to_cache(section, (token['access_token'], token['expires_in']), cache_path)
     credentials_path.write_text(credentials_path.read_text() + '\nuse_cache = true')
-    args = read_from_file(str(credentials_path), section)
+    args, cached_profile = read_from_file(str(credentials_path), section)
 
-    credentials = Credentials(*args, cache_path=cache_path)
+    credentials = Credentials(*args, cached_profile=cached_profile, cache_path=cache_path)
     assert credentials.cached_profile == section
     assert credentials._token == (token['access_token'], token['expires_in'])
 
@@ -91,7 +92,7 @@ def test_read_from_file_with_cache(credentials_path, section, token, cache_path)
 def test_read_from_file_with_no_cache(credentials_path, section, token, cache_path):
     write_token_to_cache(section, (token['access_token'], token['expires_in']), cache_path)
     credentials_path.write_text(credentials_path.read_text() + '\nuse_cache = false')
-    args = read_from_file(str(credentials_path), section)
+    args, _ = read_from_file(str(credentials_path), section)
 
     credentials = Credentials(*args, cache_path=cache_path)
     assert credentials.cached_profile is None
@@ -100,7 +101,7 @@ def test_read_from_file_with_no_cache(credentials_path, section, token, cache_pa
 
 def test_read_from_file_without_cache(credentials_path, section, token, cache_path):
     write_token_to_cache(section, (token['access_token'], token['expires_in']), cache_path)
-    args = read_from_file(str(credentials_path), section)
+    args, _ = read_from_file(str(credentials_path), section)
 
     credentials = Credentials(*args, cache_path=cache_path)
     assert credentials.cached_profile is None
