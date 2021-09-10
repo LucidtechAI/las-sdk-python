@@ -25,8 +25,6 @@ class Credentials:
     :type str:
     :param client_secret: The client secret
     :type str:
-    :param api_key: The api key
-    :type str:
     :param auth_endpoint: The auth endpoint
     :type str:
     :param api_endpoint: The api endpoint
@@ -36,19 +34,17 @@ class Credentials:
         self,
         client_id: str,
         client_secret: str,
-        api_key: str,
         auth_endpoint: str,
         api_endpoint: str,
         cached_profile: str = None,
         cache_path: Path = Path(expanduser('~/.lucidtech/token-cache.json')),
     ):
-        if not all([client_id, client_secret, api_key, auth_endpoint, api_endpoint]):
+        if not all([client_id, client_secret, auth_endpoint, api_endpoint]):
             raise MissingCredentials
 
         self._token = read_token_from_cache(cached_profile, cache_path) if cached_profile else NULL_TOKEN
         self.client_id = client_id
         self.client_secret = client_secret
-        self.api_key = api_key
         self.auth_endpoint = auth_endpoint
         self.api_endpoint = api_endpoint
         self.cached_profile = cached_profile
@@ -112,17 +108,15 @@ def read_from_environ() -> List[Optional[str]]:
     """Read the following environment variables and return them:
         - LAS_CLIENT_ID
         - LAS_CLIENT_SECRET
-        - LAS_API_KEY
         - LAS_AUTH_ENDPOINT
         - LAS_API_ENDPOINT
 
-    :return: List of client_id, client_secret, api_key, auth_endpoint, api_endpoint
+    :return: List of client_id, client_secret, auth_endpoint, api_endpoint
     :rtype: List[Optional[str]]"""
 
     return [os.environ.get(k) for k in (
         'LAS_CLIENT_ID',
         'LAS_CLIENT_SECRET',
-        'LAS_API_KEY',
         'LAS_AUTH_ENDPOINT',
         'LAS_API_ENDPOINT',
     )]
@@ -137,7 +131,7 @@ def read_from_file(credentials_path: str = expanduser('~/.lucidtech/credentials.
     :param section: Section to read credentials from.
     :type section: str
 
-    :return: List of client_id, client_secret, api_key, auth_endpoint, api_endpoint
+    :return: List of client_id, client_secret, auth_endpoint, api_endpoint
     :rtype: List[Optional[str]]"""
 
     if not exists(credentials_path):
@@ -148,12 +142,11 @@ def read_from_file(credentials_path: str = expanduser('~/.lucidtech/credentials.
 
     client_id = config.get(section, 'client_id')
     client_secret = config.get(section, 'client_secret')
-    api_key = config.get(section, 'api_key')
     auth_endpoint = config.get(section, 'auth_endpoint')
     api_endpoint = config.get(section, 'api_endpoint')
     cached_profile = section if config.get(section, 'use_cache', fallback=False) in ['true', 'True'] else None
 
-    return [client_id, client_secret, api_key, auth_endpoint, api_endpoint, cached_profile]
+    return [client_id, client_secret, auth_endpoint, api_endpoint, cached_profile]
 
 
 def guess_credentials() -> Credentials:
@@ -168,6 +161,6 @@ def guess_credentials() -> Credentials:
 
     for guesser in [read_from_environ, read_from_file]:
         args = guesser()  # type: ignore
-        if all(args[:5]):
+        if all(args[:4]):
             return Credentials(*args)
     raise MissingCredentials

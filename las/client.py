@@ -163,7 +163,6 @@ class Client:
         uri = urlparse(f'{self.endpoint}{signing_path}')
         headers = {
             'Authorization': f'Bearer {self.credentials.access_token}',
-            'X-Api-Key': self.credentials.api_key,
             'Content-Type': 'application/json',
         }
         response = requests_fn(
@@ -502,6 +501,19 @@ class Client:
         }
         return self._make_request(requests.get, '/datasets', params=params)
 
+    def get_dataset(self, dataset_id: str) -> Dict:
+        """Get dataset, calls the GET /datasets/{datasetId} endpoint.
+
+        :param dataset_id: Id of the dataset
+        :type dataset_id: str
+        :return: Dataset response from REST API
+        :rtype: dict
+
+        :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
+ :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
+        """
+        return self._make_request(requests.get, f'/datasets/{dataset_id}')
+
     def update_dataset(self, dataset_id, **optional_args) -> Dict:
         """Updates a dataset, calls the PATCH /datasets/{datasetId} endpoint.
 
@@ -538,14 +550,15 @@ class Client:
         return self._make_request(requests.delete, f'/datasets/{dataset_id}')
 
     def create_document(
-            self,
-            content: Content,
-            content_type: str = None,
-            *,
-            consent_id: Optional[str] = None,
-            batch_id: str = None,
-            dataset_id: str = None,
-            ground_truth: Sequence[Dict[str, str]] = None,
+        self,
+        content: Content,
+        content_type: str = None,
+        *,
+        consent_id: Optional[str] = None,
+        batch_id: str = None,
+        dataset_id: str = None,
+        ground_truth: Sequence[Dict[str, str]] = None,
+        retention_in_days: int = None,
     ) -> Dict:
         """Creates a document, calls the POST /documents endpoint.
 
@@ -585,6 +598,7 @@ class Client:
             'batchId': batch_id,
             'datasetId': dataset_id,
             'groundTruth': ground_truth,
+            'retentionInDays': retention_in_days,
         }
         return self._make_request(requests.post, '/documents', body=dictstrip(body))
 
