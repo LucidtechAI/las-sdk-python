@@ -1,5 +1,14 @@
 # Changelog
 
+## Version 4.0.0 - 2021-09-10
+
+- Added get_dataset
+- Remove API key from credentials
+
+### Breaking changes
+- Credentials does no longer use the api_key to access the API.
+
+
 ## Version 3.5.0 - 2021-09-06
 
 - Added support for caching tokens. Specify use_cache = True in credentials.cfg to turn on caching. Defaults to false
