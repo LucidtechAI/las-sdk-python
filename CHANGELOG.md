@@ -6,7 +6,7 @@
 - Remove API key from credentials
 
 ### Breaking changes
--  Credentials does no longer use the api_key to access the API.
+- Credentials does no longer use the api_key to access the API.
 
 
 ## Version 3.5.0 - 2021-09-06
