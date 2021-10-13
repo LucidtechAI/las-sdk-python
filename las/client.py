@@ -386,87 +386,6 @@ class Client:
         """
         return self._make_request(requests.delete, f'/assets/{asset_id}')
 
-    def create_batch(self, **optional_args) -> Dict:
-        """Creates a batch, calls the POST /batches endpoint.
-
-        >>> from las.client import Client
-        >>> client = Client()
-        >>> client.create_batch(description='<description>')
-
-        :param name: Name of the batch
-        :type name: Optional[str]
-        :param description: Description of the batch
-        :type description: Optional[str]
-        :return: Batch response from REST API
-        :rtype: dict
-
-        :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
- :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
-        """
-        return self._make_request(requests.post, '/batches', body=optional_args)
-
-    def list_batches(self, *, max_results: Optional[int] = None, next_token: Optional[str] = None) -> Dict:
-        """List batches available, calls the GET /batches endpoint.
-
-        >>> from las.client import Client
-        >>> client = Client()
-        >>> client.list_batches()
-
-        :param max_results: Maximum number of results to be returned
-        :type max_results: Optional[int]
-        :param next_token: A unique token for each page, use the returned token to retrieve the next page.
-        :type next_token: Optional[str]
-        :return: Batches response from REST API without the content of each batch
-        :rtype: dict
-
-        :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
- :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
-        """
-        params = {
-            'maxResults': max_results,
-            'nextToken': next_token,
-        }
-        return self._make_request(requests.get, '/batches', params=params)
-
-    def update_batch(self, batch_id, **optional_args) -> Dict:
-        """Updates a batch, calls the PATCH /batches/{batchId} endpoint.
-
-        :param batch_id: Id of the batch
-        :type batch_id: str
-        :param name: Name of the batch
-        :type name: Optional[str]
-        :param description: Description of the batch
-        :type description: Optional[str]
-        :return: Batch response from REST API
-        :rtype: dict
-
-        :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
- :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
-        """
-        return self._make_request(requests.patch, f'/batches/{batch_id}', body=optional_args)
-
-    def delete_batch(self, batch_id: str, delete_documents=False) -> Dict:
-        """Delete the batch with the provided batch_id, calls the DELETE /batches/{batchId} endpoint.
-
-        >>> from las.client import Client
-        >>> client = Client()
-        >>> client.delete_batch('<batch_id>')
-
-        :param batch_id: Id of the batch
-        :type batch_id: str
-        :param delete_documents: Set to true to delete documents in batch before deleting batch
-        :type delete_documents: bool
-        :return: Batch response from REST API
-        :rtype: dict
-
-        :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
- :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
-        """
-        if delete_documents:
-            self.delete_documents(batch_id=batch_id, delete_all=True)
-
-        return self._make_request(requests.delete, f'/batches/{batch_id}')
-
     def create_dataset(self, **optional_args) -> Dict:
         """Creates a dataset, calls the POST /datasets endpoint.
 
@@ -555,7 +474,6 @@ class Client:
         content_type: str = None,
         *,
         consent_id: Optional[str] = None,
-        batch_id: str = None,
         dataset_id: str = None,
         ground_truth: Sequence[Dict[str, str]] = None,
         retention_in_days: int = None,
@@ -572,8 +490,6 @@ class Client:
         :type content_type: str
         :param consent_id: Id of the consent that marks the owner of the document
         :type consent_id: Optional[str]
-        :param batch_id: Id of the associated batch
-        :type batch_id: Optional[str]
         :param dataset_id: Id of the associated dataset
         :type dataset_id: Optional[str]
         :param ground_truth: List of items {'label': label, 'value': value}
@@ -595,7 +511,6 @@ class Client:
             'content': content_bytes,
             'contentType': content_type or guessed_content_type,
             'consentId': consent_id,
-            'batchId': batch_id,
             'datasetId': dataset_id,
             'groundTruth': ground_truth,
             'retentionInDays': retention_in_days,
@@ -605,7 +520,6 @@ class Client:
     def list_documents(
         self,
         *,
-        batch_id: Optional[Queryparam] = None,
         consent_id: Optional[Queryparam] = None,
         dataset_id: Optional[Queryparam] = None,
         max_results: Optional[int] = None,
@@ -615,10 +529,8 @@ class Client:
 
         >>> from las.client import Client
         >>> client = Client()
-        >>> client.list_documents(batch_id='<batch_id>', consent_id='<consent_id>')
+        >>> client.list_documents(consent_id='<consent_id>')
 
-        :param batch_id: Ids of batches that contains the documents of interest
-        :type batch_id: Optional[Queryparam]
         :param consent_id: Ids of the consents that marks the owner of the document
         :type consent_id: Optional[Queryparam]
         :param dataset_id: Ids of datasets that contains the documents of interest
@@ -634,7 +546,6 @@ class Client:
  :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
         """
         params = {
-            'batchId': batch_id,
             'consentId': consent_id,
             'datasetId': dataset_id,
             'maxResults': max_results,
@@ -645,7 +556,6 @@ class Client:
     def delete_documents(
         self,
         *,
-        batch_id: Optional[Queryparam] = None,
         consent_id: Optional[Queryparam] = None,
         dataset_id: Optional[Queryparam] = None,
         max_results: Optional[int] = None,
@@ -658,8 +568,6 @@ class Client:
         >>> client = Client()
         >>> client.delete_documents(consent_id='<consent id>')
 
-        :param batch_id: Ids of the batches to be deleted
-        :type batch_id: Optional[Queryparam]
         :param consent_id: Ids of the consents that marks the owner of the document
         :type consent_id: Optional[Queryparam]
         :param dataset_id: Ids of the datasets to be deleted
@@ -678,7 +586,6 @@ class Client:
  :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
         """
         params = dictstrip({
-            'batchId': batch_id,
             'consentId': consent_id,
             'datasetId': dataset_id,
             'nextToken': next_token,
