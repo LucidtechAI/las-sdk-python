@@ -1,5 +1,9 @@
 # Changelog
 
+## Version 5.0.0 - 2021-10-13
+
+- Remove all support for batches
+
 ## Version 4.0.0 - 2021-09-10
 
 - Added get_dataset
