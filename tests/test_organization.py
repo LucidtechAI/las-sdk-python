@@ -30,8 +30,6 @@ def assert_organization(response):
     assert 'numberOfAppClientsCreated' in response, 'Missing numberOfAppClientsCreated in response'
     assert 'numberOfAssetsAllowed' in response, 'Missing numberOfAssetsAllowed in response'
     assert 'numberOfAssetsCreated' in response, 'Missing numberOfAssetsCreated in response'
-    assert 'numberOfBatchesAllowed' in response, 'Missing numberOfBatchesAllowed in response'
-    assert 'numberOfBatchesCreated' in response, 'Missing numberOfBatchesCreated in response'
     assert 'numberOfModelsAllowed' in response, 'Missing numberOfModelsAllowed in response'
     assert 'numberOfModelsCreated' in response, 'Missing numberOfModelsCreated in response'
     assert 'numberOfSecretsAllowed' in response, 'Missing numberOfSecretsAllowed in response'
