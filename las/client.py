@@ -494,7 +494,7 @@ class Client:
         :type dataset_id: str, optional
         :param ground_truth: List of items {'label': label, 'value': value}
         representing the ground truth values for the document
-        :type ground_truth: Optional[Sequence[Dict[str, str]]]
+        :type ground_truth: Sequence [ Dict [ str, Union [ str, bool ]  ] ], optional
         :return: Document response from REST API
         :rtype: dict
 
@@ -641,7 +641,7 @@ class Client:
         :param dataset_id: Id of the dataset you want to associate your document with
         :type dataset_id: str, optional
         :param ground_truth: List of items {label: value} representing the ground truth values for the document
-        :type ground_truth: Optional[Sequence[Dict[str, Union[Optional[str], bool]]]]
+        :type ground_truth: Sequence [ Dict [ str, Union [ str, bool ]  ] ], optional
         :return: Document response from REST API
         :rtype: dict
 
