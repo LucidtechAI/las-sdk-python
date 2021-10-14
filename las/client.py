@@ -188,9 +188,9 @@ class Client:
         >>> client.create_app_client(name='<name>', description='<description>')
 
         :param name: Name of the appClient
-        :type name: Optional[str]
+        :type name: str, optional
         :param description: Description of the appClient
-        :type description: Optional[str]
+        :type description: str, optional
         :param generate_secret: Set to False to ceate a Public app client, default: True
         :type generate_secret: Boolean
         :param logout_urls: List of logout urls
@@ -225,9 +225,9 @@ class Client:
         >>> client.list_app_clients()
 
         :param max_results: Maximum number of results to be returned
-        :type max_results: Optional[int]
+        :type max_results: int, optional
         :param next_token: A unique token for each page, use the returned token to retrieve the next page.
-        :type next_token: Optional[str]
+        :type next_token: str, optional
         :return: AppClients response from REST API without the content of each appClient
         :rtype: dict
 
@@ -246,9 +246,9 @@ class Client:
         :param app_client_id: Id of the appClient
         :type app_client_id: str
         :param name: Name of the appClient
-        :type name: Optional[str]
+        :type name: str, optional
         :param description: Description of the appClient
-        :type description: Optional[str]
+        :type description: str, optional
         :return: AppClient response from REST API
         :rtype: dict
 
@@ -284,9 +284,9 @@ class Client:
         :param content: Content to POST
         :type content: Content
         :param name: Name of the asset
-        :type name: Optional[str]
+        :type name: str, optional
         :param description: Description of the asset
-        :type description: Optional[str]
+        :type description: str, optional
         :return: Asset response from REST API
         :rtype: dict
 
@@ -308,9 +308,9 @@ class Client:
         >>> client.list_assets()
 
         :param max_results: Maximum number of results to be returned
-        :type max_results: Optional[int]
+        :type max_results: int, optional
         :param next_token: A unique token for each page, use the returned token to retrieve the next page.
-        :type next_token: Optional[str]
+        :type next_token: str, optional
         :return: Assets response from REST API without the content of each asset
         :rtype: dict
 
@@ -350,11 +350,11 @@ class Client:
         :param asset_id: Id of the asset
         :type asset_id: str
         :param content: Content to PATCH
-        :type content: Optional[Content]
+        :type content: Content, optional
         :param name: Name of the asset
-        :type name: Optional[str]
+        :type name: str, optional
         :param description: Description of the asset
-        :type description: Optional[str]
+        :type description: str, optional
         :return: Asset response from REST API
         :rtype: dict
 
@@ -390,9 +390,9 @@ class Client:
         """Creates a dataset, calls the POST /datasets endpoint.
 
         :param name: Name of the dataset
-        :type name: Optional[str]
+        :type name: str, optional
         :param description: Description of the dataset
-        :type description: Optional[str]
+        :type description: str, optional
         :return: Dataset response from REST API
         :rtype: dict
 
@@ -405,9 +405,9 @@ class Client:
         """List datasets available, calls the GET /datasets endpoint.
 
         :param max_results: Maximum number of results to be returned
-        :type max_results: Optional[int]
+        :type max_results: int, optional
         :param next_token: A unique token for each page, use the returned token to retrieve the next page.
-        :type next_token: Optional[str]
+        :type next_token: str, optional
         :return: Datasets response from REST API without the content of each dataset
         :rtype: dict
 
@@ -439,9 +439,9 @@ class Client:
         :param dataset_id: Id of the dataset
         :type dataset_id: str
         :param name: Name of the dataset
-        :type name: Optional[str]
+        :type name: str, optional
         :param description: Description of the dataset
-        :type description: Optional[str]
+        :type description: str, optional
         :return: Dataset response from REST API
         :rtype: dict
 
@@ -489,12 +489,12 @@ class Client:
         :param content_type: MIME type for the document
         :type content_type: str
         :param consent_id: Id of the consent that marks the owner of the document
-        :type consent_id: Optional[str]
+        :type consent_id: str, optional
         :param dataset_id: Id of the associated dataset
-        :type dataset_id: Optional[str]
+        :type dataset_id: str, optional
         :param ground_truth: List of items {'label': label, 'value': value}
         representing the ground truth values for the document
-        :type ground_truth: Optional[Sequence[Dict[str, str]]]
+        :type ground_truth: Sequence [ Dict [ str, Union [ str, bool ]  ] ], optional
         :return: Document response from REST API
         :rtype: dict
 
@@ -532,13 +532,13 @@ class Client:
         >>> client.list_documents(consent_id='<consent_id>')
 
         :param consent_id: Ids of the consents that marks the owner of the document
-        :type consent_id: Optional[Queryparam]
+        :type consent_id: Queryparam, optional
         :param dataset_id: Ids of datasets that contains the documents of interest
-        :type dataset_id: Optional[Queryparam]
+        :type dataset_id: Queryparam, optional
         :param max_results: Maximum number of results to be returned
-        :type max_results: Optional[int]
+        :type max_results: int, optional
         :param next_token: A unique token for each page, use the returned token to retrieve the next page.
-        :type next_token: Optional[str]
+        :type next_token: str, optional
         :return: Documents response from REST API
         :rtype: dict
 
@@ -569,16 +569,16 @@ class Client:
         >>> client.delete_documents(consent_id='<consent id>')
 
         :param consent_id: Ids of the consents that marks the owner of the document
-        :type consent_id: Optional[Queryparam]
+        :type consent_id: Queryparam, optional
         :param dataset_id: Ids of the datasets to be deleted
-        :type dataset_id: Optional[Queryparam]
+        :type dataset_id: Queryparam, optional
         :param max_results: Maximum number of documents that will be deleted
-        :type max_results: Optional[int]
+        :type max_results: int, optional
         :param next_token: A unique token for each page, use the returned token to retrieve the next page.
-        :type next_token: Optional[str]
+        :type next_token: str, optional
         :param delete_all: Delete all documents that match the given parameters doing multiple API calls if necessary.
         Will throw an error if parameter max_results is also specified.
-        :type delete_all: Optional[bool]
+        :type delete_all: bool, optional
         :return: Documents response from REST API
         :rtype: dict
 
@@ -639,9 +639,9 @@ class Client:
         :param document_id: Id of the document
         :type document_id: str
         :param dataset_id: Id of the dataset you want to associate your document with
-        :type dataset_id: Optional[str]
+        :type dataset_id: str, optional
         :param ground_truth: List of items {label: value} representing the ground truth values for the document
-        :type ground_truth: Optional[Sequence[Dict[str, Union[Optional[str], bool]]]]
+        :type ground_truth: Sequence [ Dict [ str, Union [ str, bool ]  ] ], optional
         :return: Document response from REST API
         :rtype: dict
 
@@ -688,17 +688,17 @@ class Client:
         >>> client.list_logs()
 
         :param workflow_id: Only show logs from this workflow
-        :type workflow_id: Optional[str]
+        :type workflow_id: str, optional
         :param workflow_execution_id: Only show logs from this workflow execution
-        :type workflow_execution_id: Optional[str]
+        :type workflow_execution_id: str, optional
         :param transition_id: Only show logs from this transition
-        :type transition_id: Optional[str]
+        :type transition_id: str, optional
         :param transition_execution_id: Only show logs from this transition execution
-        :type transition_execution_id: Optional[str]
+        :type transition_execution_id: str, optional
         :param max_results: Maximum number of results to be returned
-        :type max_results: Optional[int]
+        :type max_results: int, optional
         :param next_token: A unique token for each page, use the returned token to retrieve the next page.
-        :type next_token: Optional[str]
+        :type next_token: str, optional
         :return: Logs response from REST API
         :rtype: dict
 
@@ -756,9 +756,9 @@ class Client:
         :param preprocess_config: Specification of the processing steps prior to the prediction of an image
         :type preprocess_config: dict
         :param name: Name of the model
-        :type name: Optional[str]
+        :type name: str, optionalQ
         :param description: Description of the model
-        :type description: Optional[str]
+        :type description: str, optional
         :return: Model response from REST API
         :rtype: dict
 
@@ -784,9 +784,9 @@ class Client:
         >>> client.list_models()
 
         :param max_results: Maximum number of results to be returned
-        :type max_results: Optional[int]
+        :type max_results: int, optional
         :param next_token: A unique token for each page, use the returned token to retrieve the next page.
-        :type next_token: Optional[str]
+        :type next_token: str, optional
         :return: Models response from REST API without the content of each model
         :rtype: dict
 
@@ -826,21 +826,21 @@ class Client:
         """Updates a model, calls the PATCH /models/{modelId} endpoint.
 
         :param model_id: The Id of the model
-        :type model_id: Optional[str]
+        :type model_id: str, optional
         :param width: The number of pixels to be used for the input image width of your model
-        :type width: Optional[int]
+        :type width: int, optional
         :param height: The number of pixels to be used for the input image height of your model
-        :type height: Optional[int]
+        :type height: int, optional
         :param field_config: Specification of the fields that the model is going to predict
         :type field_config: dict
         :param preprocess_config: Specification of the processing steps prior to the prediction of an image
         :type preprocess_config: dict
         :param status: New status for the model
-        :type status: Optional[str]
+        :type status: str, optional
         :param name: Name of the model
-        :type name: Optional[str]
+        :type name: str, optional
         :param description: Description of the model
-        :type description: Optional[str]
+        :type description: str, optional
         :return: Model response from REST API
         :rtype: dict
 
@@ -882,9 +882,9 @@ class Client:
         :param dataset_ids: Dataset Ids that will be included in the data bundle
         :type dataset_ids: List[str]
         :param name: Name of the data bundle
-        :type name: Optional[str]
+        :type name: str, optional
         :param description: Description of the data bundle
-        :type description: Optional[str]
+        :type description: str, optional
         :return: Data Bundle response from REST API
         :rtype: dict
 
@@ -908,9 +908,9 @@ class Client:
         :param model_id: Id of the model
         :type model_id: str
         :param max_results: Maximum number of results to be returned
-        :type max_results: Optional[int]
+        :type max_results: int, optional
         :param next_token: A unique token for each page, use the returned token to retrieve the next page.
-        :type next_token: Optional[str]
+        :type next_token: str, optional
         :return: Data Bundles response from REST API
         :rtype: dict
 
@@ -936,9 +936,9 @@ class Client:
         :param data_bundle_id: Id of the data bundle
         :type data_bundle_id: str
         :param name: Name of the data bundle
-        :type name: Optional[str]
+        :type name: str, optional
         :param description: Description of the data bundle
-        :type description: Optional[str]
+        :type description: str, optional
         :return: Data Bundle response from REST API
         :rtype: dict
 
@@ -984,11 +984,11 @@ class Client:
         """Updates an organization, calls the PATCH /organizations/{organizationId} endpoint.
 
         :param organization_id: The Id of the organization
-        :type organization_id: Optional[str]
+        :type organization_id: str, optional
         :param name: Name of the organization
-        :type name: Optional[str]
+        :type name: str, optional
         :param description: Description of the organization
-        :type description: Optional[str]
+        :type description: str, optional
         :return: Organization response from REST API
         :rtype: dict
 
@@ -1017,13 +1017,13 @@ class Client:
         :param model_id: Id of the model to use for inference
         :type model_id: str
         :param max_pages: Maximum number of pages to run predictions on
-        :type max_pages: Optional[int]
+        :type max_pages: int, optional
         :param auto_rotate: Whether or not to let the API try different rotations on\
             the document when running predictions
-        :type auto_rotate: Optional[bool]
+        :type auto_rotate: bool, optional
         :param image_quality: image quality for prediction "LOW|HIGH". \
             high quality could give better result but will also take longer time.
-        :type image_quality: Optional[int]
+        :type image_quality: int, optional
         :return: Prediction response from REST API
         :rtype: dict
 
@@ -1047,9 +1047,9 @@ class Client:
         >>> client.list_predictions()
 
         :param max_results: Maximum number of results to be returned
-        :type max_results: Optional[int]
+        :type max_results: int, optional
         :param next_token: A unique token for each page, use the returned token to retrieve the next page.
-        :type next_token: Optional[str]
+        :type next_token: str, optional
         :return: Predictions response from REST API without the content of each prediction
         :rtype: dict
 
@@ -1073,9 +1073,9 @@ class Client:
         :param data: Dict containing the data you want to keep secret
         :type data: str
         :param name: Name of the secret
-        :type name: Optional[str]
+        :type name: str, optional
         :param description: Description of the secret
-        :type description: Optional[str]
+        :type description: str, optional
         :return: Secret response from REST API
         :rtype: dict
 
@@ -1096,9 +1096,9 @@ class Client:
         >>> client.list_secrets()
 
         :param max_results: Maximum number of results to be returned
-        :type max_results: Optional[int]
+        :type max_results: int, optional
         :param next_token: A unique token for each page, use the returned token to retrieve the next page.
-        :type next_token: Optional[str]
+        :type next_token: str, optional
         :return: Secrets response from REST API without the username of each secret
         :rtype: dict
 
@@ -1122,11 +1122,11 @@ class Client:
         :param secret_id: Id of the secret
         :type secret_id: str
         :param data: Dict containing the data you want to keep secret
-        :type data: Optional[dict]
+        :type data: dict, optional
         :param name: Name of the secret
-        :type name: Optional[str]
+        :type name: str, optional
         :param description: Description of the secret
-        :type description: Optional[str]
+        :type description: str, optional
         :return: Secret response from REST API
         :rtype: dict
 
@@ -1185,15 +1185,15 @@ class Client:
         :param transition_type: Type of transition "docker"|"manual"
         :type transition_type: str
         :param in_schema: Json-schema that defines the input to the transition
-        :type in_schema: Optional[dict]
+        :type in_schema: dict, optional
         :param out_schema: Json-schema that defines the output of the transition
-        :type out_schema: Optional[dict]
+        :type out_schema: dict, optional
         :param name: Name of the transition
-        :type name: Optional[str]
+        :type name: str, optional
         :param parameters: Parameters to the corresponding transition type
-        :type parameters: Optional[dict]
+        :type parameters: dict, optional
         :param description: Description of the transition
-        :type description: Optional[str]
+        :type description: str, optional
         :return: Transition response from REST API
         :rtype: dict
 
@@ -1223,11 +1223,11 @@ class Client:
         >>> client.list_transitions('<transition_type>')
 
         :param transition_type: Types of transitions
-        :type transition_type: Optional[Queryparam]
+        :type transition_type: Queryparam, optional
         :param max_results: Maximum number of results to be returned
-        :type max_results: Optional[int]
+        :type max_results: int, optional
         :param next_token: A unique token for each page, use the returned token to retrieve the next page.
-        :type next_token: Optional[str]
+        :type next_token: str, optional
         :return: Transitions response from REST API
         :rtype: dict
 
@@ -1281,20 +1281,20 @@ class Client:
         :param transition_id: Id of the transition
         :type transition_id: str
         :param name: Name of the transition
-        :type name: Optional[str]
+        :type name: str, optional
         :param description: Description of the transition
-        :type description: Optional[str]
+        :type description: str, optional
         :param in_schema: Json-schema that defines the input to the transition
-        :type in_schema: Optional[dict]
+        :type in_schema: dict, optional
         :param out_schema: Json-schema that defines the output of the transition
-        :type out_schema: Optional[dict]
+        :type out_schema: dict, optional
         :param assets: A dictionary where the values are assetIds that can be used in a manual transition
-        :type assets: Optional[dict]
+        :type assets: dict, optional
         :param environment: Environment variables to use for a docker transition
-        :type environment: Optional[dict]
+        :type environment: dict, optional
         :param environment_secrets:
         A list of secretIds that contains environment variables to use for a docker transition
-        :type environment_secrets: Optional[list]
+        :type environment_secrets: list, optional
         :return: Transition response from REST API
         :rtype: dict
 
@@ -1367,17 +1367,17 @@ class Client:
         :param transition_id: Id of the transition
         :type transition_id: str
         :param status: Statuses of the executions
-        :type status: Optional[Queryparam]
+        :type status: Queryparam, optional
         :param order: Order of the executions, either 'ascending' or 'descending'
-        :type order: Optional[str]
+        :type order: str, optional
         :param sort_by: the sorting variable of the executions, either 'endTime', or 'startTime'
-        :type sort_by: Optional[str]
+        :type sort_by: str, optional
         :param execution_id: Ids of the executions
-        :type execution_id: Optional[Queryparam]
+        :type execution_id: Queryparam, optional
         :param max_results: Maximum number of results to be returned
-        :type max_results: Optional[int]
+        :type max_results: int, optional
         :param next_token: A unique token for each page, use the returned token to retrieve the next page.
-        :type next_token: Optional[str]
+        :type next_token: str, optional
         :return: Transition executions responses from REST API
         :rtype: dict
 
@@ -1442,11 +1442,11 @@ class Client:
         :param status: Status of the execution 'succeeded|failed'
         :type status: str
         :param output: Output from the execution, required when status is 'succeded'
-        :type output: Optional[dict]
+        :type output: dict, optional
         :param error: Error from the execution, required when status is 'failed', needs to contain 'message'
-        :type error: Optional[dict]
+        :type error: dict, optional
         :param start_time: start time that will replace the original start time of the execution
-        :type start_time: Optional[str]
+        :type start_time: str, optional
         :return: Transition execution response from REST API
         :rtype: dict
 
@@ -1499,9 +1499,9 @@ class Client:
         :param email: Email to the new user
         :type email: str
         :param name: Name of the user
-        :type name: Optional[str]
+        :type name: str, optional
         :param avatar: base64 encoded JPEG avatar of the user
-        :type avatar: Optional[str]
+        :type avatar: str, optional
         :return: User response from REST API
         :rtype: dict
 
@@ -1523,9 +1523,9 @@ class Client:
         >>> client.list_users()
 
         :param max_results: Maximum number of results to be returned
-        :type max_results: Optional[int]
+        :type max_results: int, optional
         :param next_token: A unique token for each page, use the returned token to retrieve the next page.
-        :type next_token: Optional[str]
+        :type next_token: str, optional
         :return: Users response from REST API
         :rtype: dict
 
@@ -1565,9 +1565,9 @@ class Client:
         :param user_id: Id of the user
         :type user_id: str
         :param name: Name of the user
-        :type name: Optional[str]
+        :type name: str, optional
         :param avatar: base64 encoded JPEG avatar of the user
-        :type avatar: Optional[str]
+        :type avatar: str, optional
         :return: User response from REST API
         :rtype: dict
 
@@ -1616,13 +1616,13 @@ class Client:
             currently supporting ASL: https://states-language.net/spec.html
         :type specification: dict
         :param name: Name of the workflow
-        :type name: Optional[str]
+        :type name: str, optional
         :param description: Description of the workflow
-        :type description: Optional[str]
+        :type description: str, optional
         :param error_config: Configuration of error handler
-        :type error_config: Optional[dict]
+        :type error_config: dict, optional
         :param completed_config: Configuration of a job to run whenever a workflow execution ends
-        :type completed_config: Optional[dict]
+        :type completed_config: dict, optional
         :return: Workflow response from REST API
         :rtype: dict
 
@@ -1646,9 +1646,9 @@ class Client:
         >>> client.list_workflows()
 
         :param max_results: Maximum number of results to be returned
-        :type max_results: Optional[int]
+        :type max_results: int, optional
         :param next_token: A unique token for each page, use the returned token to retrieve the next page.
-        :type next_token: Optional[str]
+        :type next_token: str, optional
         :return: Workflows response from REST API
         :rtype: dict
 
@@ -1697,13 +1697,13 @@ class Client:
         :param workflow_id: Id of the workflow
         :type name: str
         :param name: Name of the workflow
-        :type name: Optional[str]
+        :type name: str, optional
         :param description: Description of the workflow
-        :type description: Optional[str]
+        :type description: str, optional
         :param error_config: Configuration of error handler
-        :type error_config: Optional[dict]
+        :type error_config: dict, optional
         :param completed_config: Configuration of a job to run whenever a workflow execution ends
-        :type completed_config: Optional[dict]
+        :type completed_config: dict, optional
         :return: Workflow response from REST API
         :rtype: dict
 
@@ -1775,15 +1775,15 @@ class Client:
         :param workflow_id: Id of the workflow
         :type workflow_id: str
         :param order: Order of the executions, either 'ascending' or 'descending'
-        :type order: Optional[str]
+        :type order: str, optional
         :param sort_by: the sorting variable of the executions, either 'endTime', or 'startTime'
-        :type sort_by: Optional[str]
+        :type sort_by: str, optional
         :param status: Statuses of the executions
-        :type status: Optional[Queryparam]
+        :type status: Queryparam, optional
         :param max_results: Maximum number of results to be returned
-        :type max_results: Optional[int]
+        :type max_results: int, optional
         :param next_token: A unique token for each page, use the returned token to retrieve the next page.
-        :type next_token: Optional[str]
+        :type next_token: str, optional
         :return: Workflow executions responses from REST API
         :rtype: dict
 
