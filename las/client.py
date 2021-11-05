@@ -1028,9 +1028,9 @@ class Client:
         :param postprocess_config: Post processing configuration for prediction.
             {
                 'strategy': 'BEST_FIRST' | 'BEST_N_PAGES',  (required)
-                'parameters': {                             (required if strategy=BEST_N_PAGES)
-                    'n': int,                               (required if strategy=BEST_N_PAGES)
-                    'collapse': True | False                (optional if strategy=BEST_N_PAGES)
+                'parameters': {                             (required if strategy=BEST_N_PAGES, omit otherwise)
+                    'n': int,                               (required if strategy=BEST_N_PAGES, omit otherwise)
+                    'collapse': True | False                (optional if strategy=BEST_N_PAGES, omit otherwise)
                 }
             }
             Examples:
