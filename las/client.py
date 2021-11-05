@@ -1005,6 +1005,7 @@ class Client:
         max_pages: Optional[int] = None,
         auto_rotate: Optional[bool] = None,
         image_quality: Optional[str] = None,
+        postprocess_config: Optional[dict] = None,
     ) -> Dict:
         """Create a prediction on a document using specified model, calls the POST /predictions endpoint.
 
@@ -1021,9 +1022,22 @@ class Client:
         :param auto_rotate: Whether or not to let the API try different rotations on\
             the document when running predictions
         :type auto_rotate: bool, optional
-        :param image_quality: image quality for prediction "LOW|HIGH". \
+        :param image_quality: Image quality for prediction "LOW|HIGH". \
             high quality could give better result but will also take longer time.
         :type image_quality: int, optional
+        :param postprocess_config: Post processing configuration for prediction. \
+            {
+                'strategy': 'BEST_FIRST' | 'BEST_N_PAGES',  (required)
+                'parameters': {                             (required if strategy=BEST_N_PAGES)
+                    'n': int,                               (required if strategy=BEST_N_PAGES)
+                    'collapse': True | False                (optional if strategy=BEST_N_PAGES)
+                }
+            }
+            Examples:
+            {'strategy': 'BEST_FIRST'}
+            {'strategy': 'BEST_N_PAGES', 'parameters': {'n': 3}}
+            {'strategy': 'BEST_N_PAGES', 'parameters': {'n': 3, 'collapse': False}}
+        :type postprocess_config: dict, optional
         :return: Prediction response from REST API
         :rtype: dict
 
@@ -1036,6 +1050,7 @@ class Client:
             'maxPages': max_pages,
             'autoRotate': auto_rotate,
             'imageQuality': image_quality,
+            'postprocessConfig': postprocess_config,
         }
         return self._make_request(requests.post, '/predictions', body=dictstrip(body))
 
