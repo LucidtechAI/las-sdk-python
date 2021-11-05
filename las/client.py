@@ -1025,7 +1025,7 @@ class Client:
         :param image_quality: Image quality for prediction "LOW|HIGH". \
             high quality could give better result but will also take longer time.
         :type image_quality: int, optional
-        :param postprocess_config: Post processing configuration for prediction. \
+        :param postprocess_config: Post processing configuration for prediction.
             {
                 'strategy': 'BEST_FIRST' | 'BEST_N_PAGES',  (required)
                 'parameters': {                             (required if strategy=BEST_N_PAGES)
