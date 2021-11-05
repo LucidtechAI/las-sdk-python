@@ -1,6 +1,6 @@
 # Changelog
 
-## Version 5.0.1 - 2021-11-05
+## Version 5.1.0 - 2021-11-05
 
 - Added optional keyword argument postprocess_config to create_prediction
 
