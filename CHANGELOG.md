@@ -1,5 +1,9 @@
 # Changelog
 
+## Version 5.1.0 - 2021-11-05
+
+- Added optional keyword argument postprocess_config to create_prediction
+
 ## Version 5.0.0 - 2021-10-13
 
 - Removed all support for batches. Use datasets instead.
