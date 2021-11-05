@@ -492,8 +492,8 @@ class Client:
         :type consent_id: str, optional
         :param dataset_id: Id of the associated dataset
         :type dataset_id: str, optional
-        :param ground_truth: List of items {'label': label, 'value': value}
-        representing the ground truth values for the document
+        :param ground_truth: List of items {'label': label, 'value': value} \
+            representing the ground truth values for the document
         :type ground_truth: Sequence [ Dict [ str, Union [ str, bool ]  ] ], optional
         :return: Document response from REST API
         :rtype: dict
@@ -576,8 +576,8 @@ class Client:
         :type max_results: int, optional
         :param next_token: A unique token for each page, use the returned token to retrieve the next page.
         :type next_token: str, optional
-        :param delete_all: Delete all documents that match the given parameters doing multiple API calls if necessary.
-        Will throw an error if parameter max_results is also specified.
+        :param delete_all: Delete all documents that match the given parameters doing multiple API calls if necessary. \
+            Will throw an error if parameter max_results is also specified.
         :type delete_all: bool, optional
         :return: Documents response from REST API
         :rtype: dict
@@ -1292,8 +1292,8 @@ class Client:
         :type assets: dict, optional
         :param environment: Environment variables to use for a docker transition
         :type environment: dict, optional
-        :param environment_secrets:
-        A list of secretIds that contains environment variables to use for a docker transition
+        :param environment_secrets: \
+            A list of secretIds that contains environment variables to use for a docker transition
         :type environment_secrets: list, optional
         :return: Transition response from REST API
         :rtype: dict
@@ -1612,7 +1612,7 @@ class Client:
         >>> error_config = {'email': '<error-recipient>'}
         >>> client.create_workflow(specification, error_config=error_config)
 
-        :param specification: Specification of the workflow,
+        :param specification: Specification of the workflow, \
             currently supporting ASL: https://states-language.net/spec.html
         :type specification: dict
         :param name: Name of the workflow
@@ -1837,7 +1837,7 @@ class Client:
         :type workflow_id: str
         :param execution_id: Id of the execution to update
         :type execution_id: str
-        :param next_transition_id: the next transition to transition into, to end the workflow-execution,
+        :param next_transition_id: the next transition to transition into, to end the workflow-execution, \
         use: las:transition:commons-failed
         :type next_transition_id: str
         :return: Workflow execution response from REST API
