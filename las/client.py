@@ -59,6 +59,14 @@ def _json_decode(response):
         if response.status_code == 429 and 'Limit Exceeded' in response.json().values():
             raise LimitExceededException('You have reached the limit of total requests per month.')
 
+        if response.status_code == 400:
+            message = response.json().get('message', response.text)
+            raise BadRequest(message)
+
+        if response.status_code == 404:
+            message = response.json().get('message', response.text)
+            raise NotFound(message)
+
         raise e
 
 
@@ -130,6 +138,16 @@ class TooManyRequestsException(ClientException):
 class LimitExceededException(ClientException):
     """A LimitExceededException is raised if you have reached the limit of total requests per month
     associated with your credentials."""
+    pass
+
+
+class BadRequest(ClientException):
+    """BadRequest is raised if you have made a request that is disqualified based on the input"""
+    pass
+
+
+class NotFound(ClientException):
+    """NotFound is raised when you try to access a resource that is not found"""
     pass
 
 
