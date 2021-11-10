@@ -1,5 +1,9 @@
 # Changelog
 
+## Version 5.1.1 - 2021-11-10
+
+- Added Exception classes for BadRequest and NotFound 
+
 ## Version 5.1.0 - 2021-11-05
 
 - Added optional keyword argument postprocess_config to create_prediction
