@@ -50,22 +50,22 @@ def _json_decode(response):
     except Exception as e:
         logger.error('Status code {} body:\n{}'.format(response.status_code, response.text))
 
+        if response.status_code == 400:
+            message = response.json().get('message', response.text)
+            raise BadRequest(message)
+
         if response.status_code == 403 and 'Forbidden' in response.json().values():
             raise InvalidCredentialsException('Credentials provided are not valid.')
+
+        if response.status_code == 404:
+            message = response.json().get('message', response.text)
+            raise NotFound(message)
 
         if response.status_code == 429 and 'Too Many Requests' in response.json().values():
             raise TooManyRequestsException('You have reached the limit of requests per second.')
 
         if response.status_code == 429 and 'Limit Exceeded' in response.json().values():
             raise LimitExceededException('You have reached the limit of total requests per month.')
-
-        if response.status_code == 400:
-            message = response.json().get('message', response.text)
-            raise BadRequest(message)
-
-        if response.status_code == 404:
-            message = response.json().get('message', response.text)
-            raise NotFound(message)
 
         raise e
 
