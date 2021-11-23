@@ -1095,6 +1095,49 @@ class Client:
         }
         return self._make_request(requests.get, '/predictions', params=params)
 
+    def get_plan(self, plan_id: str) -> Dict:
+        """Get information about a specific plan, calls the GET /plans/{plan_id} endpoint.
+
+        >>> from las.client import Client
+        >>> client = Client()
+        >>> client.get_plan('<plan_id>')
+
+        :param plan_id: Id of the plan
+        :type plan_id: str
+        :return: Plan response from REST API
+        :rtype: dict
+
+        :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
+ :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
+        """
+        return self._make_request(requests.get, f'/plans/{plan_id}')
+
+    def list_plans(self, *, owner: Optional[Queryparam] = None, max_results: Optional[int] = None, next_token: Optional[str] = None) -> Dict:
+        """List plans available, calls the GET /plans endpoint.
+
+        >>> from las.client import Client
+        >>> client = Client()
+        >>> client.list_plans()
+
+        :param owner: Organizations to retrieve plans from
+        :type owner: Queryparam, optional
+        :param max_results: Maximum number of results to be returned
+        :type max_results: int, optional
+        :param next_token: A unique token for each page, use the returned token to retrieve the next page.
+        :type next_token: str, optional
+        :return: Plans response from REST API
+        :rtype: dict
+
+        :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
+    :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
+        """
+        params = {
+            'owner': owner,
+            'maxResults': max_results,
+            'nextToken': next_token,
+        }
+        return self._make_request(requests.get, '/plans', params=dictstrip(params))
+
     def create_secret(self, data: dict, **optional_args) -> Dict:
         """Creates an secret, calls the POST /secrets endpoint.
 
