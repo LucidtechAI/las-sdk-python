@@ -2,7 +2,12 @@
 
 ## Version 5.1.1 - 2021-11-10
 
-- Added Exception classes for BadRequest and NotFound 
+- Added Exception classes for BadRequest and NotFound
+
+## Version 5.2.0 - 2021-11-29
+
+- Added get_plan
+- Added list_plans
 
 ## Version 5.1.0 - 2021-11-05
 

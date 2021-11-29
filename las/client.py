@@ -9,7 +9,7 @@ from functools import singledispatch
 from pathlib import Path
 from json.decoder import JSONDecodeError
 from typing import Any, Callable, Dict, List, Optional, Sequence, Union
-from urllib.parse import urlparse
+from urllib.parse import urlparse, quote
 
 import requests
 from backoff import expo, on_exception  # type: ignore
@@ -1110,7 +1110,8 @@ class Client:
         :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
  :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
         """
-        return self._make_request(requests.get, f'/plans/{plan_id}')
+
+        return self._make_request(requests.get, f'/plans/{quote(plan_id, safe="")}')
 
     def list_plans(self, *, owner: Optional[Queryparam] = None, max_results: Optional[int] = None, next_token: Optional[str] = None) -> Dict:
         """List plans available, calls the GET /plans endpoint.
