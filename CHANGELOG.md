@@ -4,6 +4,8 @@
 
 - Added get_plan
 - Added list_plans
+- Added create_training
+- Added list_trainings
 
 ## Version 5.1.1 - 2021-11-10
 
