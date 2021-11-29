@@ -914,7 +914,14 @@ class Client:
         body.update(**optional_args)
         return self._make_request(requests.post, f'/models/{model_id}/dataBundles', body=body)
 
-    def create_training(self, model_id, data_bundle_ids, instance_type: Optional[str] = None, **optional_args) -> Dict:
+    def create_training(
+        self,
+        model_id,
+        data_bundle_ids,
+        *,
+        instance_type: Optional[str] = None,
+        **optional_args,
+    ) -> Dict:
         """Requests a training, calls the POST /models/{modelId}/trainings endpoint.
 
         :param model_id: Id of the model

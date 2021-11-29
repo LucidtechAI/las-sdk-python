@@ -33,7 +33,8 @@ def test_list_trainings_with_pagination(client: Client, max_results, next_token)
 
 def assert_training(response):
     assert 'modelId' in response, 'Missing modelId in response'
-    assert 'trainingId' in response, 'Missing dataBundleId in response'
+    assert 'trainingId' in response, 'Missing trainingId in response'
+    assert 'dataBundleIds' in response, 'Missing dataBundleIds in response'
     assert 'name' in response, 'Missing name in response'
     assert 'description' in response, 'Missing description in response'
     assert 'createdTime' in response, 'Missing createdTime in response'
