@@ -9,7 +9,7 @@ from functools import singledispatch
 from pathlib import Path
 from json.decoder import JSONDecodeError
 from typing import Any, Callable, Dict, List, Optional, Sequence, Union
-from urllib.parse import urlparse
+from urllib.parse import urlparse, quote
 
 import requests
 from backoff import expo, on_exception  # type: ignore
@@ -774,7 +774,7 @@ class Client:
         :param preprocess_config: Specification of the processing steps prior to the prediction of an image
         :type preprocess_config: dict
         :param name: Name of the model
-        :type name: str, optionalQ
+        :type name: str, optional
         :param description: Description of the model
         :type description: str, optional
         :return: Model response from REST API
@@ -913,6 +913,61 @@ class Client:
         body = {'datasetIds': dataset_ids}
         body.update(**optional_args)
         return self._make_request(requests.post, f'/models/{model_id}/dataBundles', body=body)
+
+    def create_training(
+        self,
+        model_id,
+        data_bundle_ids,
+        *,
+        instance_type: Optional[str] = None,
+        **optional_args,
+    ) -> Dict:
+        """Requests a training, calls the POST /models/{modelId}/trainings endpoint.
+
+        :param model_id: Id of the model
+        :type model_id: str
+        :param data_bundle_ids: Data bundle ids that will be used for training
+        :type data_bundle_ids: List[str]
+        :param instance_type: The type of instance that will be used for training
+        :type instance_type: List[str]
+        :param name: Name of the data bundle
+        :type name: str, optional
+        :param description: Description of the training
+        :type description: str, optional
+        :return: Training response from REST API
+        :rtype: dict
+
+        :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
+ :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
+        """
+
+        body = {
+            'dataBundleIds': data_bundle_ids,
+            'instanceType': instance_type,
+        }
+        body.update(**optional_args)
+        return self._make_request(requests.post, f'/models/{model_id}/trainings', body=body)
+
+    def list_trainings(self, model_id, *, max_results: Optional[int] = None, next_token: Optional[str] = None) -> Dict:
+        """List trainings available, calls the GET /models/{modelId}/trainings endpoint.
+
+        :param model_id: Id of the model
+        :type model_id: str
+        :param max_results: Maximum number of results to be returned
+        :type max_results: int, optional
+        :param next_token: A unique token for each page, use the returned token to retrieve the next page.
+        :type next_token: str, optional
+        :return: Trainings response from REST API
+        :rtype: dict
+
+        :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
+ :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
+        """
+        params = {
+            'maxResults': max_results,
+            'nextToken': next_token,
+        }
+        return self._make_request(requests.get, f'/models/{model_id}/trainings', params=params)
 
     def list_data_bundles(
         self,
@@ -1094,6 +1149,50 @@ class Client:
             'nextToken': next_token,
         }
         return self._make_request(requests.get, '/predictions', params=params)
+
+    def get_plan(self, plan_id: str) -> Dict:
+        """Get information about a specific plan, calls the GET /plans/{plan_id} endpoint.
+
+        >>> from las.client import Client
+        >>> client = Client()
+        >>> client.get_plan('<plan_id>')
+
+        :param plan_id: Id of the plan
+        :type plan_id: str
+        :return: Plan response from REST API
+        :rtype: dict
+
+        :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
+ :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
+        """
+
+        return self._make_request(requests.get, f'/plans/{quote(plan_id, safe="")}')
+
+    def list_plans(self, *, owner: Optional[Queryparam] = None, max_results: Optional[int] = None, next_token: Optional[str] = None) -> Dict:
+        """List plans available, calls the GET /plans endpoint.
+
+        >>> from las.client import Client
+        >>> client = Client()
+        >>> client.list_plans()
+
+        :param owner: Organizations to retrieve plans from
+        :type owner: Queryparam, optional
+        :param max_results: Maximum number of results to be returned
+        :type max_results: int, optional
+        :param next_token: A unique token for each page, use the returned token to retrieve the next page.
+        :type next_token: str, optional
+        :return: Plans response from REST API
+        :rtype: dict
+
+        :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
+    :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
+        """
+        params = {
+            'owner': owner,
+            'maxResults': max_results,
+            'nextToken': next_token,
+        }
+        return self._make_request(requests.get, '/plans', params=dictstrip(params))
 
     def create_secret(self, data: dict, **optional_args) -> Dict:
         """Creates an secret, calls the POST /secrets endpoint.

@@ -1,8 +1,15 @@
 # Changelog
 
+## Version 5.2.0 - 2021-11-29
+
+- Added get_plan
+- Added list_plans
+- Added create_training
+- Added list_trainings
+
 ## Version 5.1.1 - 2021-11-10
 
-- Added Exception classes for BadRequest and NotFound 
+- Added Exception classes for BadRequest and NotFound
 
 ## Version 5.1.0 - 2021-11-05
 
@@ -18,8 +25,8 @@
 - Remove API key from credentials
 
 ### Breaking changes
-- Credentials does no longer use the api_key to access the API.
 
+- Credentials no longer use the api_key to access the API.
 
 ## Version 3.5.0 - 2021-09-06
 
