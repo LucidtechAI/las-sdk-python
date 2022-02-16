@@ -8,8 +8,9 @@ from . import service, util
 
 
 @pytest.mark.parametrize('name_and_description', util.name_and_description_combinations())
-def test_create_dataset(client: Client, name_and_description):
-    response = client.create_dataset(**name_and_description)
+@pytest.mark.parametrize('metadata', [util.metadata(), None])
+def test_create_dataset(client: Client, name_and_description, metadata):
+    response = client.create_dataset(**name_and_description, metadata=metadata)
     assert_dataset(response)
 
 

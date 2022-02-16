@@ -9,11 +9,15 @@ from . import service
 def assert_plan(plan):
     assert 'organizationId' in plan, 'Missing organizationId in plan'
     assert 'planId' in plan, 'Missing planId in plan'
+    assert 'activeModels' in plan, 'Missing activeModels in plan'
     assert 'billingCycle' in plan, 'Missing billingCycle in plan'
     assert 'currency' in plan, 'Missing currency in plan'
     assert 'description' in plan, 'Missing description in plan'
+    assert 'gpuHours' in plan, 'Missing gpuHours in plan'
     assert 'latest' in plan, 'Missing latest in plan'
+    assert 'license' in plan, 'Missing license in plan'
     assert 'name' in plan, 'Missing name in plan'
+    assert 'predictions' in plan, 'Missing predictions in plan'
 
 
 def test_list_plans(client: Client):
