@@ -36,9 +36,9 @@ def test_invalid_credentials(
     model_id = service.create_model_id()
 
     with requests_mock.Mocker() as m:
-        m.post('/'.join([client.endpoint, 'documents']), status_code=error_code, content=error_content)
-        m.post('/'.join([client.endpoint, 'predictions']), status_code=error_code, content=error_content)
-        m.delete('/'.join([client.endpoint, 'documents']), status_code=error_code, content=error_content)
+        m.post('/'.join([client.credentials.api_endpoint, 'documents']), status_code=error_code, content=error_content)
+        m.post('/'.join([client.credentials.api_endpoint, 'predictions']), status_code=error_code, content=error_content)
+        m.delete('/'.join([client.credentials.api_endpoint, 'documents']), status_code=error_code, content=error_content)
 
         with pytest.raises(error_name):
             client.create_document(content, mime_type, consent_id=consent_id)

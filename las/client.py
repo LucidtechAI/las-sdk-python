@@ -162,7 +162,6 @@ class Client:
         """:param credentials: Credentials to use, instance of :py:class:`~las.Credentials`
         :type credentials: Credentials"""
         self.credentials = credentials or guess_credentials()
-        self.endpoint = self.credentials.api_endpoint
 
     @on_exception(expo, TooManyRequestsException, max_tries=4)
     @on_exception(expo, RequestException, max_tries=3, giveup=_fatal_code)
@@ -178,7 +177,7 @@ class Client:
 
         kwargs = {'params': params}
         None if body is None else kwargs.update({'data': json.dumps(body)})
-        uri = urlparse(f'{self.endpoint}{signing_path}')
+        uri = urlparse(f'{self.credentials.api_endpoint}{signing_path}')
         headers = {
             'Authorization': f'Bearer {self.credentials.access_token}',
             'Content-Type': 'application/json',
