@@ -21,8 +21,8 @@ prism-start:
 		--init \
 		--detach \
 		-p 4010:4010 \
-		stoplight/prism:latest mock -d -h 0.0.0.0 \
-		https://raw.githubusercontent.com/LucidtechAI/cradl-docs/master/static/oas.json \
+		stoplight/prism:4.5.0 mock -d -h 0.0.0.0 \
+		https://raw.githubusercontent.com/LucidtechAI/cradl-docs/magnus/oas-test/static/oas.json \
 		> /tmp/prism.cid
 
 
