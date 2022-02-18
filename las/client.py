@@ -962,11 +962,11 @@ class Client:
  :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
         """
 
-        body = {
+        body = dictstrip({
             'dataBundleIds': data_bundle_ids,
             'instanceType': instance_type,
             'metadata': metadata,
-        }
+        })
         body.update(**optional_args)
         return self._make_request(requests.post, f'/models/{model_id}/trainings', body=body)
 
