@@ -2,7 +2,7 @@
 
 ## Version 6.0.0 - 2022-02-18
 
-- Added metadata to documents, datasets models, and trainings
+- Added metadata to documents, datasets, models and trainings
 - Fixed tests after recursive groundTruthList in Open API Spec
 - Added update_trainings
 - Removed status from update_model (Breaking change)
