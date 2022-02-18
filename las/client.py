@@ -171,6 +171,7 @@ class Client:
         signing_path: str,
         body: Optional[dict] = None,
         params: Optional[dict] = None,
+        extra_headers: Optional[dict] = None,
     ) -> Dict:
         """Make signed headers, use them to make a HTTP request of arbitrary form and return the result
         as decoded JSON. Optionally pass a payload to JSON-dump and parameters for the request call."""
@@ -178,9 +179,11 @@ class Client:
         kwargs = {'params': params}
         None if body is None else kwargs.update({'data': json.dumps(body)})
         uri = urlparse(f'{self.credentials.api_endpoint}{signing_path}')
+
         headers = {
             'Authorization': f'Bearer {self.credentials.access_token}',
             'Content-Type': 'application/json',
+            **(extra_headers or {}),
         }
         response = requests_fn(
             url=uri.geturl(),
