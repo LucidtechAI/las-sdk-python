@@ -10,7 +10,7 @@ with open('README.md') as fp:
 
 setup(
     name='lucidtech-las',
-    version='5.2.0',
+    version='6.0.0',
     description='Python SDK for Lucidtech AI Services',
     long_description=readme,
     long_description_content_type='text/markdown',
