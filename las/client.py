@@ -1003,7 +1003,7 @@ class Client:
         status: str,
         **optional_args,
     ) -> Dict:
-        """Updates a data bundle, calls the PATCH /models/{modelId}/trainings/{trainingId} endpoint.
+        """Updates a training, calls the PATCH /models/{modelId}/trainings/{trainingId} endpoint.
 
         :param model_id: Id of the model
         :type model_id: str
