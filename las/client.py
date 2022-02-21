@@ -457,7 +457,7 @@ class Client:
         """
         return self._make_request(requests.get, f'/datasets/{dataset_id}')
 
-    def update_dataset(self, dataset_id, **optional_args) -> Dict:
+    def update_dataset(self, dataset_id, metadata: Optional[dict] = None, **optional_args) -> Dict:
         """Updates a dataset, calls the PATCH /datasets/{datasetId} endpoint.
 
         :param dataset_id: Id of the dataset
@@ -474,7 +474,10 @@ class Client:
         :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
  :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
         """
-        return self._make_request(requests.patch, f'/datasets/{dataset_id}', body=optional_args)
+
+        body = dictstrip({'metadata': metadata})
+        body.update(**optional_args)
+        return self._make_request(requests.patch, f'/datasets/{dataset_id}', body=body)
 
     def delete_dataset(self, dataset_id: str, delete_documents: bool = False) -> Dict:
         """Delete the dataset with the provided dataset_id, calls the DELETE /datasets/{datasetId} endpoint.
@@ -858,6 +861,7 @@ class Client:
         height: Optional[int] = None,
         field_config: Optional[dict] = None,
         preprocess_config: Optional[dict] = None,
+        metadata: Optional[dict] = None,
         **optional_args,
     ) -> Dict:
         """Updates a model, calls the PATCH /models/{modelId} endpoint.
@@ -888,6 +892,7 @@ class Client:
             'width': width,
             'height': height,
             'fieldConfig': field_config,
+            'metadata': metadata,
             'preprocessConfig': preprocess_config,
         })
         body.update(**optional_args)
