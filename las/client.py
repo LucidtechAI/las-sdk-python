@@ -162,26 +162,28 @@ class Client:
         """:param credentials: Credentials to use, instance of :py:class:`~las.Credentials`
         :type credentials: Credentials"""
         self.credentials = credentials or guess_credentials()
-        self.endpoint = self.credentials.api_endpoint
 
     @on_exception(expo, TooManyRequestsException, max_tries=4)
     @on_exception(expo, RequestException, max_tries=3, giveup=_fatal_code)
     def _make_request(
         self,
         requests_fn: Callable,
-        signing_path: str,
+        path: str,
         body: Optional[dict] = None,
         params: Optional[dict] = None,
+        extra_headers: Optional[dict] = None,
     ) -> Dict:
         """Make signed headers, use them to make a HTTP request of arbitrary form and return the result
         as decoded JSON. Optionally pass a payload to JSON-dump and parameters for the request call."""
 
         kwargs = {'params': params}
         None if body is None else kwargs.update({'data': json.dumps(body)})
-        uri = urlparse(f'{self.endpoint}{signing_path}')
+        uri = urlparse(f'{self.credentials.api_endpoint}{path}')
+
         headers = {
             'Authorization': f'Bearer {self.credentials.access_token}',
             'Content-Type': 'application/json',
+            **(extra_headers or {}),
         }
         response = requests_fn(
             url=uri.geturl(),
@@ -197,7 +199,7 @@ class Client:
         callback_urls=None,
         login_urls=None,
         default_login_url=None,
-        **optional_args
+        **optional_args,
     ) -> Dict:
         """Creates an appClient, calls the POST /appClients endpoint.
 
@@ -404,20 +406,24 @@ class Client:
         """
         return self._make_request(requests.delete, f'/assets/{asset_id}')
 
-    def create_dataset(self, **optional_args) -> Dict:
+    def create_dataset(self, *, metadata: Optional[dict] = None, **optional_args) -> Dict:
         """Creates a dataset, calls the POST /datasets endpoint.
 
         :param name: Name of the dataset
         :type name: str, optional
         :param description: Description of the dataset
         :type description: str, optional
+        :param metadata: Dictionary that can be used to store additional information
+        :type metadata: dict, optional
         :return: Dataset response from REST API
         :rtype: dict
 
         :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
  :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
         """
-        return self._make_request(requests.post, '/datasets', body=optional_args)
+        body = dictstrip({'metadata': metadata})
+        body.update(**optional_args)
+        return self._make_request(requests.post, '/datasets', body=body)
 
     def list_datasets(self, *, max_results: Optional[int] = None, next_token: Optional[str] = None) -> Dict:
         """List datasets available, calls the GET /datasets endpoint.
@@ -451,7 +457,7 @@ class Client:
         """
         return self._make_request(requests.get, f'/datasets/{dataset_id}')
 
-    def update_dataset(self, dataset_id, **optional_args) -> Dict:
+    def update_dataset(self, dataset_id, metadata: Optional[dict] = None, **optional_args) -> Dict:
         """Updates a dataset, calls the PATCH /datasets/{datasetId} endpoint.
 
         :param dataset_id: Id of the dataset
@@ -460,13 +466,18 @@ class Client:
         :type name: str, optional
         :param description: Description of the dataset
         :type description: str, optional
+        :param metadata: Dictionary that can be used to store additional information
+        :type metadata: dict, optional
         :return: Dataset response from REST API
         :rtype: dict
 
         :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
  :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
         """
-        return self._make_request(requests.patch, f'/datasets/{dataset_id}', body=optional_args)
+
+        body = dictstrip({'metadata': metadata})
+        body.update(**optional_args)
+        return self._make_request(requests.patch, f'/datasets/{dataset_id}', body=body)
 
     def delete_dataset(self, dataset_id: str, delete_documents: bool = False) -> Dict:
         """Delete the dataset with the provided dataset_id, calls the DELETE /datasets/{datasetId} endpoint.
@@ -495,6 +506,7 @@ class Client:
         dataset_id: str = None,
         ground_truth: Sequence[Dict[str, str]] = None,
         retention_in_days: int = None,
+        metadata: Optional[dict] = None,
     ) -> Dict:
         """Creates a document, calls the POST /documents endpoint.
 
@@ -513,6 +525,8 @@ class Client:
         :param ground_truth: List of items {'label': label, 'value': value} \
             representing the ground truth values for the document
         :type ground_truth: Sequence [ Dict [ str, Union [ str, bool ]  ] ], optional
+        :param metadata: Dictionary that can be used to store additional information
+        :type metadata: dict, optional
         :return: Document response from REST API
         :rtype: dict
 
@@ -532,6 +546,7 @@ class Client:
             'datasetId': dataset_id,
             'groundTruth': ground_truth,
             'retentionInDays': retention_in_days,
+            'metadata': metadata,
         }
         return self._make_request(requests.post, '/documents', body=dictstrip(body))
 
@@ -648,6 +663,7 @@ class Client:
         document_id: str,
         ground_truth: Sequence[Dict[str, Union[Optional[str], bool]]] = None, # For backwards compatibility reasons, this is placed before the *
         *,
+        metadata: Optional[dict] = None,
         dataset_id: str = None,
     ) -> Dict:
         """Update ground truth for a document, calls the PATCH /documents/{documentId} endpoint.
@@ -660,6 +676,8 @@ class Client:
         :type dataset_id: str, optional
         :param ground_truth: List of items {label: value} representing the ground truth values for the document
         :type ground_truth: Sequence [ Dict [ str, Union [ str, bool ]  ] ], optional
+        :param metadata: Dictionary that can be used to store additional information
+        :type metadata: dict, optional
         :return: Document response from REST API
         :rtype: dict
 
@@ -669,6 +687,7 @@ class Client:
         body = {
             'groundTruth': ground_truth,
             'datasetId': dataset_id,
+            'metadata': metadata,
         }
         return self._make_request(requests.patch, f'/documents/{document_id}', body=dictstrip(body))
 
@@ -761,6 +780,7 @@ class Client:
         preprocess_config: Optional[dict] = None,
         name: Optional[str] = None,
         description: Optional[str] = None,
+        metadata: Optional[dict] = None,
         **optional_args,
     ) -> Dict:
         """Creates a model, calls the POST /models endpoint.
@@ -777,6 +797,8 @@ class Client:
         :type name: str, optional
         :param description: Description of the model
         :type description: str, optional
+        :param metadata: Dictionary that can be used to store additional information
+        :type metadata: dict, optional
         :return: Model response from REST API
         :rtype: dict
 
@@ -790,6 +812,7 @@ class Client:
             'preprocessConfig': preprocess_config,
             'name': name,
             'description': description,
+            'metadata': metadata,
         })
         body.update(**optional_args)
         return self._make_request(requests.post, '/models', body=body)
@@ -838,7 +861,7 @@ class Client:
         height: Optional[int] = None,
         field_config: Optional[dict] = None,
         preprocess_config: Optional[dict] = None,
-        status: Optional[str] = None,
+        metadata: Optional[dict] = None,
         **optional_args,
     ) -> Dict:
         """Updates a model, calls the PATCH /models/{modelId} endpoint.
@@ -853,12 +876,12 @@ class Client:
         :type field_config: dict
         :param preprocess_config: Specification of the processing steps prior to the prediction of an image
         :type preprocess_config: dict
-        :param status: New status for the model
-        :type status: str, optional
         :param name: Name of the model
         :type name: str, optional
         :param description: Description of the model
         :type description: str, optional
+        :param metadata: Dictionary that can be used to store additional information
+        :type metadata: dict, optional
         :return: Model response from REST API
         :rtype: dict
 
@@ -869,8 +892,8 @@ class Client:
             'width': width,
             'height': height,
             'fieldConfig': field_config,
+            'metadata': metadata,
             'preprocessConfig': preprocess_config,
-            'status': status,
         })
         body.update(**optional_args)
         return self._make_request(requests.patch, f'/models/{model_id}', body=body)
@@ -920,6 +943,7 @@ class Client:
         data_bundle_ids,
         *,
         instance_type: Optional[str] = None,
+        metadata: Optional[dict] = None,
         **optional_args,
     ) -> Dict:
         """Requests a training, calls the POST /models/{modelId}/trainings endpoint.
@@ -934,6 +958,8 @@ class Client:
         :type name: str, optional
         :param description: Description of the training
         :type description: str, optional
+        :param metadata: Dictionary that can be used to store additional information
+        :type metadata: dict, optional
         :return: Training response from REST API
         :rtype: dict
 
@@ -941,10 +967,11 @@ class Client:
  :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
         """
 
-        body = {
+        body = dictstrip({
             'dataBundleIds': data_bundle_ids,
             'instanceType': instance_type,
-        }
+            'metadata': metadata,
+        })
         body.update(**optional_args)
         return self._make_request(requests.post, f'/models/{model_id}/trainings', body=body)
 
@@ -968,6 +995,38 @@ class Client:
             'nextToken': next_token,
         }
         return self._make_request(requests.get, f'/models/{model_id}/trainings', params=params)
+
+    def update_training(
+        self,
+        model_id: str,
+        training_id: str,
+        status: str,
+        **optional_args,
+    ) -> Dict:
+        """Updates a training, calls the PATCH /models/{modelId}/trainings/{trainingId} endpoint.
+
+        :param model_id: Id of the model
+        :type model_id: str
+        :param training_id: Id of the training
+        :type training_id: str
+        :param name: Name of the training
+        :type name: str, optional
+        :param description: Description of the training
+        :type description: str, optional
+        :param metadata: Dictionary that can be used to store additional information
+        :type metadata: dict, optional
+        :return: Training response from REST API
+        :rtype: dict
+
+        :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
+ :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
+        """
+        body = {
+            'status': status,
+            **optional_args,
+        }
+
+        return self._make_request(requests.patch, f'/models/{model_id}/trainings/{training_id}', body=body)
 
     def list_data_bundles(
         self,

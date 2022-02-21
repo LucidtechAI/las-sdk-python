@@ -1,5 +1,13 @@
 # Changelog
 
+## Version 6.0.0 - 2022-02-18
+
+- Added metadata to create_document, update_document, create_dataset, update_dataset, create_model, update_model and create_training
+- Fixed tests after recursive groundTruthList in Open API Spec
+- Added update_training
+- Removed status from update_model (Breaking change)
+- Remove member variable endpoint from Client, use credentials.api_endpoint instead (Breaking change)
+
 ## Version 5.2.0 - 2021-11-29
 
 - Added get_plan

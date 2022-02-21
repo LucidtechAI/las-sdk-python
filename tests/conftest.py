@@ -5,6 +5,7 @@ from random import choice, randint
 import pytest
 from las import Client
 from requests_mock import Mocker
+from functools import partial
 
 
 @pytest.fixture(scope='session')
@@ -25,6 +26,22 @@ def mock_access_token_endpoint(token):
 @pytest.fixture(scope='module')
 def client():
     client = Client()
+    return client
+
+
+@pytest.fixture(scope='module')
+def static_client():
+    client = Client()
+    original_make_request = client._make_request
+    client._make_request = lambda *args, **kwargs: original_make_request(
+        *args, **{
+            **kwargs,
+            'extra_headers': {
+                **kwargs.get('extra_headers', {}),
+                'Prefer': 'dynamic=false',
+            }
+        }
+    )
     return client
 
 

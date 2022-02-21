@@ -16,3 +16,7 @@ def name_and_description_combinations(at_least_one=False):
         ({'name': '', 'description': ''}),
     ]
     return combinations
+
+
+def metadata():
+    return {'foo': 'bar'}

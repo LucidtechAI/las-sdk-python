@@ -9,7 +9,6 @@ from . import service
 def assert_plan(plan):
     assert 'organizationId' in plan, 'Missing organizationId in plan'
     assert 'planId' in plan, 'Missing planId in plan'
-    assert 'billingCycle' in plan, 'Missing billingCycle in plan'
     assert 'currency' in plan, 'Missing currency in plan'
     assert 'description' in plan, 'Missing description in plan'
     assert 'latest' in plan, 'Missing latest in plan'
