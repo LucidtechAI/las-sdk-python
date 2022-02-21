@@ -1009,7 +1009,7 @@ class Client:
         :type model_id: str
         :param training_id: Id of the training
         :type training_id: str
-        :param name: Name of the data bundle
+        :param name: Name of the training
         :type name: str, optional
         :param description: Description of the data bundle
         :type description: str, optional
