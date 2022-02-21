@@ -1011,7 +1011,7 @@ class Client:
         :type training_id: str
         :param name: Name of the training
         :type name: str, optional
-        :param description: Description of the data bundle
+        :param description: Description of the training
         :type description: str, optional
         :param metadata: Dictionary that can be used to store additional information
         :type metadata: dict, optional
