@@ -4,7 +4,7 @@
 
 - Added metadata to documents, datasets, models and trainings
 - Fixed tests after recursive groundTruthList in Open API Spec
-- Added update_trainings
+- Added update_training
 - Removed status from update_model (Breaking change)
 - Remove member variable endpoint from Client, use credentials.api_endpoint instead (Breaking change)
 
