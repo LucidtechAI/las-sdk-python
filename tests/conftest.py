@@ -32,8 +32,16 @@ def client():
 @pytest.fixture(scope='module')
 def static_client():
     client = Client()
-    client._make_request = partial(client._make_request, extra_headers={'Prefer': 'dynamic=false'})
-    client._make_request = lambda *args, **kwargs: client._make_request(*args, **{**kwargs, 'extra_headers': {**kwargs.get('extra_headers', {}), 'Prefer': 'dynamic=false'}})
+    client._make_request = lambda *args, **kwargs: client._make_request(
+        *args, **{
+            **kwargs,
+            'extra_headers':
+                {
+                    **kwargs.get('extra_headers', {}),
+                    'Prefer': 'dynamic=false'
+                }
+        }
+    )
     return client
 
 

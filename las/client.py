@@ -178,7 +178,7 @@ class Client:
 
         kwargs = {'params': params}
         None if body is None else kwargs.update({'data': json.dumps(body)})
-        uri = urlparse(f'{self.credentials.api_endpoint}{signing_path}')
+        uri = urlparse(f'{self.credentials.api_endpoint}{path}')
 
         headers = {
             'Authorization': f'Bearer {self.credentials.access_token}',
@@ -199,7 +199,7 @@ class Client:
         callback_urls=None,
         login_urls=None,
         default_login_url=None,
-        **optional_args
+        **optional_args,
     ) -> Dict:
         """Creates an appClient, calls the POST /appClients endpoint.
 
