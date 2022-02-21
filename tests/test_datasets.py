@@ -39,8 +39,9 @@ def test_delete_dataset(client: Client):
 
 
 @pytest.mark.parametrize('name_and_description', util.name_and_description_combinations(at_least_one=True))
-def test_update_dataset(client: Client, name_and_description):
-    response = client.update_dataset(service.create_dataset_id(), **name_and_description)
+@pytest.mark.parametrize('metadata', [util.metadata(), None])
+def test_update_dataset(client: Client, name_and_description, metadata):
+    response = client.update_dataset(service.create_dataset_id(), metadata=metadata, **name_and_description)
     assert_dataset(response)
 
 

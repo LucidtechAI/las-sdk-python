@@ -1,19 +1,26 @@
 import random
 import pytest
 from las.client import Client
-from . import service
+from . import service, util
 
 pytestmark = pytest.mark.integration
 
 
+@pytest.mark.parametrize('metadata', [util.metadata(), None])
 def test_create_document(
     monkeypatch,
     static_client: Client,
     content,
+    metadata,
     mime_type,
 ):
     consent_id = service.create_consent_id()
-    post_documents_response = static_client.create_document(content, mime_type, consent_id=consent_id)
+    post_documents_response = static_client.create_document(
+        content,
+        mime_type,
+        consent_id=consent_id,
+        metadata=metadata,
+    )
 
     assert 'documentId' in post_documents_response, 'Missing documentId in response'
     assert 'consentId' in post_documents_response, 'Missing consentId in response'
@@ -51,7 +58,8 @@ def test_get_document(static_client: Client):
     assert 'groundTruth' in response, 'Missing groundTruth in response'
 
 
-def test_update_document(static_client: Client):
+@pytest.mark.parametrize('metadata', [util.metadata(), None])
+def test_update_document(static_client: Client, metadata):
     document_id = service.create_document_id()
     ground_truth = [
         {'label': 'total_amount', 'value': '54.50'},
@@ -63,6 +71,7 @@ def test_update_document(static_client: Client):
         document_id,
         ground_truth=ground_truth,
         dataset_id=service.create_dataset_id(),
+        metadata=metadata,
     )
 
     assert 'groundTruth' in post_document_id_response, 'Missing groundTruth in response'

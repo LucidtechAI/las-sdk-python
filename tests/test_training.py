@@ -8,9 +8,15 @@ from . import service, util
 
 
 @pytest.mark.parametrize('name_and_description', util.name_and_description_combinations())
-def test_create_training(client: Client, name_and_description):
+@pytest.mark.parametrize('metadata', [util.metadata(), None])
+def test_create_training(client: Client, name_and_description, metadata):
     data_bundle_ids = [service.create_data_bundle_id() for _ in range(10)]
-    response = client.create_training(service.create_model_id(), data_bundle_ids, **name_and_description)
+    response = client.create_training(
+        service.create_model_id(),
+        data_bundle_ids,
+        metadata=metadata,
+        **name_and_description,
+    )
     assert_training(response)
 
 

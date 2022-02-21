@@ -9,12 +9,14 @@ from . import service, util
 
 @pytest.mark.parametrize('preprocess_config', [service.preprocess_config(), None])
 @pytest.mark.parametrize('name_and_description', util.name_and_description_combinations())
-def test_create_model(client: Client, preprocess_config, name_and_description):
+@pytest.mark.parametrize('metadata', [util.metadata(), None])
+def test_create_model(client: Client, preprocess_config, name_and_description, metadata):
     response = client.create_model(
         width=300,
         height=300,
         field_config=service.field_config(),
         preprocess_config=preprocess_config,
+        metadata=metadata,
         **name_and_description,
     )
     logging.info(response)
@@ -47,12 +49,14 @@ def test_get_model(client: Client):
 
 @pytest.mark.parametrize('preprocess_config', [service.preprocess_config(), None])
 @pytest.mark.parametrize('name_and_description', util.name_and_description_combinations())
-def test_update_model(client: Client, preprocess_config, name_and_description):
+@pytest.mark.parametrize('metadata', [util.metadata(), None])
+def test_update_model(client: Client, preprocess_config, name_and_description, metadata):
     response = client.update_model(
         service.create_model_id(),
         width=300,
         height=300,
         field_config=service.field_config(),
+        metadata=metadata,
         preprocess_config=preprocess_config,
         **name_and_description,
     )
