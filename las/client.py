@@ -168,7 +168,7 @@ class Client:
     def _make_request(
         self,
         requests_fn: Callable,
-        signing_path: str,
+        path: str,
         body: Optional[dict] = None,
         params: Optional[dict] = None,
         extra_headers: Optional[dict] = None,
