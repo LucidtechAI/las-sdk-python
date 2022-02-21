@@ -1007,7 +1007,7 @@ class Client:
 
         :param model_id: Id of the model
         :type model_id: str
-        :param training_id: Id of the data bundle
+        :param training_id: Id of the training
         :type training_id: str
         :param name: Name of the data bundle
         :type name: str, optional
