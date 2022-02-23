@@ -37,13 +37,14 @@ print(json.dumps(prediction, indent=2))
 ### Prerequisites
 
 ```bash
-$ pip install tox
+$ pip install -r requirements.txt
+$ pip install -r requirements.ci.txt 
 ```
 
 ### Run tests
 
 ```bash
-$ tox tests/test_config.cfg
+$ python -m pytest
 ```
 
 ### Create docs
