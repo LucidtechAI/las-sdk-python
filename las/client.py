@@ -1000,7 +1000,6 @@ class Client:
         self,
         model_id: str,
         training_id: str,
-        status: str,
         **optional_args,
     ) -> Dict:
         """Updates a training, calls the PATCH /models/{modelId}/trainings/{trainingId} endpoint.
@@ -1021,12 +1020,7 @@ class Client:
         :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
  :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
         """
-        body = {
-            'status': status,
-            **optional_args,
-        }
-
-        return self._make_request(requests.patch, f'/models/{model_id}/trainings/{training_id}', body=body)
+        return self._make_request(requests.patch, f'/models/{model_id}/trainings/{training_id}', body=optional_args)
 
     def list_data_bundles(
         self,

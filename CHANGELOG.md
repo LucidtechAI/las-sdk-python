@@ -1,5 +1,9 @@
 # Changelog
 
+## Version 7.0.0 - 2022-02-23
+
+- Removed positional argument status from update training (Breaking change)
+
 ## Version 6.0.0 - 2022-02-18
 
 - Added metadata to create_document, update_document, create_dataset, update_dataset, create_model, update_model and create_training
