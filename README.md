@@ -44,6 +44,7 @@ $ pip install -r requirements.ci.txt
 ### Run tests
 
 ```bash
+$ make prism-start
 $ python -m pytest
 ```
 
