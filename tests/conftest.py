@@ -23,7 +23,7 @@ def mock_access_token_endpoint(token):
         yield
 
 
-@pytest.fixture(scope='module')
+@pytest.fixture(scope='session')
 def client():
     client = Client()
     return client
