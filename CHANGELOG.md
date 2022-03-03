@@ -1,5 +1,10 @@
 # Changelog
 
+## Version 7.1.0 - 2022-03-04
+
+- Added training_id to create_prediction
+- Added training_id to update_model
+
 ## Version 7.0.0 - 2022-02-23
 
 - Removed positional argument status from update training (Breaking change)
