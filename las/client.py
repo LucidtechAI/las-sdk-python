@@ -862,6 +862,7 @@ class Client:
         field_config: Optional[dict] = None,
         preprocess_config: Optional[dict] = None,
         metadata: Optional[dict] = None,
+        training_id: Optional[str] = None,
         **optional_args,
     ) -> Dict:
         """Updates a model, calls the PATCH /models/{modelId} endpoint.
@@ -876,12 +877,14 @@ class Client:
         :type field_config: dict
         :param preprocess_config: Specification of the processing steps prior to the prediction of an image
         :type preprocess_config: dict
+        :param metadata: Dictionary that can be used to store additional information
+        :type metadata: dict, optional
+        :param training_id: Use training_id for model inference in POST /predictions
+        :type training_id: str, optional
         :param name: Name of the model
         :type name: str, optional
         :param description: Description of the model
         :type description: str, optional
-        :param metadata: Dictionary that can be used to store additional information
-        :type metadata: dict, optional
         :return: Model response from REST API
         :rtype: dict
 
@@ -894,6 +897,7 @@ class Client:
             'fieldConfig': field_config,
             'metadata': metadata,
             'preprocessConfig': preprocess_config,
+            'trainingId': training_id,
         })
         body.update(**optional_args)
         return self._make_request(requests.patch, f'/models/{model_id}', body=body)
@@ -1128,6 +1132,7 @@ class Client:
         document_id: str,
         model_id: str,
         *,
+        training_id: Optional[str] = None,
         max_pages: Optional[int] = None,
         auto_rotate: Optional[bool] = None,
         image_quality: Optional[str] = None,
@@ -1141,8 +1146,10 @@ class Client:
 
         :param document_id: Id of the document to run inference and create a prediction on
         :type document_id: str
-        :param model_id: Id of the model to use for inference
+        :param model_id: Id of the model to use for predictions
         :type model_id: str
+        :param training_id: Id of training to use for predictions
+        :type training_id: str
         :param max_pages: Maximum number of pages to run predictions on
         :type max_pages: int, optional
         :param auto_rotate: Whether or not to let the API try different rotations on\
@@ -1173,6 +1180,7 @@ class Client:
         body = {
             'documentId': document_id,
             'modelId': model_id,
+            'trainingId': training_id,
             'maxPages': max_pages,
             'autoRotate': auto_rotate,
             'imageQuality': image_quality,
