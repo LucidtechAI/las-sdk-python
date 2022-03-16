@@ -773,10 +773,10 @@ class Client:
 
     def create_model(
         self,
-        width: int,
-        height: int,
         field_config: dict,
         *,
+        width: Optional[int] = None,
+        height: Optional[int] = None,
         preprocess_config: Optional[dict] = None,
         name: Optional[str] = None,
         description: Optional[str] = None,
@@ -785,12 +785,12 @@ class Client:
     ) -> Dict:
         """Creates a model, calls the POST /models endpoint.
 
-        :param width: The number of pixels to be used for the input image width of your model
-        :type width: int
-        :param height: The number of pixels to be used for the input image height of your model
-        :type height: int
         :param field_config: Specification of the fields that the model is going to predict
         :type field_config: dict
+        :param width: The number of pixels to be used for the input image width of your model
+        :type width: int, optional
+        :param height: The number of pixels to be used for the input image height of your model
+        :type height: int, optional
         :param preprocess_config: Specification of the processing steps prior to the prediction of an image
         :type preprocess_config: dict
         :param name: Name of the model
