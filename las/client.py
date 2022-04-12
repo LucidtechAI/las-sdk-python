@@ -557,6 +557,8 @@ class Client:
         dataset_id: Optional[Queryparam] = None,
         max_results: Optional[int] = None,
         next_token: Optional[str] = None,
+        order: Optional[str] = None,
+        sort_by: Optional[str] = None,
     ) -> Dict:
         """List documents available for inference, calls the GET /documents endpoint.
 
@@ -572,6 +574,10 @@ class Client:
         :type max_results: int, optional
         :param next_token: A unique token for each page, use the returned token to retrieve the next page.
         :type next_token: str, optional
+        :param order: Order of the executions, either 'ascending' or 'descending'
+        :type order: str, optional
+        :param sort_by: the sorting variable of the executions, currently only supports 'createdTime'
+        :type sort_by: str, optional
         :return: Documents response from REST API
         :rtype: dict
 
@@ -583,8 +589,10 @@ class Client:
             'datasetId': dataset_id,
             'maxResults': max_results,
             'nextToken': next_token,
+            'order': order,
+            'sortBy': sort_by,
         }
-        return self._make_request(requests.get, '/documents', params=params)
+        return self._make_request(requests.get, '/documents', params=dictstrip(params))
 
     def delete_documents(
         self,
@@ -1188,7 +1196,14 @@ class Client:
         }
         return self._make_request(requests.post, '/predictions', body=dictstrip(body))
 
-    def list_predictions(self, *, max_results: Optional[int] = None, next_token: Optional[str] = None) -> Dict:
+    def list_predictions(
+        self, 
+        *, 
+        max_results: Optional[int] = None, 
+        next_token: Optional[str] = None,
+        order: Optional[str] = None,
+        sort_by: Optional[str] = None,
+    ) -> Dict:
         """List predictions available, calls the GET /predictions endpoint.
 
         >>> from las.client import Client
@@ -1199,6 +1214,10 @@ class Client:
         :type max_results: int, optional
         :param next_token: A unique token for each page, use the returned token to retrieve the next page.
         :type next_token: str, optional
+        :param order: Order of the executions, either 'ascending' or 'descending'
+        :type order: str, optional
+        :param sort_by: the sorting variable of the executions, currently only supports 'createdTime'
+        :type sort_by: str, optional
         :return: Predictions response from REST API without the content of each prediction
         :rtype: dict
 
@@ -1208,8 +1227,10 @@ class Client:
         params = {
             'maxResults': max_results,
             'nextToken': next_token,
+            'order': order,
+            'sortBy': sort_by,
         }
-        return self._make_request(requests.get, '/predictions', params=params)
+        return self._make_request(requests.get, '/predictions', params=dictstrip(params))
 
     def get_plan(self, plan_id: str) -> Dict:
         """Get information about a specific plan, calls the GET /plans/{plan_id} endpoint.

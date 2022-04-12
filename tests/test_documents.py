@@ -33,8 +33,17 @@ def test_create_document(
     (service.create_consent_id(), None),
     ([service.create_consent_id()], [service.create_dataset_id()]),
 ])
-def test_list_documents(static_client: Client, consent_id, dataset_id):
-    response = static_client.list_documents(consent_id=consent_id, dataset_id=dataset_id)
+@pytest.mark.parametrize('sort_by,order', [
+    ('createdTime', 'ascending'),
+    ('createdTime', 'descending'),
+])
+def test_list_documents(static_client: Client, consent_id, dataset_id, sort_by, order):
+    response = static_client.list_documents(
+        consent_id=consent_id, 
+        dataset_id=dataset_id,
+        sort_by=sort_by,
+        order=order,
+    )
     assert 'documents' in response, 'Missing documents in response'
 
 

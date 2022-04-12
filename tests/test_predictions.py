@@ -29,7 +29,11 @@ def test_create_prediction(client: Client, max_pages, auto_rotate, image_quality
     assert 'predictionId' in response, 'Missing predictionId in response'
 
 
-def test_list_predictions(client: Client):
-    response = client.list_predictions()
+@pytest.mark.parametrize('sort_by,order', [
+    ('createdTime', 'ascending'),
+    ('createdTime', 'descending'),
+])
+def test_list_predictions(client: Client, sort_by, order):
+    response = client.list_predictions(sort_by=sort_by, order=order)
     logging.info(response)
     assert 'predictions' in response, 'Missing predictions in response'

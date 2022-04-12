@@ -1,5 +1,12 @@
 # Changelog
 
+## Version 8.1.0 - 2022-04-12
+
+- Added optional keyword argument `sort_by` to `list_documents`
+- Added optional keyword argument `order` to `list_documents`
+- Added optional keyword argument `sort_by` to `list_predictions`
+- Added optional keyword argument `order` to `list_predictions`
+
 ## Version 8.0.0 - 2022-03-15
 
 - width and height is now optional in create_model

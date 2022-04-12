@@ -4,7 +4,7 @@
 
 ## Documentation
 
-[Link to docs](https://docs.lucidtech.ai/reference/python)
+[Link to docs](https://docs.cradl.ai/python-docs/index.html)
 
 ## Installation
 
@@ -14,11 +14,8 @@ $ pip install lucidtech-las
 
 ## Usage
 
-### Preconditions
-
-- Documents must be in upright position
-- Only one receipt or invoice per document is supported
-- Supported file formats are: jpeg, pdf
+Sign up for free [here](https://app.cradl.ai/signup) and download API credentials to use this SDK.
+Read more about authenticating to the API [here](https://docs.cradl.ai/overview/authentication)
 
 ### Quick start
 
@@ -27,8 +24,10 @@ import json
 from las import Client
 
 client = Client()
-document = client.create_document('path/to/document.pdf', 'application/pdf')
-prediction = client.create_prediction(document['documentId'], model_id='las:model:<hex-uuid>')
+models = client.list_models()['models'] # List all models available
+model_id = models[0]['modelId'] # Get ID of first model in list
+document = client.create_document('path/to/document.pdf')
+prediction = client.create_prediction(document['documentId'], model_id=model_id)
 print(json.dumps(prediction, indent=2))
 ```
 
@@ -38,7 +37,7 @@ print(json.dumps(prediction, indent=2))
 
 ```bash
 $ pip install -r requirements.txt
-$ pip install -r requirements.ci.txt 
+$ pip install -r requirements.ci.txt
 ```
 
 ### Run tests
