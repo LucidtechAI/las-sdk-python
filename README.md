@@ -15,7 +15,7 @@ $ pip install lucidtech-las
 ## Usage
 
 Sign up for free [here](https://app.cradl.ai/signup) and download API credentials to use this SDK.
-Read more about authenticating against the APIs [here](https://docs.cradl.ai/overview/authentication)
+Read more about authenticating to the API [here](https://docs.cradl.ai/overview/authentication)
 
 ### Quick start
 
