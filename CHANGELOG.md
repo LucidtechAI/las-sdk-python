@@ -2,10 +2,10 @@
 
 ## Version 8.1.0 - 2022-04-12
 
-- Added `sort_by` to `list_documents`
-- Added `order` to `list_documents`
-- Added `sort_by` to `list_predictions`
-- Added `order` to `list_predictions`
+- Added optional `sort_by` to `list_documents`
+- Added optional `order` to `list_documents`
+- Added optional `sort_by` to `list_predictions`
+- Added optional `order` to `list_predictions`
 
 ## Version 8.0.0 - 2022-03-15
 
