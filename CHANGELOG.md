@@ -1,5 +1,14 @@
 # Changelog
 
+## Version 8.2.0 - 2022-04-22
+
+- Added `create_payment_method`
+- Added `delete_payment_method`
+- Added `get_payment_method`
+- Added `list_payment_methods`
+- Added `update_payment_method`
+- Added optional `payment_method_id` to `update_organization`
+
 ## Version 8.1.0 - 2022-04-12
 
 - Added optional keyword argument `sort_by` to `list_documents`
