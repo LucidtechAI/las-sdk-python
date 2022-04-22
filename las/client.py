@@ -406,6 +406,98 @@ class Client:
         """
         return self._make_request(requests.delete, f'/assets/{asset_id}')
 
+    def create_payment_method(self, **optional_args) -> Dict:
+        """Creates a payment_method, calls the POST /paymentMethods endpoint.
+
+        :param name: Name of the payment method
+        :type name: str, optional
+        :param description: Description of the payment method
+        :type description: str, optional
+        :return: PaymentMethod response from REST API
+        :rtype: dict
+
+        :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
+ :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
+        """
+        return self._make_request(requests.post, '/paymentMethods', body=optional_args)
+
+    def list_payment_methods(self, *, max_results: Optional[int] = None, next_token: Optional[str] = None) -> Dict:
+        """List payment_methods available, calls the GET /paymentMethods endpoint.
+
+        :param max_results: Maximum number of results to be returned
+        :type max_results: int, optional
+        :param next_token: A unique token for each page, use the returned token to retrieve the next page.
+        :type next_token: str, optional
+        :return: PaymentMethods response from REST API without the content of each payment method
+        :rtype: dict
+
+        :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
+ :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
+        """
+        params = {
+            'maxResults': max_results,
+            'nextToken': next_token,
+        }
+        return self._make_request(requests.get, '/paymentMethods', params=params)
+
+    def get_payment_method(self, payment_method_id: str) -> Dict:
+        """Get payment_method, calls the GET /paymentMethods/{paymentMethodId} endpoint.
+
+        :param payment_method_id: Id of the payment method
+        :type payment_method_id: str
+        :return: PaymentMethod response from REST API
+        :rtype: dict
+
+        :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
+ :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
+        """
+        return self._make_request(requests.get, f'/paymentMethods/{payment_method_id}')
+
+    def update_payment_method(
+        self,
+        payment_method_id: str,
+        *,
+        stripe_setup_intent_secret: str = None,
+        **optional_args
+    ) -> Dict:
+        """Updates a payment_method, calls the PATCH /paymentMethods/{paymentMethodId} endpoint.
+
+        :param payment_method_id: Id of the payment method
+        :type payment_method_id: str
+        :param stripe_setup_intent_secret: Stripe setup intent secret as returned from create_payment_method
+        :type stripe_setup_intent_secret: str, optional
+        :param name: Name of the payment method
+        :type name: str, optional
+        :param description: Description of the payment method
+        :type description: str, optional
+        :return: PaymentMethod response from REST API
+        :rtype: dict
+
+        :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
+ :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
+        """
+
+        body = {**optional_args}
+        if stripe_setup_intent_secret:
+            body['stripeSetupIntentSecret'] = stripe_setup_intent_secret
+
+        return self._make_request(requests.patch, f'/paymentMethods/{payment_method_id}', body=body)
+
+    def delete_payment_method(self, payment_method_id: str) -> Dict:
+        """Delete the payment_method with the provided payment_method_id, calls the DELETE \
+/paymentMethods/{paymentMethodId} endpoint.
+
+        :param payment_method_id: Id of the payment method
+        :type payment_method_id: str
+        :return: PaymentMethod response from REST API
+        :rtype: dict
+
+        :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
+ :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
+        """
+
+        return self._make_request(requests.delete, f'/paymentMethods/{payment_method_id}')
+
     def create_dataset(self, *, metadata: Optional[dict] = None, **optional_args) -> Dict:
         """Creates a dataset, calls the POST /datasets endpoint.
 
@@ -1117,12 +1209,16 @@ class Client:
     def update_organization(
         self,
         organization_id: str,
+        *,
+        payment_method_id: str = None,
         **optional_args,
     ) -> Dict:
         """Updates an organization, calls the PATCH /organizations/{organizationId} endpoint.
 
-        :param organization_id: The Id of the organization
+        :param organization_id: Id of organization
         :type organization_id: str, optional
+        :param payment_method_id: Id of paymentMethod to use
+        :type payment_method_id: str, optional
         :param name: Name of the organization
         :type name: str, optional
         :param description: Description of the organization
@@ -1133,7 +1229,11 @@ class Client:
         :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
  :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
         """
-        return self._make_request(requests.patch, f'/organizations/{organization_id}', body=optional_args)
+        body = {**optional_args}
+        if payment_method_id:
+            body['paymentMethodId'] = payment_method_id
+
+        return self._make_request(requests.patch, f'/organizations/{organization_id}', body=body)
 
     def create_prediction(
         self,
@@ -1197,9 +1297,9 @@ class Client:
         return self._make_request(requests.post, '/predictions', body=dictstrip(body))
 
     def list_predictions(
-        self, 
-        *, 
-        max_results: Optional[int] = None, 
+        self,
+        *,
+        max_results: Optional[int] = None,
         next_token: Optional[str] = None,
         order: Optional[str] = None,
         sort_by: Optional[str] = None,

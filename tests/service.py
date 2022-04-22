@@ -30,6 +30,10 @@ def create_model_id():
     return f'las:model:{uuid4().hex}'
 
 
+def create_payment_method_id():
+    return f'las:payment-method:{uuid4().hex}'
+
+
 def create_plan_id():
     return f'las:plan:{uuid4().hex}'
 
