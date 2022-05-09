@@ -1,5 +1,9 @@
 # Changelog
 
+## Version 8.3.0 - 2022-05-09
+
+- Moved optional `training_id` in `update_model` to `optional_args`
+
 ## Version 8.2.0 - 2022-04-22
 
 - Added `create_payment_method`

@@ -962,7 +962,6 @@ class Client:
         field_config: Optional[dict] = None,
         preprocess_config: Optional[dict] = None,
         metadata: Optional[dict] = None,
-        training_id: Optional[str] = None,
         **optional_args,
     ) -> Dict:
         """Updates a model, calls the PATCH /models/{modelId} endpoint.
@@ -997,7 +996,6 @@ class Client:
             'fieldConfig': field_config,
             'metadata': metadata,
             'preprocessConfig': preprocess_config,
-            'trainingId': training_id,
         })
         body.update(**optional_args)
         return self._make_request(requests.patch, f'/models/{model_id}', body=body)
