@@ -1,5 +1,10 @@
 # Changelog
 
+## Version 8.4.0 - 2022-05-23
+
+- Added optional `postprocess_config` to `create_model`
+- Added optional `postprocess_config` to `update_model`
+
 ## Version 8.3.0 - 2022-05-09
 
 - Moved optional `training_id` in `update_model` to `optional_args`

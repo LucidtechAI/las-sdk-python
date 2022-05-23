@@ -8,14 +8,16 @@ from . import service, util
 
 
 @pytest.mark.parametrize('preprocess_config', [service.preprocess_config(), None])
+@pytest.mark.parametrize('postprocess_config', [service.postprocess_config(), None])
 @pytest.mark.parametrize('name_and_description', util.name_and_description_combinations())
 @pytest.mark.parametrize('metadata', [util.metadata(), None])
-def test_create_model(client: Client, preprocess_config, name_and_description, metadata):
+def test_create_model(client: Client, preprocess_config, postprocess_config, name_and_description, metadata):
     response = client.create_model(
         width=300,
         height=300,
         field_config=service.field_config(),
         preprocess_config=preprocess_config,
+        postprocess_config=postprocess_config,
         metadata=metadata,
         **name_and_description,
     )
@@ -48,9 +50,10 @@ def test_get_model(client: Client):
 
 
 @pytest.mark.parametrize('preprocess_config', [service.preprocess_config(), None])
+@pytest.mark.parametrize('postprocess_config', [service.postprocess_config(), None])
 @pytest.mark.parametrize('name_and_description', util.name_and_description_combinations())
 @pytest.mark.parametrize('metadata', [util.metadata(), None])
-def test_update_model(client: Client, preprocess_config, name_and_description, metadata):
+def test_update_model(client: Client, preprocess_config, postprocess_config, name_and_description, metadata):
     response = client.update_model(
         service.create_model_id(),
         width=300,
@@ -58,6 +61,7 @@ def test_update_model(client: Client, preprocess_config, name_and_description, m
         field_config=service.field_config(),
         metadata=metadata,
         preprocess_config=preprocess_config,
+        postprocess_config=postprocess_config,
         **name_and_description,
     )
     logging.info(response)
