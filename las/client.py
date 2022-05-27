@@ -878,6 +878,7 @@ class Client:
         width: Optional[int] = None,
         height: Optional[int] = None,
         preprocess_config: Optional[dict] = None,
+        postprocess_config: Optional[dict] = None,
         name: Optional[str] = None,
         description: Optional[str] = None,
         metadata: Optional[dict] = None,
@@ -893,6 +894,8 @@ class Client:
         :type height: int, optional
         :param preprocess_config: Specification of the processing steps prior to the prediction of an image
         :type preprocess_config: dict
+        :param postprocess_config: Specification of the processing steps after the prediction of an image
+        :type postprocess_config: dict
         :param name: Name of the model
         :type name: str, optional
         :param description: Description of the model
@@ -910,6 +913,7 @@ class Client:
             'height': height,
             'fieldConfig': field_config,
             'preprocessConfig': preprocess_config,
+            'postprocessConfig': postprocess_config,
             'name': name,
             'description': description,
             'metadata': metadata,
@@ -961,6 +965,7 @@ class Client:
         height: Optional[int] = None,
         field_config: Optional[dict] = None,
         preprocess_config: Optional[dict] = None,
+        postprocess_config: Optional[dict] = None,
         metadata: Optional[dict] = None,
         **optional_args,
     ) -> Dict:
@@ -976,6 +981,8 @@ class Client:
         :type field_config: dict
         :param preprocess_config: Specification of the processing steps prior to the prediction of an image
         :type preprocess_config: dict
+        :param postprocess_config: Specification of the processing steps after the prediction of an image
+        :type postprocess_config: dict
         :param metadata: Dictionary that can be used to store additional information
         :type metadata: dict, optional
         :param training_id: Use training_id for model inference in POST /predictions
@@ -996,6 +1003,7 @@ class Client:
             'fieldConfig': field_config,
             'metadata': metadata,
             'preprocessConfig': preprocess_config,
+            'postprocessConfig': postprocess_config,
         })
         body.update(**optional_args)
         return self._make_request(requests.patch, f'/models/{model_id}', body=body)

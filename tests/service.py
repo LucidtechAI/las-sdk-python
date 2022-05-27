@@ -81,24 +81,31 @@ def create_completed_config():
 
 def field_config():
     return {
-        "total": {
-            "description": "the total amount of the receipt",
-            "type": "amount",
-            "maxLength": 10,
+        'total': {
+            'description': 'the total amount of the receipt',
+            'type': 'amount',
+            'maxLength': 10,
         },
-        "due_date": {
-            "description": "the due date of the invoice",
-            "type": "date",
-            "maxLength": 10,
+        'due_date': {
+            'description': 'the due date of the invoice',
+            'type': 'date',
+            'maxLength': 10,
         },
     }
 
 
 def preprocess_config():
     return {
-        "imageQuality": "HIGH",
-        "autoRotate": False,
-        "maxPages": 3,
+        'imageQuality': 'HIGH',
+        'autoRotate': False,
+        'maxPages': 3,
+    }
+
+
+def postprocess_config():
+    return {
+        'strategy': 'BEST_N_PAGES',
+        'parameters': {'n': 3, 'collapse': True},
     }
 
 
