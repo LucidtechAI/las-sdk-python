@@ -1,7 +1,7 @@
 import logging
 import random
 from datetime import datetime, timezone
-from unittest.mock import patch
+from unittest.mock import patch, ANY
 
 import pytest
 import las
@@ -167,8 +167,8 @@ def execution_env():
     }
 
 
-@patch('las.Client.get_transition_execution', spec=True)
-@patch('las.Client.update_transition_execution', spec=True)
+@patch('las.Client.get_transition_execution')
+@patch('las.Client.update_transition_execution')
 def test_transition_handler_updated_successfully(update_transition_exc, get_transition_exc, execution_env):
     output = {'result': 'All good'}
     
@@ -178,21 +178,29 @@ def test_transition_handler_updated_successfully(update_transition_exc, get_tran
 
     with patch.dict(las.os.environ, values=execution_env):
         sample_handler()
-    
-    assert update_transition_exc.call_args.kwargs['status'] == 'succeeded'
-    assert update_transition_exc.call_args.kwargs['output'] == output
+
+    update_transition_exc.assert_called_once_with(
+        execution_id=execution_env['EXECUTION_ID'],
+        transition_id=execution_env['TRANSITION_ID'],
+        status='succeeded',
+        output=ANY
+    )
     
 
-@patch('las.Client.get_transition_execution', spec=True)
-@patch('las.Client.update_transition_execution', spec=True)
+@patch('las.Client.get_transition_execution')
+@patch('las.Client.update_transition_execution')
 def test_transition_handler_updated_on_failure(update_transition_exc, get_transition_exc, execution_env):
     @las.transition_handler
     def sample_handler(las_client: Client, event: dict):
         raise RuntimeError('Some error')
-
+    
     with patch.dict(las.os.environ, values=execution_env):
         with pytest.raises(RuntimeError):
             sample_handler()
-    
-    assert update_transition_exc.call_args.kwargs['status'] == 'failed'
-    assert 'message' in update_transition_exc.call_args.kwargs['error']
+            
+    update_transition_exc.assert_called_once_with(
+        execution_id=execution_env['EXECUTION_ID'],
+        transition_id=execution_env['TRANSITION_ID'],
+        status='failed',
+        error=ANY,
+    )
