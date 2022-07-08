@@ -179,8 +179,8 @@ def test_transition_handler_updated_successfully(update_transition_exc, get_tran
     with patch.dict(las.os.environ, values=execution_env):
         sample_handler()
     
-    assert update_transition_exc.call_args.kwargs['status'] is 'succeeded'
-    assert update_transition_exc.call_args.kwargs['output'] is output
+    assert update_transition_exc.call_args.kwargs['status'] == 'succeeded'
+    assert update_transition_exc.call_args.kwargs['output'] == output
     
 
 @patch('las.Client.get_transition_execution', spec=True)
@@ -194,5 +194,5 @@ def test_transition_handler_updated_on_failure(update_transition_exc, get_transi
         with pytest.raises(RuntimeError):
             sample_handler()
     
-    assert update_transition_exc.call_args.kwargs['status'] is 'failed'
+    assert update_transition_exc.call_args.kwargs['status'] == 'failed'
     assert 'message' in update_transition_exc.call_args.kwargs['error']
