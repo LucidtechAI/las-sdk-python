@@ -183,7 +183,7 @@ def test_transition_handler_updated_successfully(update_transition_exc, get_tran
         execution_id=execution_env['EXECUTION_ID'],
         transition_id=execution_env['TRANSITION_ID'],
         status='succeeded',
-        output=ANY
+        output=ANY,
     )
     
 
