@@ -3,8 +3,8 @@ import random
 from datetime import datetime, timezone
 from unittest.mock import patch, ANY
 
-import pytest
 import las
+import pytest
 from las.client import Client
 
 from . import service, util
