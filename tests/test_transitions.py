@@ -204,4 +204,3 @@ def test_transition_handler_updated_on_failure(update_transition_exc, get_transi
         status='failed',
         error=ANY,
     )
-    
