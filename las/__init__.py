@@ -1,5 +1,6 @@
 import logging
 import os
+import traceback
 
 from .client import Client
 from .credentials import Credentials
@@ -58,12 +59,12 @@ def transition_handler(f):
             )
         except Exception as e:
             logging.exception(e)
-
+            
             las_client.update_transition_execution(
                 transition_id=transition_id,
                 execution_id=execution_id,
                 status='failed',
-                error={'message': 'Error while executing transition'}
+                error={'message': traceback.format_exc()[-(2**12 - 1):]}
             )
 
             raise
