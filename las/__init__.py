@@ -54,7 +54,7 @@ def transition_handler(f):
                 transition_id=transition_id,
                 execution_id=execution_id,
                 status='succeeded',
-                output=output
+                output=output,
             )
         except Exception as e:
             logging.exception(e)
