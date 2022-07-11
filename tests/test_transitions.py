@@ -1,7 +1,9 @@
 import logging
 import random
 from datetime import datetime, timezone
+from unittest.mock import patch, ANY
 
+import las
 import pytest
 from las.client import Client
 
@@ -155,3 +157,50 @@ def assert_transition(response):
     assert 'name' in response, 'Missing name in response'
     assert 'transitionId' in response, 'Missing transitionId in response'
     assert 'transitionType' in response, 'Missing transitionType in response'
+    
+    
+@pytest.fixture
+def execution_env():
+    return {
+        'TRANSITION_ID': 'xyz',
+        'EXECUTION_ID': 'xyz',
+    }
+
+
+@patch('las.Client.get_transition_execution')
+@patch('las.Client.update_transition_execution')
+def test_transition_handler_updated_successfully(update_transition_exc, get_transition_exc, execution_env):
+    output = {'result': 'All good'}
+    
+    @las.transition_handler
+    def sample_handler(las_client: Client, event: dict):
+        return output
+
+    with patch.dict(las.os.environ, values=execution_env):
+        sample_handler()
+
+    update_transition_exc.assert_called_once_with(
+        execution_id=execution_env['EXECUTION_ID'],
+        transition_id=execution_env['TRANSITION_ID'],
+        status='succeeded',
+        output=ANY,
+    )
+    
+
+@patch('las.Client.get_transition_execution')
+@patch('las.Client.update_transition_execution')
+def test_transition_handler_updated_on_failure(update_transition_exc, get_transition_exc, execution_env):
+    @las.transition_handler
+    def sample_handler(las_client: Client, event: dict):
+        raise RuntimeError('Some error')
+    
+    with patch.dict(las.os.environ, values=execution_env):
+        with pytest.raises(RuntimeError):
+            sample_handler()
+            
+    update_transition_exc.assert_called_once_with(
+        execution_id=execution_env['EXECUTION_ID'],
+        transition_id=execution_env['TRANSITION_ID'],
+        status='failed',
+        error=ANY,
+    )
