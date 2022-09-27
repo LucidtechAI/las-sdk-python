@@ -69,6 +69,7 @@ def test_update_workflow(client: Client, name_and_description, error_config, com
     (datetime(2022, 1, 1).astimezone(timezone.utc).isoformat(), datetime(2023, 1, 1).astimezone(timezone.utc).isoformat()),
     (datetime(2022, 1, 1).astimezone(timezone.utc).isoformat(), None),
     (None, datetime(2023, 1, 1).astimezone(timezone.utc).isoformat()),
+    (None, None),
 ])
 @pytest.mark.parametrize('status', [
     ['succeeded'],
