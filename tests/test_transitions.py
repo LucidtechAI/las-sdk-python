@@ -74,18 +74,37 @@ def test_get_transition_execution(client: Client):
     assert 'status' in response, 'Missing status in response'
 
 
-@pytest.mark.parametrize('in_schema,out_schema', [
+@pytest.mark.parametrize(('cpu', 'memory', 'image_url', 'secret_id'), [
+    (256, 512, 'python3.8', service.create_secret_id()),
+    (256, 1024, 'python3.9', service.create_secret_id()),
+    (256, 512, 'python3.8', None),
+    (256, 1024, 'python3.9', None),
+])
+@pytest.mark.parametrize(('in_schema', 'out_schema'), [
     (None, None),
     ({'foo': 'bar'}, None),
     (None, {'foo': 'bar'}),
     ({'foo': 'bar'}, {'foo': 'bar'}),
 ])
 @pytest.mark.parametrize('name_and_description', util.name_and_description_combinations(True))
-def test_update_transition(client: Client, name_and_description, in_schema, out_schema):
+def test_update_transition(
+    client: Client, 
+    name_and_description, 
+    in_schema, 
+    out_schema, 
+    cpu, 
+    memory, 
+    image_url, 
+    secret_id,
+):
     response = client.update_transition(
         service.create_transition_id(),
         in_schema=in_schema,
         out_schema=out_schema,
+        cpu=cpu,
+        memory=memory,
+        image_url=image_url,
+        secret_id=secret_id,
         **name_and_description,
     )
     logging.info(response)

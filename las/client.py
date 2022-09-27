@@ -27,6 +27,14 @@ Content = Union[bytes, bytearray, str, Path, io.IOBase]
 Queryparam = Union[str, List[str]]
 
 
+def datetimestr(d: Optional[Union[str, datetime]]) -> Optional[str]:
+    if isinstance(d, datetime):
+        if not d.tzinfo:
+            d = d.astimezone()
+        return d.isoformat()
+    return d
+
+
 def dictstrip(d):
     """Given a dict, return the dict with keys mapping to falsey values removed."""
     return {k: v for k, v in d.items() if v}
@@ -1588,6 +1596,9 @@ class Client:
         assets: Optional[dict] = None,
         environment: Optional[dict] = None,
         environment_secrets: Optional[list] = None,
+        cpu: Optional[int] = None,
+        memory: Optional[int] = None,
+        image_url: Optional[str] = None,
         **optional_args,
     ) -> Dict:
         """Updates a transition, calls the PATCH /transitions/{transitionId} endpoint.
@@ -1615,6 +1626,14 @@ class Client:
         :param environment_secrets: \
             A list of secretIds that contains environment variables to use for a docker transition
         :type environment_secrets: list, optional
+        :param cpu: Number of CPU units to use for a docker transition
+        :type cpu: int, optional
+        :param memory: Memory in MiB to use for a docker transition
+        :type memory: int, optional
+        :param image_url: Docker image url to use for a docker transition
+        :type image_url: str, optional
+        :param secret_id: Secret containing a username and password if image_url points to a private docker image
+        :type secret_id: str, optional
         :return: Transition response from REST API
         :rtype: dict
 
@@ -1624,10 +1643,21 @@ class Client:
         body = dictstrip({
             'inputJsonSchema': in_schema,
             'outputJsonSchema': out_schema,
+        })
+
+        parameters = dictstrip({
             'assets': assets,
+            'cpu': cpu,
             'environment': environment,
             'environmentSecrets': environment_secrets,
+            'imageUrl': image_url,
+            'memory': memory,
         })
+        if 'secret_id' in optional_args:
+            parameters['secretId'] = optional_args.pop('secret_id')
+        if parameters:
+            body['parameters'] = parameters
+
         body.update(**optional_args)
         return self._make_request(requests.patch, f'/transitions/{transition_id}', body=body)
 
@@ -1773,17 +1803,13 @@ class Client:
         :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
  :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
         """
-        if isinstance(start_time, datetime):
-            if not start_time.tzinfo:
-                start_time = start_time.astimezone()
-            start_time = start_time.isoformat()
-
+        
         url = f'/transitions/{transition_id}/executions/{execution_id}'
         body = {
             'status': status,
             'output': output,
             'error': error,
-            'startTime': start_time,
+            'startTime': datetimestr(start_time),
         }
         return self._make_request(requests.patch, url, body=dictstrip(body))
 
@@ -2077,14 +2103,16 @@ class Client:
         return self._make_request(requests.post, endpoint, body={'input': content})
 
     def list_workflow_executions(
-            self,
-            workflow_id: str,
-            *,
-            status: Optional[Queryparam] = None,
-            sort_by: Optional[str] = None,
-            order: Optional[str] = None,
-            max_results: Optional[int] = None,
-            next_token: Optional[str] = None,
+        self,
+        workflow_id: str,
+        *,
+        status: Optional[Queryparam] = None,
+        sort_by: Optional[str] = None,
+        order: Optional[str] = None,
+        max_results: Optional[int] = None,
+        next_token: Optional[str] = None,
+        from_start_time: Optional[Union[str, datetime]] = None,
+        to_start_time: Optional[Union[str, datetime]] = None,
     ) -> Dict:
         """List executions in a workflow, calls the GET /workflows/{workflowId}/executions endpoint.
 
@@ -2104,6 +2132,10 @@ class Client:
         :type max_results: int, optional
         :param next_token: A unique token for each page, use the returned token to retrieve the next page.
         :type next_token: str, optional
+        :param from_start_time: Specify a datetime range for start_time with from_start_time as lower bound
+        :type from_start_time: str or datetime, optional
+        :param to_start_time: Specify a datetime range for start_time with to_start_time as upper bound
+        :type to_start_time: str or datetime, optional
         :return: Workflow executions responses from REST API
         :rtype: dict
 
@@ -2118,6 +2150,11 @@ class Client:
             'maxResults': max_results,
             'nextToken': next_token,
         }
+        
+        if any(from_start_time, to_start_time):
+            params['fromStartTime'] = datetimestr(from_start_time)
+            params['toStartTime'] = datetimestr(to_start_time)
+
         return self._make_request(requests.get, url, params=params)
 
     def get_workflow_execution(self, workflow_id: str, execution_id: str) -> Dict:

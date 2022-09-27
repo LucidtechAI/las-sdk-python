@@ -1,5 +1,14 @@
 # Changelog
 
+## Version 8.6.0 - 2022-09-27
+
+- Added optional keyword argument `cpu` to `update_transition`
+- Added optional keyword argument `image_url` to `update_transition`
+- Added optional keyword argument `memory` to `update_transition`
+- Added optional keyword argument `secret_id` to `update_transition`
+- Added optional keyword argument `from_start_time` to `list_workflow_executions`
+- Added optional keyword argument `to_start_time` to `list_workflow_executions`
+
 ## Version 8.4.0 - 2022-05-23
 
 - Added optional `postprocess_config` to `create_model`
