@@ -1660,7 +1660,6 @@ class Client:
             body['parameters'] = parameters
 
         body.update(**optional_args)
-        print(body)
         return self._make_request(requests.patch, f'/transitions/{transition_id}', body=body)
 
     def execute_transition(self, transition_id: str) -> Dict:
