@@ -1594,8 +1594,6 @@ class Client:
         in_schema: Optional[dict] = None,
         out_schema: Optional[dict] = None,
         assets: Optional[dict] = None,
-        environment: Optional[dict] = None,
-        environment_secrets: Optional[list] = None,
         cpu: Optional[int] = None,
         memory: Optional[int] = None,
         image_url: Optional[str] = None,
@@ -1648,17 +1646,21 @@ class Client:
         parameters = dictstrip({
             'assets': assets,
             'cpu': cpu,
-            'environment': environment,
-            'environmentSecrets': environment_secrets,
             'imageUrl': image_url,
             'memory': memory,
         })
+
+        if 'environment' in optional_args:
+            parameters['environment'] = optional_args.pop('environment')
+        if 'environment_secrets' in optional_args:
+            parameters['environmentSecrets'] = optional_args.pop('environment_secrets')
         if 'secret_id' in optional_args:
             parameters['secretId'] = optional_args.pop('secret_id')
         if parameters:
             body['parameters'] = parameters
 
         body.update(**optional_args)
+        print(body)
         return self._make_request(requests.patch, f'/transitions/{transition_id}', body=body)
 
     def execute_transition(self, transition_id: str) -> Dict:
@@ -2151,7 +2153,7 @@ class Client:
             'nextToken': next_token,
         }
         
-        if any(from_start_time, to_start_time):
+        if any([from_start_time, to_start_time]):
             params['fromStartTime'] = datetimestr(from_start_time)
             params['toStartTime'] = datetimestr(to_start_time)
 
