@@ -1,5 +1,6 @@
 import logging
 import random
+from datetime import datetime, timezone
 
 import pytest
 from las.client import Client
@@ -61,15 +62,29 @@ def test_update_workflow(client: Client, name_and_description, error_config, com
     assert_workflow(response)
 
 
+@pytest.mark.parametrize(('from_start_time', 'to_start_time'), [
+    (datetime(2022, 1, 1).astimezone(timezone.utc), datetime(2023, 1, 1).astimezone(timezone.utc)),
+    (datetime(2022, 1, 1).astimezone(timezone.utc), None),
+    (None, datetime(2023, 1, 1).astimezone(timezone.utc)),
+    (datetime(2022, 1, 1).astimezone(timezone.utc).isoformat(), datetime(2023, 1, 1).astimezone(timezone.utc).isoformat()),
+    (datetime(2022, 1, 1).astimezone(timezone.utc).isoformat(), None),
+    (None, datetime(2023, 1, 1).astimezone(timezone.utc).isoformat()),
+    (None, None),
+])
 @pytest.mark.parametrize('status', [
     ['succeeded'],
     ['failed'],
     'running',
     None,
 ])
-def test_list_workflow_executions(client: Client, status):
+def test_list_workflow_executions(client: Client, status, from_start_time, to_start_time):
     workflow_id = service.create_workflow_id()
-    response = client.list_workflow_executions(workflow_id, status=status)
+    response = client.list_workflow_executions(
+        workflow_id=workflow_id, 
+        status=status, 
+        from_start_time=from_start_time,
+        to_start_time=to_start_time,
+    )
     logging.info(response)
     assert 'workflowId' in response, 'Missing workflowId in response'
     assert 'executions' in response, 'Missing executions in response'
