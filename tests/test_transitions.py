@@ -74,12 +74,6 @@ def test_get_transition_execution(client: Client):
     assert 'status' in response, 'Missing status in response'
 
 
-@pytest.mark.parametrize(('cpu', 'memory', 'image_url', 'secret_id'), [
-    (256, 512, 'python3.8', service.create_secret_id()),
-    (256, 1024, 'python3.9', service.create_secret_id()),
-    (256, 512, 'python3.8', None),
-    (256, 1024, 'python3.9', None),
-])
 @pytest.mark.parametrize(('in_schema', 'out_schema'), [
     (None, None),
     ({'foo': 'bar'}, None),
@@ -88,41 +82,60 @@ def test_get_transition_execution(client: Client):
 ])
 @pytest.mark.parametrize('name_and_description', util.name_and_description_combinations(True))
 def test_update_transition(
-    client: Client, 
-    name_and_description, 
-    in_schema, 
-    out_schema, 
-    cpu, 
-    memory, 
-    image_url, 
-    secret_id,
+    client: Client,
+    name_and_description,
+    in_schema,
+    out_schema,
 ):
     response = client.update_transition(
         service.create_transition_id(),
         in_schema=in_schema,
         out_schema=out_schema,
-        cpu=cpu,
-        memory=memory,
-        image_url=image_url,
-        secret_id=secret_id,
         **name_and_description,
     )
     logging.info(response)
     assert_transition(response)
 
 
-@pytest.mark.parametrize('assets,environment,environment_secrets', [
-    (None, None, [service.create_secret_id(), service.create_secret_id()]),
-    ({'foo': service.create_asset_id()}, None, None),
-    (None, {'foo': 'bar'}, None),
-    (None, {'foo': 'bar'}, [service.create_secret_id(), service.create_secret_id()]),
-])
-def test_update_transition_parameters(client: Client, assets, environment, environment_secrets):
+@pytest.mark.parametrize('assets', [{'foo': service.create_asset_id()}])
+def test_update_transition_parameters_manual(client: Client, assets):
     response = client.update_transition(
         service.create_transition_id(),
         assets=assets,
+    )
+    logging.info(response)
+    assert_transition(response)
+
+
+@pytest.mark.parametrize(('cpu', 'memory', 'image_url', 'secret_id'), [
+    (256, 512, 'python3.8', service.create_secret_id()),
+    (256, 1024, 'python3.9', service.create_secret_id()),
+    (256, 512, 'python3.8', None),
+    (256, 1024, 'python3.9', None),
+])
+@pytest.mark.parametrize(('environment', 'environment_secrets'), [
+    (None, [service.create_secret_id(), service.create_secret_id()]),
+    ({'foo': 'bar'}, None),
+    ({'foo': 'bar'}, [service.create_secret_id(), service.create_secret_id()]),
+    (None, None),
+])
+def test_update_transition_parameters_docker(
+    client: Client, 
+    environment, 
+    environment_secrets,
+    cpu,
+    memory,
+    image_url,
+    secret_id,
+):
+    response = client.update_transition(
+        service.create_transition_id(),
         environment=environment,
         environment_secrets=environment_secrets,
+        cpu=cpu,
+        memory=memory,
+        image_url=image_url,
+        secret_id=secret_id,
     )
     logging.info(response)
     assert_transition(response)
@@ -176,8 +189,8 @@ def assert_transition(response):
     assert 'name' in response, 'Missing name in response'
     assert 'transitionId' in response, 'Missing transitionId in response'
     assert 'transitionType' in response, 'Missing transitionType in response'
-    
-    
+
+
 @pytest.fixture
 def execution_env():
     return {
@@ -190,7 +203,7 @@ def execution_env():
 @patch('las.Client.update_transition_execution')
 def test_transition_handler_updated_successfully(update_transition_exc, get_transition_exc, execution_env):
     output = {'result': 'All good'}
-    
+
     @las.transition_handler
     def sample_handler(las_client: Client, event: dict):
         return output
@@ -204,7 +217,7 @@ def test_transition_handler_updated_successfully(update_transition_exc, get_tran
         status='succeeded',
         output=ANY,
     )
-    
+
 
 @patch('las.Client.get_transition_execution')
 @patch('las.Client.update_transition_execution')
@@ -212,11 +225,11 @@ def test_transition_handler_updated_on_failure(update_transition_exc, get_transi
     @las.transition_handler
     def sample_handler(las_client: Client, event: dict):
         raise RuntimeError('Some error')
-    
+
     with patch.dict(las.os.environ, values=execution_env):
         with pytest.raises(RuntimeError):
             sample_handler()
-            
+
     update_transition_exc.assert_called_once_with(
         execution_id=execution_env['EXECUTION_ID'],
         transition_id=execution_env['TRANSITION_ID'],
