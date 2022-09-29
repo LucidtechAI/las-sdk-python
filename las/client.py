@@ -126,6 +126,11 @@ def _(content, find_content_type=False):
     return b64encode(raw).decode(), content_type
 
 
+class EmptyRequestError(ValueError):
+    """An EmptyRequestError is raised if the request body is empty when expected not to be empty."""
+    pass
+
+
 class ClientException(Exception):
     """A ClientException is raised if the client refuses to
     send request due to incorrect usage or bad request data."""
@@ -183,6 +188,9 @@ class Client:
     ) -> Dict:
         """Make signed headers, use them to make a HTTP request of arbitrary form and return the result
         as decoded JSON. Optionally pass a payload to JSON-dump and parameters for the request call."""
+
+        if not body and requests_fn in [requests.patch]:
+            raise EmptyRequestError
 
         kwargs = {'params': params}
         None if body is None else kwargs.update({'data': json.dumps(body)})
@@ -792,12 +800,13 @@ class Client:
         :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
  :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
         """
-        body = {
+        body = dictstrip({
             'groundTruth': ground_truth,
             'datasetId': dataset_id,
             'metadata': metadata,
-        }
-        return self._make_request(requests.patch, f'/documents/{document_id}', body=dictstrip(body))
+        })
+
+        return self._make_request(requests.patch, f'/documents/{document_id}', body=body)
 
     def delete_document(self, document_id: str) -> Dict:
         """Delete the document with the provided document_id, calls the DELETE /documents/{documentId} endpoint.
@@ -1804,7 +1813,7 @@ class Client:
         :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
  :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
         """
-        
+
         url = f'/transitions/{transition_id}/executions/{execution_id}'
         body = {
             'status': status,
@@ -2151,7 +2160,7 @@ class Client:
             'maxResults': max_results,
             'nextToken': next_token,
         }
-        
+
         if any([from_start_time, to_start_time]):
             params['fromStartTime'] = datetimestr(from_start_time)
             params['toStartTime'] = datetimestr(to_start_time)
