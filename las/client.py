@@ -899,6 +899,7 @@ class Client:
         name: Optional[str] = None,
         description: Optional[str] = None,
         metadata: Optional[dict] = None,
+        base_model: Optional[dict] = None,
         **optional_args,
     ) -> Dict:
         """Creates a model, calls the POST /models endpoint.
@@ -919,12 +920,21 @@ class Client:
         :type description: str, optional
         :param metadata: Dictionary that can be used to store additional information
         :type metadata: dict, optional
+        :param base_model: Specify which model to use as base model. Example: \
+{"organizationId": "las:organization:cradl", "modelId": "las:model:invoice"}
+        :type base_model: dict, optional
         :return: Model response from REST API
         :rtype: dict
 
         :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
  :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
         """
+        if base_model:
+            metadata = {
+                **(metadata or {}),
+                'baseModel': base_model,
+            }
+
         body = dictstrip({
             'width': width,
             'height': height,
@@ -938,13 +948,21 @@ class Client:
         body.update(**optional_args)
         return self._make_request(requests.post, '/models', body=body)
 
-    def list_models(self, *, max_results: Optional[int] = None, next_token: Optional[str] = None) -> Dict:
+    def list_models(
+        self,
+        *,
+        owner: Optional[Queryparam] = None,
+        max_results: Optional[int] = None,
+        next_token: Optional[str] = None,
+    ) -> Dict:
         """List models available, calls the GET /models endpoint.
 
         >>> from las.client import Client
         >>> client = Client()
         >>> client.list_models()
 
+        :param owner: Organizations to retrieve plans from
+        :type owner: Queryparam, optional
         :param max_results: Maximum number of results to be returned
         :type max_results: int, optional
         :param next_token: A unique token for each page, use the returned token to retrieve the next page.
@@ -958,8 +976,9 @@ class Client:
         params = {
             'maxResults': max_results,
             'nextToken': next_token,
+            'owner': owner,
         }
-        return self._make_request(requests.get, '/models', params=params)
+        return self._make_request(requests.get, '/models', params=dictstrip(params))
 
     def get_model(self, model_id: str) -> Dict:
         """Get a model, calls the GET /models/{modelId} endpoint.
@@ -1373,7 +1392,13 @@ class Client:
 
         return self._make_request(requests.get, f'/plans/{quote(plan_id, safe="")}')
 
-    def list_plans(self, *, owner: Optional[Queryparam] = None, max_results: Optional[int] = None, next_token: Optional[str] = None) -> Dict:
+    def list_plans(
+        self,
+        *,
+        owner: Optional[Queryparam] = None,
+        max_results: Optional[int] = None,
+        next_token: Optional[str] = None,
+    ) -> Dict:
         """List plans available, calls the GET /plans endpoint.
 
         >>> from las.client import Client
@@ -1393,9 +1418,9 @@ class Client:
     :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
         """
         params = {
-            'owner': owner,
             'maxResults': max_results,
             'nextToken': next_token,
+            'owner': owner,
         }
         return self._make_request(requests.get, '/plans', params=dictstrip(params))
 

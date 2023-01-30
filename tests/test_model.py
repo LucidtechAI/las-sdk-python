@@ -11,7 +11,18 @@ from . import service, util
 @pytest.mark.parametrize('postprocess_config', [service.postprocess_config(), None])
 @pytest.mark.parametrize('name_and_description', util.name_and_description_combinations())
 @pytest.mark.parametrize('metadata', [util.metadata(), None])
-def test_create_model(client: Client, preprocess_config, postprocess_config, name_and_description, metadata):
+@pytest.mark.parametrize('base_model', [
+    {'organizationId': service.create_organization_id(), 'modelId': service.create_model_id()}, 
+    None,
+])
+def test_create_model(
+    client: Client, 
+    preprocess_config, 
+    postprocess_config, 
+    name_and_description, 
+    metadata, 
+    base_model,
+):
     response = client.create_model(
         width=300,
         height=300,
@@ -19,14 +30,16 @@ def test_create_model(client: Client, preprocess_config, postprocess_config, nam
         preprocess_config=preprocess_config,
         postprocess_config=postprocess_config,
         metadata=metadata,
+        base_model=base_model,
         **name_and_description,
     )
     logging.info(response)
     assert_model(response)
 
 
-def test_list_models(client: Client):
-    response = client.list_models()
+@pytest.mark.parametrize('owner', [[service.create_organization_id(), service.create_organization_id()], None])
+def test_list_models(client: Client, owner):
+    response = client.list_models(owner=owner)
     logging.info(response)
     assert 'models' in response, 'Missing models in response'
 
