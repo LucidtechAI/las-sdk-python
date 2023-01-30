@@ -1,5 +1,10 @@
 # Changelog
 
+## Version 8.7.0 - 2023-01-30
+
+- Added optional keyword argument `base_model` to `create_model`
+- Added optional keyword argument `owner` to `list_models`
+
 ## Version 8.6.0 - 2022-09-27
 
 - Added optional keyword argument `cpu` to `update_transition`
