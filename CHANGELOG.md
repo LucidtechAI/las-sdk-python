@@ -2,7 +2,7 @@
 
 ## Version 8.8.0 - 2023-02-23
 
-- Added optional keyword argument `rotation` to `create_predictions`
+- Added optional keyword argument `rotation` to `create_prediction`
 
 ## Version 8.7.0 - 2023-01-30
 
