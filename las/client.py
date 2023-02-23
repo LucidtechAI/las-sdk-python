@@ -1323,7 +1323,7 @@ class Client:
             {'strategy': 'BEST_N_PAGES', 'parameters': {'n': 3, 'collapse': False}}
         :type postprocess_config: dict, optional
         :param rotation: Number of degrees to rotate the document before making the prediction,
-            has to be a multiple of 90
+            has to be 0, 90, 180 or 270
         :type rotation: int, optional
         :return: Prediction response from REST API
         :rtype: dict
