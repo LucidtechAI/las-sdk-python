@@ -1,5 +1,9 @@
 # Changelog
 
+## Version 8.8.0 - 2023-02-23
+
+- Added optional keyword argument `rotation` to `create_prediction`
+
 ## Version 8.7.0 - 2023-01-30
 
 - Added optional keyword argument `base_model` to `create_model`

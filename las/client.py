@@ -1287,6 +1287,7 @@ class Client:
         auto_rotate: Optional[bool] = None,
         image_quality: Optional[str] = None,
         postprocess_config: Optional[dict] = None,
+        rotation: Optional[int] = None,
     ) -> Dict:
         """Create a prediction on a document using specified model, calls the POST /predictions endpoint.
 
@@ -1302,12 +1303,12 @@ class Client:
         :type training_id: str
         :param max_pages: Maximum number of pages to run predictions on
         :type max_pages: int, optional
-        :param auto_rotate: Whether or not to let the API try different rotations on\
+        :param auto_rotate: Whether to let the API try different rotations on\
             the document when running predictions
         :type auto_rotate: bool, optional
         :param image_quality: Image quality for prediction "LOW|HIGH". \
-            high quality could give better result but will also take longer time.
-        :type image_quality: int, optional
+            High quality could give better result but will also take longer time
+        :type image_quality: str, optional
         :param postprocess_config: Post processing configuration for prediction.
             {
                 'strategy': 'BEST_FIRST' | 'BEST_N_PAGES',  (required)
@@ -1321,6 +1322,9 @@ class Client:
             {'strategy': 'BEST_N_PAGES', 'parameters': {'n': 3}}
             {'strategy': 'BEST_N_PAGES', 'parameters': {'n': 3, 'collapse': False}}
         :type postprocess_config: dict, optional
+        :param rotation: Number of degrees to rotate the document before making the prediction,
+            has to be 0, 90, 180 or 270
+        :type rotation: int, optional
         :return: Prediction response from REST API
         :rtype: dict
 
@@ -1335,6 +1339,7 @@ class Client:
             'autoRotate': auto_rotate,
             'imageQuality': image_quality,
             'postprocessConfig': postprocess_config,
+            'rotation': rotation,
         }
         return self._make_request(requests.post, '/predictions', body=dictstrip(body))
 
