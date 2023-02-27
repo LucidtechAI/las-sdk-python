@@ -1287,7 +1287,7 @@ class Client:
         auto_rotate: Optional[bool] = None,
         image_quality: Optional[str] = None,
         postprocess_config: Optional[dict] = None,
-        rotation: Optional[int] = None
+        rotation: Optional[int] = None,
     ) -> Dict:
         """Create a prediction on a document using specified model, calls the POST /predictions endpoint.
 
