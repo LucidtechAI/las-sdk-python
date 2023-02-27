@@ -9,7 +9,7 @@ from . import service
 @pytest.mark.parametrize(('rotation', 'auto_rotate', 'max_pages', 'image_quality'), [
     (0, True, 1, 'LOW'),
     (90, False, 2, 'HIGH'),
-    (180, None, 3, 'None'),
+    (180, None, 3, None),
     (270, True, None, 'HIGH'),
     (None, False, 1, 'LOW', ),
 ])
