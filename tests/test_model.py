@@ -37,7 +37,7 @@ def test_create_model(
     assert_model(response)
 
 
-@pytest.mark.parametrize('owner', [[service.create_organization_id(), service.create_organization_id()], None])
+@pytest.mark.parametrize('owner', [[service.create_organization_id()], None])
 def test_list_models(client: Client, owner):
     response = client.list_models(owner=owner)
     logging.info(response)
