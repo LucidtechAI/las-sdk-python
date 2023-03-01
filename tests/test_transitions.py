@@ -236,3 +236,37 @@ def test_transition_handler_updated_on_failure(update_transition_exc, get_transi
         status='failed',
         error=ANY,
     )
+
+
+@pytest.mark.parametrize('status', ['succeeded', 'rejected', 'failed'])
+@patch('las.Client.get_transition_execution')
+@patch('las.Client.update_transition_execution')
+def test_transition_handler_custom_status(update_transition_exc, get_transition_exc, execution_env, status):
+    result = 'Rejected task'
+    status = 'rejected'
+
+    @las.transition_handler
+    def sample_handler(las_client: Client, event: dict):
+        return result, status
+
+    with patch.dict(las.os.environ, values=execution_env):
+        if status == 'failed':
+            with pytest.raises(RuntimeError):
+                sample_handler()
+        else:
+            sample_handler()
+
+    if status == 'succeeded':
+        update_transition_exc.assert_called_once_with(
+            execution_id=execution_env['EXECUTION_ID'],
+            transition_id=execution_env['TRANSITION_ID'],
+            status=status,
+            output=result
+        )
+    else:
+        update_transition_exc.assert_called_once_with(
+            execution_id=execution_env['EXECUTION_ID'],
+            transition_id=execution_env['TRANSITION_ID'],
+            status=status,
+            error=ANY,
+    )
