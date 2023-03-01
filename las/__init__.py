@@ -18,7 +18,7 @@ def transition_handler(f):
     Decorator used to manage transition states. The decorator assumes that the environment variables TRANSITION_ID and EXECUTION_ID exist,
     and ensures that the transition execution is updated after the handler is invoked. The return value of the handler can either be a `result`
     or a tuple `(result, status)`. If no status is provided, the handler is assumed to have run successfully. If the handler throws an exception,
-    the status of the transition execution will be set to 'failed'.
+    the status of the transition execution will be set to 'failed'. Status must be one of 'succeeded', 'rejected' or 'failed'.
     
     >>> @transition_handler
     >>> def my_handler(las_client: las.Client, event: dict):
@@ -56,11 +56,13 @@ def transition_handler(f):
             except ValueError:
                 output, status = result, 'succeeded'
             
+            params = {'output': output} if status != 'failed' else {'error': output}
+            
             las_client.update_transition_execution(
                 transition_id=transition_id,
                 execution_id=execution_id,
                 status=status,
-                output=output,
+                **params
             )
         except Exception as e:
             logging.exception(e)
