@@ -251,7 +251,10 @@ def test_transition_handler_custom_status(update_transition_exc, get_transition_
         return result, status
 
     with patch.dict(las.os.environ, values=execution_env):
-        with pytest.raises(RuntimeError) if status == 'failed' else nullcontext():
+        if status == 'failed':
+            with pytest.raises(RuntimeError):
+                sample_handler()
+        else:
             sample_handler()
 
     if status == 'succeeded':
