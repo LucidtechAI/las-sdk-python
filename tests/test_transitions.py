@@ -1,6 +1,5 @@
 import logging
 import random
-from contextlib import nullcontext
 from datetime import datetime, timezone
 from unittest.mock import patch, ANY
 
