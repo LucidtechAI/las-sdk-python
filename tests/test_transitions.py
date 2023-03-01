@@ -1,5 +1,6 @@
 import logging
 import random
+from contextlib import nullcontext
 from datetime import datetime, timezone
 from unittest.mock import patch, ANY
 
@@ -238,9 +239,10 @@ def test_transition_handler_updated_on_failure(update_transition_exc, get_transi
     )
 
 
+@pytest.mark.parametrize('status', ['succeeded', 'rejected', 'failed'])
 @patch('las.Client.get_transition_execution')
 @patch('las.Client.update_transition_execution')
-def test_transition_handler_custom_status(update_transition_exc, get_transition_exc, execution_env):
+def test_transition_handler_custom_status(update_transition_exc, get_transition_exc, execution_env, status):
     result = {'result': 'All good'}
     status = 'rejected'
 
@@ -249,11 +251,20 @@ def test_transition_handler_custom_status(update_transition_exc, get_transition_
         return result, status
 
     with patch.dict(las.os.environ, values=execution_env):
-        sample_handler()
+        with pytest.raises(RuntimeError) if status == 'failed' else nullcontext():
+            sample_handler()
 
-    update_transition_exc.assert_called_once_with(
-        execution_id=execution_env['EXECUTION_ID'],
-        transition_id=execution_env['TRANSITION_ID'],
-        status=status,
-        output=result
+    if status != 'failed':
+        update_transition_exc.assert_called_once_with(
+            execution_id=execution_env['EXECUTION_ID'],
+            transition_id=execution_env['TRANSITION_ID'],
+            status=status,
+            output=result
+        )
+    else:
+        update_transition_exc.assert_called_once_with(
+            execution_id=execution_env['EXECUTION_ID'],
+            transition_id=execution_env['TRANSITION_ID'],
+            status='failed',
+            error=ANY,
     )

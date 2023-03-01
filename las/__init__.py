@@ -56,7 +56,10 @@ def transition_handler(f):
             except ValueError:
                 output, status = result, 'succeeded'
             
-            params = {'output': output} if status != 'failed' else {'error': {'message': 'Failed while executing transition', **output}}
+            if status != 'failed':
+                params = {'output': output}
+            else:
+                params = {'error': {'message': f'Failed while executing transition: {json.dumps(output, indent=2)}'}}
             
             las_client.update_transition_execution(
                 transition_id=transition_id,
