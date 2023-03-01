@@ -54,7 +54,7 @@ def transition_handler(f):
             try:
                 output, status = result
             except ValueError:
-                output, status = result, 'success'
+                output, status = result, 'succeeded'
             
             las_client.update_transition_execution(
                 transition_id=transition_id,
