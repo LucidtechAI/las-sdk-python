@@ -1,3 +1,4 @@
+import json
 import logging
 import os
 import traceback
@@ -59,7 +60,8 @@ def transition_handler(f):
             if status == 'succeeded':
                 params = {'output': output}
             else:
-                params = {'error': {'message': f'Failed while executing transition: {json.dumps(output, indent=2)}'}}
+                message = output if isinstance(output, str) else json.dumps(output, indent=2)
+                params = {'error': {'message': message}}
             
             las_client.update_transition_execution(
                 transition_id=transition_id,
