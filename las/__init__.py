@@ -56,7 +56,7 @@ def transition_handler(f):
             except ValueError:
                 output, status = result, 'succeeded'
             
-            if status != 'failed':
+            if status == 'succeeded':
                 params = {'output': output}
             else:
                 params = {'error': {'message': f'Failed while executing transition: {json.dumps(output, indent=2)}'}}
