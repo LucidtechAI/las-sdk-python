@@ -65,7 +65,7 @@ def transition_handler(f):
                 transition_id=transition_id,
                 execution_id=execution_id,
                 status=status,
-                **params
+                **params,
             )
         except Exception as e:
             logging.exception(e)
