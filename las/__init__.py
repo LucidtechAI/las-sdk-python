@@ -24,7 +24,7 @@ def transition_handler(f):
     >>> def my_handler(las_client: las.Client, event: dict):
     >>>     prediction = las_client.create_prediction(
     >>>         document_id=event['documentId'],
-    >>>         model_id=['modelId])
+    >>>         model_id=['modelId']
     >>>     )
     >>>     
     >>>     return las_client.create_prediction()
@@ -49,12 +49,17 @@ def transition_handler(f):
 
         try:
             execution = las_client.get_transition_execution(transition_id, execution_id=execution_id)
-            output = f(las_client, execution['input'])
+            result = f(las_client, execution['input'])
+            
+            try:
+                output, status = result
+            except ValueError:
+                output, status = result, 'success'
             
             las_client.update_transition_execution(
                 transition_id=transition_id,
                 execution_id=execution_id,
-                status='succeeded',
+                status=status,
                 output=output,
             )
         except Exception as e:

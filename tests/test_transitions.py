@@ -236,3 +236,24 @@ def test_transition_handler_updated_on_failure(update_transition_exc, get_transi
         status='failed',
         error=ANY,
     )
+
+
+@patch('las.Client.get_transition_execution')
+@patch('las.Client.update_transition_execution')
+def test_transition_handler_custom_status(update_transition_exc, get_transition_exc, execution_env):
+    result = {'result': 'All good'}
+    status = 'rejected'
+
+    @las.transition_handler
+    def sample_handler(las_client: Client, event: dict):
+        return result, status
+
+    with patch.dict(las.os.environ, values=execution_env):
+        sample_handler()
+
+    update_transition_exc.assert_called_once_with(
+        execution_id=execution_env['EXECUTION_ID'],
+        transition_id=execution_env['TRANSITION_ID'],
+        status=status,
+        output=result
+    )
