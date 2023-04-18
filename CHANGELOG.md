@@ -1,5 +1,10 @@
 # Changelog
 
+## Version 8.10.0 - 2023-04-18
+
+- Added `get_deployment_environment`
+- Added `list_deployment_environments`
+
 ## Version 8.8.0 - 2023-02-23
 
 - Added optional keyword argument `rotation` to `create_prediction`
