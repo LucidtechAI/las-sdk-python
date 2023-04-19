@@ -1171,7 +1171,7 @@ class Client:
         body = {}
         if deployment_environment_id := optional_args.pop('deployment_environment_id', None):
             body['deploymentEnvironmentId'] = deployment_environment_id
-        body = {**optional_args}
+        body.update(optional_args)
 
         return self._make_request(requests.patch, f'/models/{model_id}/trainings/{training_id}', body=body)
 
