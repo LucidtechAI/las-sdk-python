@@ -1169,8 +1169,8 @@ class Client:
  :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
         """
         body = {}
-        if deployment_environment_id := optional_args.pop('deployment_environment_id', None):
-            body['deploymentEnvironmentId'] = deployment_environment_id
+        if 'deployment_environment_id' in optional_args:
+            body['deploymentEnvironmentId'] = optional_args.pop('deployment_environment_id')
         body.update(optional_args)
 
         return self._make_request(requests.patch, f'/models/{model_id}/trainings/{training_id}', body=body)
