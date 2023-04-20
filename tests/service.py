@@ -34,6 +34,10 @@ def create_payment_method_id():
     return f'las:payment-method:{uuid4().hex}'
 
 
+def create_deployment_environment_id():
+    return f'las:deployment-environment:{uuid4().hex}'
+
+
 def create_plan_id():
     return f'las:plan:{uuid4().hex}'
 

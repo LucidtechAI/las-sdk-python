@@ -1154,6 +1154,8 @@ class Client:
         :type model_id: str
         :param training_id: Id of the training
         :type training_id: str
+        :param deployment_environment_id: Id of deploymentEnvironment
+        :type deployment_environment_id: str, optional
         :param name: Name of the training
         :type name: str, optional
         :param description: Description of the training
@@ -1166,7 +1168,12 @@ class Client:
         :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
  :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
         """
-        return self._make_request(requests.patch, f'/models/{model_id}/trainings/{training_id}', body=optional_args)
+        body = {}
+        if 'deployment_environment_id' in optional_args:
+            body['deploymentEnvironmentId'] = optional_args.pop('deployment_environment_id')
+        body.update(optional_args)
+
+        return self._make_request(requests.patch, f'/models/{model_id}/trainings/{training_id}', body=body)
 
     def list_data_bundles(
         self,
@@ -1428,6 +1435,57 @@ class Client:
             'owner': owner,
         }
         return self._make_request(requests.get, '/plans', params=dictstrip(params))
+
+    def get_deployment_environment(self, deployment_environment_id: str) -> Dict:
+        """Get information about a specific DeploymentEnvironment, calls the
+        GET /deploymentEnvironments/{deploymentEnvironmentId} endpoint.
+
+        >>> from las.client import Client
+        >>> client = Client()
+        >>> client.get_deployment_environment('<deployment_environment_id>')
+
+        :param deployment_environment_id: Id of the DeploymentEnvironment
+        :type deployment_environment_id: str
+        :return: DeploymentEnvironment response from REST API
+        :rtype: dict
+
+        :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
+ :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
+        """
+
+        return self._make_request(requests.get, f'/deploymentEnvironments/{quote(deployment_environment_id, safe="")}')
+
+    def list_deployment_environments(
+        self,
+        *,
+        owner: Optional[Queryparam] = None,
+        max_results: Optional[int] = None,
+        next_token: Optional[str] = None
+    ) -> Dict:
+        """List DeploymentEnvironments available, calls the GET /deploymentEnvironments endpoint.
+
+        >>> from las.client import Client
+        >>> client = Client()
+        >>> client.list_deployment_environments()
+
+        :param owner: Organizations to retrieve DeploymentEnvironments from
+        :type owner: Queryparam, optional
+        :param max_results: Maximum number of results to be returned
+        :type max_results: int, optional
+        :param next_token: A unique token for each page, use the returned token to retrieve the next page.
+        :type next_token: str, optional
+        :return: DeploymentEnvironments response from REST API
+        :rtype: dict
+
+        :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
+    :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
+        """
+        params = {
+            'owner': owner,
+            'maxResults': max_results,
+            'nextToken': next_token,
+        }
+        return self._make_request(requests.get, '/deploymentEnvironments', params=dictstrip(params))
 
     def create_secret(self, data: dict, **optional_args) -> Dict:
         """Creates an secret, calls the POST /secrets endpoint.

@@ -12,20 +12,18 @@ from . import service, util
 @pytest.mark.parametrize('name_and_description', util.name_and_description_combinations())
 @pytest.mark.parametrize('metadata', [util.metadata(), None])
 @pytest.mark.parametrize('base_model', [
-    {'organizationId': service.create_organization_id(), 'modelId': service.create_model_id()}, 
+    {'organizationId': service.create_organization_id(), 'modelId': service.create_model_id()},
     None,
 ])
 def test_create_model(
-    client: Client, 
-    preprocess_config, 
-    postprocess_config, 
-    name_and_description, 
-    metadata, 
+    client: Client,
+    preprocess_config,
+    postprocess_config,
+    name_and_description,
+    metadata,
     base_model,
 ):
     response = client.create_model(
-        width=300,
-        height=300,
         field_config=service.field_config(),
         preprocess_config=preprocess_config,
         postprocess_config=postprocess_config,
@@ -69,8 +67,6 @@ def test_get_model(client: Client):
 def test_update_model(client: Client, preprocess_config, postprocess_config, name_and_description, metadata):
     response = client.update_model(
         service.create_model_id(),
-        width=300,
-        height=300,
         field_config=service.field_config(),
         metadata=metadata,
         preprocess_config=preprocess_config,
@@ -82,8 +78,6 @@ def test_update_model(client: Client, preprocess_config, postprocess_config, nam
 
 
 def assert_model(response):
-    assert 'height' in response, 'Missing height in response'
-    assert 'width' in response, 'Missing width in response'
     assert 'name' in response, 'Missing name in response'
     assert 'modelId' in response, 'Missing modelId in response'
     assert 'status' in response, 'Missing status in response'
