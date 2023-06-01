@@ -918,7 +918,7 @@ class Client:
                 'pages': List with up to 3 page-indices to process  (optional)
             }
             Examples:
-            {'pages': [0, 1, 2], 'autoRotate': True}
+            {'pages': [0, 1, 5], 'autoRotate': True}
             {'pages': [0, 1, -1], 'imageQuality': 'HIGH'}
             {'maxPages': 3, 'imageQuality': 'LOW'}
         :type preprocess_config: dict, optional
