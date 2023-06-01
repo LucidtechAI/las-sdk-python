@@ -910,7 +910,7 @@ class Client:
         :type width: int, optional
         :param height: The number of pixels to be used for the input image height of your model
         :type height: int, optional
-        :param preprocess_config: Pre processing configuration for predictions.
+        :param preprocess_config: Preprocessing configuration for predictions.
             {
                 'autoRotate': True | False                          (optional)
                 'maxPages': 1 - 3                                   (optional)
@@ -1036,7 +1036,7 @@ class Client:
         :type height: int, optional
         :param field_config: Specification of the fields that the model is going to predict
         :type field_config: dict
-        :param preprocess_config: Pre processing configuration for predictions.
+        :param preprocess_config: Preprocessing configuration for predictions.
             {
                 'autoRotate': True | False                          (optional)
                 'maxPages': 1 - 3                                   (optional)
@@ -1044,7 +1044,7 @@ class Client:
                 'pages': List with up to 3 page-indices to process  (optional)
             }
             Examples:
-            {'pages': [0, 1, 2], 'autoRotate': True}
+            {'pages': [0, 1, 5], 'autoRotate': True}
             {'pages': [0, 1, -1], 'imageQuality': 'HIGH'}
             {'maxPages': 3, 'imageQuality': 'LOW'}
         :type preprocess_config: dict, optional
@@ -1348,7 +1348,7 @@ class Client:
         :type model_id: str
         :param training_id: Id of training to use for predictions
         :type training_id: str
-        :param preprocess_config: Pre processing configuration for prediction.
+        :param preprocess_config: Preprocessing configuration for prediction.
             {
                 'autoRotate': True | False                          (optional)
                 'maxPages': 1 - 3                                   (optional)
@@ -1356,7 +1356,7 @@ class Client:
                 'pages': List with up to 3 page-indices to process  (optional)
             }
             Examples:
-            {'pages': [0, 1, 2], 'autoRotate': True}
+            {'pages': [0, 1, 5], 'autoRotate': True}
             {'pages': [0, 1, -1], 'imageQuality': 'HIGH'}
             {'maxPages': 3, 'imageQuality': 'LOW'}
         :type preprocess_config: dict, optional
