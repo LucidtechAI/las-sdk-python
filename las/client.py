@@ -37,7 +37,7 @@ def datetimestr(d: Optional[Union[str, datetime]]) -> Optional[str]:
 
 def dictstrip(d):
     """Given a dict, return the dict with keys mapping to falsey values removed."""
-    return {k: v for k, v in d.items() if v}
+    return {k: v for k, v in d.items() if v is not None}
 
 
 def _fatal_code(e):
@@ -910,10 +910,31 @@ class Client:
         :type width: int, optional
         :param height: The number of pixels to be used for the input image height of your model
         :type height: int, optional
-        :param preprocess_config: Specification of the processing steps prior to the prediction of an image
-        :type preprocess_config: dict
-        :param postprocess_config: Specification of the processing steps after the prediction of an image
-        :type postprocess_config: dict
+        :param preprocess_config: Pre processing configuration for predictions.
+            {
+                'autoRotate': True | False                          (optional)
+                'maxPages': 1 - 3                                   (optional)
+                'imageQuality': 'LOW' | 'HIGH'                      (optional)
+                'pages': List with up to 3 page-indices to process  (optional)
+            }
+            Examples:
+            {'pages': [0, 1, 2], 'autoRotate': True}
+            {'pages': [0, 1, -1], 'imageQuality': 'HIGH'}
+            {'maxPages': 3, 'imageQuality': 'LOW'}
+        :type preprocess_config: dict, optional
+        :param postprocess_config: Post processing configuration for predictions.
+            {
+                'strategy': 'BEST_FIRST' | 'BEST_N_PAGES',  (required)
+                'parameters': {                             (required if strategy=BEST_N_PAGES, omit otherwise)
+                    'n': int,                               (required if strategy=BEST_N_PAGES, omit otherwise)
+                    'collapse': True | False                (optional if strategy=BEST_N_PAGES, omit otherwise)
+                }
+            }
+            Examples:
+            {'strategy': 'BEST_FIRST'}
+            {'strategy': 'BEST_N_PAGES', 'parameters': {'n': 3}}
+            {'strategy': 'BEST_N_PAGES', 'parameters': {'n': 3, 'collapse': False}}
+        :type postprocess_config: dict, optional
         :param name: Name of the model
         :type name: str, optional
         :param description: Description of the model
@@ -1015,13 +1036,34 @@ class Client:
         :type height: int, optional
         :param field_config: Specification of the fields that the model is going to predict
         :type field_config: dict
-        :param preprocess_config: Specification of the processing steps prior to the prediction of an image
-        :type preprocess_config: dict
-        :param postprocess_config: Specification of the processing steps after the prediction of an image
-        :type postprocess_config: dict
+        :param preprocess_config: Pre processing configuration for predictions.
+            {
+                'autoRotate': True | False                          (optional)
+                'maxPages': 1 - 3                                   (optional)
+                'imageQuality': 'LOW' | 'HIGH'                      (optional)
+                'pages': List with up to 3 page-indices to process  (optional)
+            }
+            Examples:
+            {'pages': [0, 1, 2], 'autoRotate': True}
+            {'pages': [0, 1, -1], 'imageQuality': 'HIGH'}
+            {'maxPages': 3, 'imageQuality': 'LOW'}
+        :type preprocess_config: dict, optional
+        :param postprocess_config: Post processing configuration for predictions.
+            {
+                'strategy': 'BEST_FIRST' | 'BEST_N_PAGES',  (required)
+                'parameters': {                             (required if strategy=BEST_N_PAGES, omit otherwise)
+                    'n': int,                               (required if strategy=BEST_N_PAGES, omit otherwise)
+                    'collapse': True | False                (optional if strategy=BEST_N_PAGES, omit otherwise)
+                }
+            }
+            Examples:
+            {'strategy': 'BEST_FIRST'}
+            {'strategy': 'BEST_N_PAGES', 'parameters': {'n': 3}}
+            {'strategy': 'BEST_N_PAGES', 'parameters': {'n': 3, 'collapse': False}}
+        :type postprocess_config: dict, optional
         :param metadata: Dictionary that can be used to store additional information
         :type metadata: dict, optional
-        :param training_id: Use training_id for model inference in POST /predictions
+        :param training_id: Use this training for model inference in POST /predictions
         :type training_id: str, optional
         :param name: Name of the model
         :type name: str, optional
@@ -1088,8 +1130,8 @@ class Client:
         model_id,
         data_bundle_ids,
         *,
-        instance_type: Optional[str] = None,
         metadata: Optional[dict] = None,
+        data_scientist_assistance: Optional[bool] = None,
         **optional_args,
     ) -> Dict:
         """Requests a training, calls the POST /models/{modelId}/trainings endpoint.
@@ -1098,14 +1140,14 @@ class Client:
         :type model_id: str
         :param data_bundle_ids: Data bundle ids that will be used for training
         :type data_bundle_ids: List[str]
-        :param instance_type: The type of instance that will be used for training
-        :type instance_type: List[str]
         :param name: Name of the data bundle
         :type name: str, optional
         :param description: Description of the training
         :type description: str, optional
         :param metadata: Dictionary that can be used to store additional information
         :type metadata: dict, optional
+        :param data_scientist_assistance: Request that one of Cradl's data scientists reviews and optimizes your training
+        :type data_scientist_assistance: bool, optional
         :return: Training response from REST API
         :rtype: dict
 
@@ -1115,7 +1157,7 @@ class Client:
 
         body = dictstrip({
             'dataBundleIds': data_bundle_ids,
-            'instanceType': instance_type,
+            'dataScientistAssistance': data_scientist_assistance,
             'metadata': metadata,
         })
         body.update(**optional_args)
@@ -1290,9 +1332,7 @@ class Client:
         model_id: str,
         *,
         training_id: Optional[str] = None,
-        max_pages: Optional[int] = None,
-        auto_rotate: Optional[bool] = None,
-        image_quality: Optional[str] = None,
+        preprocess_config: Optional[dict] = None,
         postprocess_config: Optional[dict] = None,
         rotation: Optional[int] = None,
     ) -> Dict:
@@ -1308,14 +1348,18 @@ class Client:
         :type model_id: str
         :param training_id: Id of training to use for predictions
         :type training_id: str
-        :param max_pages: Maximum number of pages to run predictions on
-        :type max_pages: int, optional
-        :param auto_rotate: Whether to let the API try different rotations on\
-            the document when running predictions
-        :type auto_rotate: bool, optional
-        :param image_quality: Image quality for prediction "LOW|HIGH". \
-            High quality could give better result but will also take longer time
-        :type image_quality: str, optional
+        :param preprocess_config: Pre processing configuration for prediction.
+            {
+                'autoRotate': True | False                          (optional)
+                'maxPages': 1 - 3                                   (optional)
+                'imageQuality': 'LOW' | 'HIGH'                      (optional)
+                'pages': List with up to 3 page-indices to process  (optional)
+            }
+            Examples:
+            {'pages': [0, 1, 2], 'autoRotate': True}
+            {'pages': [0, 1, -1], 'imageQuality': 'HIGH'}
+            {'maxPages': 3, 'imageQuality': 'LOW'}
+        :type preprocess_config: dict, optional
         :param postprocess_config: Post processing configuration for prediction.
             {
                 'strategy': 'BEST_FIRST' | 'BEST_N_PAGES',  (required)
@@ -1342,9 +1386,7 @@ class Client:
             'documentId': document_id,
             'modelId': model_id,
             'trainingId': training_id,
-            'maxPages': max_pages,
-            'autoRotate': auto_rotate,
-            'imageQuality': image_quality,
+            'preprocessConfig': preprocess_config,
             'postprocessConfig': postprocess_config,
             'rotation': rotation,
         }
