@@ -1,17 +1,19 @@
 import logging
 
 import pytest
-from las.client import Client
+from las.client import Client, dictstrip
 
 from . import service
 
 
-@pytest.mark.parametrize(('rotation', 'auto_rotate', 'max_pages', 'image_quality'), [
-    (0, True, 1, 'LOW'),
-    (90, False, 2, 'HIGH'),
-    (180, None, 3, None),
-    (270, True, None, 'HIGH'),
-    (None, False, 1, 'LOW', ),
+@pytest.mark.parametrize('rotation', [0, 90, 180, 270, None])
+@pytest.mark.parametrize('preprocess_config', [
+    {'rotation': 0, 'autoRotate': True, 'maxPages': 1, 'imageQuality': 'LOW'},
+    {'rotation': 90, 'autoRotate': False, 'maxPages': 2, 'imageQuality': 'HIGH'},
+    {'rotation': 180, 'autoRotate': None, 'maxPages': 3, 'imageQuality': None},
+    {'rotation': 270, 'autoRotate': True, 'maxPages': None, 'imageQuality': 'HIGH'},
+    {'rotation': None, 'autoRotate': False, 'pages': [0, 1, -1], 'imageQuality': 'LOW'},
+    None,
 ])
 @pytest.mark.parametrize('postprocess_config', [
     {'strategy': 'BEST_FIRST'},
@@ -19,17 +21,14 @@ from . import service
     {'strategy': 'BEST_N_PAGES', 'parameters': {'n': 3, 'collapse': False}},
     None,
 ])
-def test_create_prediction(client: Client, rotation, max_pages, auto_rotate, image_quality, postprocess_config):
+def test_create_prediction(client: Client, rotation, preprocess_config, postprocess_config):
     document_id = service.create_document_id()
     model_id = service.create_model_id()
     response = client.create_prediction(
         document_id,
         model_id,
-        auto_rotate=auto_rotate,
-        image_quality=image_quality,
-        max_pages=max_pages,
+        preprocess_config=dictstrip(preprocess_config) if preprocess_config else None,
         postprocess_config=postprocess_config,
-        rotation=rotation,
     )
     assert 'predictionId' in response, 'Missing predictionId in response'
 

@@ -6,6 +6,7 @@
 - Removed optional keyword argument `auto_rotate` from `create_prediction`, use `preprocess_config` instead
 - Removed optional keyword argument `image_quality` from `create_prediction`, use `preprocess_config` instead
 - Removed optional keyword argument `max_pages` from `create_prediction`, use `preprocess_config` instead
+- Removed optional keyword argument `rotation` from `create_prediction`, use `preprocess_config` instead
 - Added optional keyword argument `data_scientist_assistance` to `create_training`
 - Removed optional keyword argument `instance_type` from `create_training`
 

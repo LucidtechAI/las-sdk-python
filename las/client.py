@@ -916,10 +916,11 @@ class Client:
                 'maxPages': 1 - 3                                   (optional)
                 'imageQuality': 'LOW' | 'HIGH'                      (optional)
                 'pages': List with up to 3 page-indices to process  (optional)
+                'rotation': 0, 90, 180 or 270                       (optional)
             }
             Examples:
             {'pages': [0, 1, 5], 'autoRotate': True}
-            {'pages': [0, 1, -1], 'imageQuality': 'HIGH'}
+            {'pages': [0, 1, -1], 'rotation': 90, 'imageQuality': 'HIGH'}
             {'maxPages': 3, 'imageQuality': 'LOW'}
         :type preprocess_config: dict, optional
         :param postprocess_config: Post processing configuration for predictions.
@@ -1042,10 +1043,11 @@ class Client:
                 'maxPages': 1 - 3                                   (optional)
                 'imageQuality': 'LOW' | 'HIGH'                      (optional)
                 'pages': List with up to 3 page-indices to process  (optional)
+                'rotation': 0, 90, 180 or 270                       (optional)
             }
             Examples:
             {'pages': [0, 1, 5], 'autoRotate': True}
-            {'pages': [0, 1, -1], 'imageQuality': 'HIGH'}
+            {'pages': [0, 1, -1], 'rotation': 90, 'imageQuality': 'HIGH'}
             {'maxPages': 3, 'imageQuality': 'LOW'}
         :type preprocess_config: dict, optional
         :param postprocess_config: Post processing configuration for predictions.
@@ -1334,7 +1336,6 @@ class Client:
         training_id: Optional[str] = None,
         preprocess_config: Optional[dict] = None,
         postprocess_config: Optional[dict] = None,
-        rotation: Optional[int] = None,
     ) -> Dict:
         """Create a prediction on a document using specified model, calls the POST /predictions endpoint.
 
@@ -1354,10 +1355,11 @@ class Client:
                 'maxPages': 1 - 3                                   (optional)
                 'imageQuality': 'LOW' | 'HIGH'                      (optional)
                 'pages': List with up to 3 page-indices to process  (optional)
+                'rotation': 0, 90, 180 or 270                       (optional)
             }
             Examples:
             {'pages': [0, 1, 5], 'autoRotate': True}
-            {'pages': [0, 1, -1], 'imageQuality': 'HIGH'}
+            {'pages': [0, 1, -1], 'rotation': 90, 'imageQuality': 'HIGH'}
             {'maxPages': 3, 'imageQuality': 'LOW'}
         :type preprocess_config: dict, optional
         :param postprocess_config: Post processing configuration for prediction.
@@ -1373,9 +1375,6 @@ class Client:
             {'strategy': 'BEST_N_PAGES', 'parameters': {'n': 3}}
             {'strategy': 'BEST_N_PAGES', 'parameters': {'n': 3, 'collapse': False}}
         :type postprocess_config: dict, optional
-        :param rotation: Number of degrees to rotate the document before making the prediction,
-            has to be 0, 90, 180 or 270
-        :type rotation: int, optional
         :return: Prediction response from REST API
         :rtype: dict
 
@@ -1388,8 +1387,8 @@ class Client:
             'trainingId': training_id,
             'preprocessConfig': preprocess_config,
             'postprocessConfig': postprocess_config,
-            'rotation': rotation,
         }
+        print(body)
         return self._make_request(requests.post, '/predictions', body=dictstrip(body))
 
     def list_predictions(
