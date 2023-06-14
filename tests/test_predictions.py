@@ -6,7 +6,6 @@ from las.client import Client, dictstrip
 from . import service
 
 
-@pytest.mark.parametrize('rotation', [0, 90, 180, 270, None])
 @pytest.mark.parametrize('preprocess_config', [
     {'rotation': 0, 'autoRotate': True, 'maxPages': 1, 'imageQuality': 'LOW'},
     {'rotation': 90, 'autoRotate': False, 'maxPages': 2, 'imageQuality': 'HIGH'},
@@ -21,7 +20,7 @@ from . import service
     {'strategy': 'BEST_N_PAGES', 'parameters': {'n': 3, 'collapse': False}},
     None,
 ])
-def test_create_prediction(client: Client, rotation, preprocess_config, postprocess_config):
+def test_create_prediction(client: Client, preprocess_config, postprocess_config):
     document_id = service.create_document_id()
     model_id = service.create_model_id()
     response = client.create_prediction(
