@@ -1388,7 +1388,6 @@ class Client:
             'preprocessConfig': preprocess_config,
             'postprocessConfig': postprocess_config,
         }
-        print(body)
         return self._make_request(requests.post, '/predictions', body=dictstrip(body))
 
     def list_predictions(
