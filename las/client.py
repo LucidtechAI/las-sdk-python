@@ -220,7 +220,7 @@ class Client:
         content: Optional[bytes] = None,
         query_params: Optional[dict] = None,
     ) -> Dict:
-        if not content and requests_fn in [requests.put]:
+        if not content and requests_fn == requests.put:
             raise EmptyRequestError
 
         kwargs = {'params': query_params}
