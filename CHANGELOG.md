@@ -4,7 +4,7 @@
 
 - `create_document` now uses fileserver to PUT document content.
 - `get_document` now uses fileserver if content is missing from `/documents` response body or if any optional document
-file transformation parameters is provided.
+file transformation parameters are provided.
 - Added optional keyword argument `width` to `get_document`
 - Added optional keyword argument `height` to `get_document`
 - Added optional keyword argument `density` to `get_document`
