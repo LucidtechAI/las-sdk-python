@@ -39,7 +39,7 @@ def test_create_document(
 ])
 def test_list_documents(static_client: Client, consent_id, dataset_id, sort_by, order):
     response = static_client.list_documents(
-        consent_id=consent_id, 
+        consent_id=consent_id,
         dataset_id=dataset_id,
         sort_by=sort_by,
         order=order,
@@ -58,9 +58,25 @@ def test_list_documents_with_pagination(static_client: Client, max_results, next
     assert 'nextToken' in response, 'Missing nextToken in response'
 
 
-def test_get_document(static_client: Client):
+@pytest.mark.parametrize('width,height,page,rotation,density', [
+    (None, None, None, None, None),
+    (100, 100, 1, 90, 100),
+    (None, 100, 1, 90, 100),
+    (100, None, 1, 90, 100),
+    (100, 100, None, 90, 100),
+    (100, 100, 1, None, 100),
+    (100, 100, 1, 90, None),
+])
+def test_get_document(static_client: Client, width, height, page, rotation, density):
     document_id = service.create_document_id()
-    response = static_client.get_document(document_id)
+    response = static_client.get_document(
+        document_id=document_id,
+        width=width,
+        height=height,
+        page=page,
+        rotation=rotation,
+        density=density,
+    )
     assert 'documentId' in response, 'Missing documentId in response'
     assert 'consentId' in response, 'Missing consentId in response'
     assert 'contentType' in response, 'Missing contentType in response'

@@ -44,10 +44,13 @@ def _fatal_code(e):
     return 400 <= e.response.status_code < 500
 
 
-def _json_decode(response):
+def _decode_response(response, return_json=True):
     try:
         response.raise_for_status()
-        return response.json()
+        if return_json:
+            return response.json()
+        else:
+            return response.content
     except JSONDecodeError as e:
 
         if response.status_code == 204:
@@ -85,8 +88,14 @@ def _guess_content_type(raw):
     return guessed_type.mime
 
 
+def _parsed_content(raw, find_content_type, base_64_encode):
+    content_type = _guess_content_type(raw) if find_content_type else None
+    parsed_content = b64encode(raw).decode() if base_64_encode else raw
+    return parsed_content, content_type
+
+
 @singledispatch
-def parse_content(content, find_content_type=False):
+def parse_content(content, find_content_type=False, base_64_encode=True):
     raise TypeError(
         '\n'.join([
             f'Could not parse content {content} of type {type(content)}',
@@ -101,29 +110,26 @@ def parse_content(content, find_content_type=False):
 
 @parse_content.register(str)
 @parse_content.register(Path)
-def _(content, find_content_type=False):
+def _(content, find_content_type=False, base_64_encode=True):
     raw = Path(content).read_bytes()
-    content_type = _guess_content_type(raw) if find_content_type else None
-    return b64encode(raw).decode(), content_type
+    return _parsed_content(raw, find_content_type, base_64_encode)
 
 
 @parse_content.register(bytes)
 @parse_content.register(bytearray)
-def _(content, find_content_type=False):
+def _(content, find_content_type=False, base_64_encode=True):
     try:
         raw = b64decode(content, validate=True)
     except binascii.Error:
         raw = content
-    content_type = _guess_content_type(raw) if find_content_type else None
-    return b64encode(raw).decode(), content_type
+    return _parsed_content(raw, find_content_type, base_64_encode)
 
 
 @parse_content.register(io.IOBase)
-def _(content, find_content_type=False):
+def _(content, find_content_type=False, base_64_encode=True):
     raw = content.read()
     raw = raw.encode() if isinstance(raw, str) else raw
-    content_type = _guess_content_type(raw) if find_content_type else None
-    return b64encode(raw).decode(), content_type
+    return _parsed_content(raw, find_content_type, base_64_encode)
 
 
 class EmptyRequestError(ValueError):
@@ -206,7 +212,32 @@ class Client:
             headers=headers,
             **kwargs,
         )
-        return _json_decode(response)
+        return _decode_response(response)
+
+    @on_exception(expo, TooManyRequestsException, max_tries=4)
+    @on_exception(expo, RequestException, max_tries=3, giveup=_fatal_code)
+    def _make_fileserver_request(
+        self,
+        requests_fn: Callable,
+        file_url: str,
+        content: Optional[bytes] = None,
+        query_params: Optional[dict] = None,
+    ) -> Dict:
+        if not content and requests_fn == requests.put:
+            raise EmptyRequestError
+
+        kwargs = {'params': query_params}
+        if content:
+            kwargs.update({'data': content})
+        uri = urlparse(file_url)
+
+        headers = {'Authorization': f'Bearer {self.credentials.access_token}'}
+        response = requests_fn(
+            url=uri.geturl(),
+            headers=headers,
+            **kwargs,
+        )
+        return _decode_response(response, return_json=False)
 
     def create_app_client(
         self,
@@ -625,7 +656,7 @@ class Client:
         :param content: Content to POST
         :type content: Content
         :param content_type: MIME type for the document
-        :type content_type: str
+        :type content_type: str, optional
         :param consent_id: Id of the consent that marks the owner of the document
         :type consent_id: str, optional
         :param dataset_id: Id of the associated dataset
@@ -633,6 +664,8 @@ class Client:
         :param ground_truth: List of items {'label': label, 'value': value} \
             representing the ground truth values for the document
         :type ground_truth: Sequence [ Dict [ str, Union [ str, bool ]  ] ], optional
+        :param retention_in_days: How many days the document should be stored
+        :type retention_in_days: int, optional
         :param metadata: Dictionary that can be used to store additional information
         :type metadata: dict, optional
         :return: Document response from REST API
@@ -641,22 +674,19 @@ class Client:
         :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
  :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
         """
-        content_bytes, guessed_content_type = parse_content(content, True)
-
-        if content_type and content_type != guessed_content_type:
-            logger.warning(f'The specified content type does not match the observed content type:'
-                           f' {content_type} != {guessed_content_type}')
+        content_bytes, _ = parse_content(content, False, False)
 
         body = {
-            'content': content_bytes,
-            'contentType': content_type or guessed_content_type,
             'consentId': consent_id,
             'datasetId': dataset_id,
             'groundTruth': ground_truth,
-            'retentionInDays': retention_in_days,
             'metadata': metadata,
+            'retentionInDays': retention_in_days,
         }
-        return self._make_request(requests.post, '/documents', body=dictstrip(body))
+
+        document = self._make_request(requests.post, '/documents', body=dictstrip(body))
+        self._make_fileserver_request(requests.put, document['fileUrl'], content=content_bytes)
+        return document
 
     def list_documents(
         self,
@@ -757,7 +787,16 @@ class Client:
 
         return response
 
-    def get_document(self, document_id: str) -> Dict:
+    def get_document(
+        self,
+        document_id: str,
+        *,
+        width: Optional[int] = None,
+        height: Optional[int] = None,
+        page: Optional[int] = None,
+        rotation: Optional[int] = None,
+        density: Optional[int] = None,
+    ) -> Dict:
         """Get document, calls the GET /documents/{documentId} endpoint.
 
         >>> from las.client import Client
@@ -766,13 +805,39 @@ class Client:
 
         :param document_id: Id of the document
         :type document_id: str
+        :param width: Convert document file to JPEG with this px width
+        :type width: int, optional
+        :param height: Convert document file to JPEG with this px height
+        :type height: int, optional
+        :param page: Convert this page from PDF/TIFF document to JPEG, 0-indexed. Negative indices supported.
+        :type page: int, optional
+        :param rotation: Convert document file to JPEG and rotate it by rotation amount degrees
+        :type rotation: int, optional
+        :param density: Convert PDF/TIFF document to JPEG with this density setting
+        :type density: int, optional
         :return: Document response from REST API
         :rtype: dict
 
         :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
  :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
         """
-        return self._make_request(requests.get, f'/documents/{document_id}')
+        document = self._make_request(requests.get, f'/documents/{document_id}')
+        query_params = dictstrip({
+            'width': width,
+            'height': height,
+            'page': page,
+            'rotation': rotation,
+            'density': density,
+        })
+
+        if query_params or 'content' not in document:
+            document['content'] = b64encode(self._make_fileserver_request(
+                requests_fn=requests.get,
+                file_url=document['fileUrl'],
+                query_params=query_params,
+            )).decode()
+
+        return document
 
     def update_document(
         self,
