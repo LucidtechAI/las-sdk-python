@@ -107,7 +107,8 @@ def parse_content(content, find_content_type=False, base_64_encode=True):
 def _(content, find_content_type=False, base_64_encode=True):
     raw = Path(content).read_bytes()
     content_type = _guess_content_type(raw) if find_content_type else None
-    return b64encode(raw).decode() if base_64_encode else raw, content_type
+    parsed_content = b64encode(raw).decode() if base_64_encode else raw
+    return parsed_content, content_type
 
 
 @parse_content.register(bytes)
@@ -118,7 +119,8 @@ def _(content, find_content_type=False, base_64_encode=True):
     except binascii.Error:
         raw = content
     content_type = _guess_content_type(raw) if find_content_type else None
-    return b64encode(raw).decode() if base_64_encode else raw, content_type
+    parsed_content = b64encode(raw).decode() if base_64_encode else raw
+    return parsed_content, content_type
 
 
 @parse_content.register(io.IOBase)
@@ -126,7 +128,8 @@ def _(content, find_content_type=False, base_64_encode=True):
     raw = content.read()
     raw = raw.encode() if isinstance(raw, str) else raw
     content_type = _guess_content_type(raw) if find_content_type else None
-    return b64encode(raw).decode() if base_64_encode else raw, content_type
+    parsed_content = b64encode(raw).decode() if base_64_encode else raw
+    return parsed_content, content_type
 
 
 class EmptyRequestError(ValueError):
