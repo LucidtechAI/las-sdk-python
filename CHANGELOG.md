@@ -1,5 +1,16 @@
 # Changelog
 
+## Version 9.1.0 - 2023-06-27
+
+- `create_document` now uses fileserver to PUT document content.
+- `get_document` now uses fileserver if content is missing from `/documents` response body or if any optional document
+file transformation parameters is provided.
+- Added optional keyword argument `width` to `get_document`
+- Added optional keyword argument `height` to `get_document`
+- Added optional keyword argument `density` to `get_document`
+- Added optional keyword argument `page` to `get_document`
+- Added optional keyword argument `rotation` to `get_document`
+
 ## Version 9.0.0 - 2023-06-01
 
 - Added optional keyword argument `preprocess_config` to `create_prediction`

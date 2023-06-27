@@ -42,6 +42,7 @@ def static_client():
             }
         }
     )
+    client._make_fileserver_request = lambda *args, **kwargs: b''
     return client
 
 
