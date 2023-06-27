@@ -88,6 +88,12 @@ def _guess_content_type(raw):
     return guessed_type.mime
 
 
+def _parsed_content(raw, find_content_type, base_64_encode):
+    content_type = _guess_content_type(raw) if find_content_type else None
+    parsed_content = b64encode(raw).decode() if base_64_encode else raw
+    return parsed_content, content_type
+
+
 @singledispatch
 def parse_content(content, find_content_type=False, base_64_encode=True):
     raise TypeError(
@@ -106,9 +112,7 @@ def parse_content(content, find_content_type=False, base_64_encode=True):
 @parse_content.register(Path)
 def _(content, find_content_type=False, base_64_encode=True):
     raw = Path(content).read_bytes()
-    content_type = _guess_content_type(raw) if find_content_type else None
-    parsed_content = b64encode(raw).decode() if base_64_encode else raw
-    return parsed_content, content_type
+    return _parsed_content(raw, find_content_type, base_64_encode)
 
 
 @parse_content.register(bytes)
@@ -118,18 +122,14 @@ def _(content, find_content_type=False, base_64_encode=True):
         raw = b64decode(content, validate=True)
     except binascii.Error:
         raw = content
-    content_type = _guess_content_type(raw) if find_content_type else None
-    parsed_content = b64encode(raw).decode() if base_64_encode else raw
-    return parsed_content, content_type
+    return _parsed_content(raw, find_content_type, base_64_encode)
 
 
 @parse_content.register(io.IOBase)
 def _(content, find_content_type=False, base_64_encode=True):
     raw = content.read()
     raw = raw.encode() if isinstance(raw, str) else raw
-    content_type = _guess_content_type(raw) if find_content_type else None
-    parsed_content = b64encode(raw).decode() if base_64_encode else raw
-    return parsed_content, content_type
+    return _parsed_content(raw, find_content_type, base_64_encode)
 
 
 class EmptyRequestError(ValueError):
