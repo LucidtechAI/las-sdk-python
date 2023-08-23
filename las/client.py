@@ -258,7 +258,7 @@ class Client:
         :type name: str, optional
         :param description: Description of the appClient
         :type description: str, optional
-        :param generate_secret: Set to False to ceate a Public app client, default: True
+        :param generate_secret: Set to False to create a Public app client, default: True
         :type generate_secret: Boolean
         :param logout_urls: List of logout urls
         :type logout_urls: List[str]
@@ -268,6 +268,8 @@ class Client:
         :type login_urls: List[str]
         :param default_login_url: Default login url
         :type default_login_url: str
+        :param role_ids: List of roles to assign appClient
+        :type role_ids: str, optional
         :return: AppClient response from REST API
         :rtype: dict
 
@@ -282,6 +284,9 @@ class Client:
             **optional_args,
         })
         body['generateSecret'] = generate_secret
+        if 'role_ids' in body:
+            body['roleIds'] = body.pop('role_ids')
+
         return self._make_request(requests.post, '/appClients', body=body)
 
     def list_app_clients(self, *, max_results: Optional[int] = None, next_token: Optional[str] = None) -> Dict:
@@ -316,12 +321,17 @@ class Client:
         :type name: str, optional
         :param description: Description of the appClient
         :type description: str, optional
+        :param role_ids: List of roles to assign appClient
+        :type role_ids: str, optional
         :return: AppClient response from REST API
         :rtype: dict
 
         :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
  :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
         """
+        if 'role_ids' in optional_args:
+            optional_args['roleIds'] = optional_args.pop('role_ids')
+
         return self._make_request(requests.patch, f'/appClients/{app_client_id}', body=optional_args)
 
     def delete_app_client(self, app_client_id: str) -> Dict:
@@ -2051,6 +2061,8 @@ class Client:
         :type name: str, optional
         :param avatar: base64 encoded JPEG avatar of the user
         :type avatar: str, optional
+        :param role_ids: List of roles to assign user
+        :type role_ids: str, optional
         :return: User response from REST API
         :rtype: dict
 
@@ -2062,6 +2074,9 @@ class Client:
             'appClientId': app_client_id,
             **optional_args,
         }
+        if 'role_ids' in body:
+            body['roleIds'] = body.pop('role_ids')
+
         return self._make_request(requests.post, '/users', body=dictstrip(body))
 
     def list_users(self, *, max_results: Optional[int] = None, next_token: Optional[str] = None) -> Dict:
@@ -2117,13 +2132,17 @@ class Client:
         :type name: str, optional
         :param avatar: base64 encoded JPEG avatar of the user
         :type avatar: str, optional
+        :param role_ids: List of roles to assign user
+        :type role_ids: str, optional
         :return: User response from REST API
         :rtype: dict
 
         :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
  :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
         """
-
+        if 'role_ids' in optional_args:
+            optional_args['roleIds'] = optional_args.pop('role_ids')
+            
         return self._make_request(requests.patch, f'/users/{user_id}', body=optional_args)
 
     def delete_user(self, user_id: str) -> Dict:
@@ -2431,3 +2450,35 @@ class Client:
  :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
         """
         return self._make_request(requests.delete, f'/workflows/{workflow_id}/executions/{execution_id}')
+
+    def list_roles(self, *, max_results: Optional[int] = None, next_token: Optional[str] = None) -> Dict:
+        """List roles available, calls the GET /roles endpoint.
+
+        :param max_results: Maximum number of results to be returned
+        :type max_results: int, optional
+        :param next_token: A unique token for each page, use the returned token to retrieve the next page.
+        :type next_token: str, optional
+        :return: Roles response from REST API without the content of each role
+        :rtype: dict
+
+        :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
+ :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
+        """
+        params = {
+            'maxResults': max_results,
+            'nextToken': next_token,
+        }
+        return self._make_request(requests.get, '/roles', params=params)
+
+    def get_role(self, role_id: str) -> Dict:
+        """Get role, calls the GET /roles/{roleId} endpoint.
+
+        :param role_id: Id of the role
+        :type role_id: str
+        :return: Role response from REST API
+        :rtype: dict
+
+        :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
+ :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
+        """
+        return self._make_request(requests.get, f'/roles/{role_id}')
