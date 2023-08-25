@@ -71,6 +71,10 @@ def create_workflow_id():
     return f'las:workflow:{uuid4().hex}'
 
 
+def create_role_id():
+    return f'las:role:{uuid4().hex}'
+
+
 def create_workflow_execution_id():
     return f'las:workflow-execution:{uuid4().hex}'
 
