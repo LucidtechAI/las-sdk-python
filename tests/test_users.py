@@ -11,7 +11,11 @@ from . import service
 
 def test_create_user(client: Client):
     email = 'foo@bar.com'
-    response = client.create_user(email, app_client_id=service.create_app_client_id())
+    response = client.create_user(
+        email, 
+        app_client_id=service.create_app_client_id(),
+        role_ids=[service.create_role_id()],
+    )
     logging.info(response)
 
 
@@ -43,7 +47,7 @@ def test_update_user(client: Client):
     user_id = service.create_user_id()
     name = 'John Doe'
     avatar = base64.b64encode(pathlib.Path('tests/avatar.jpeg').read_bytes()).decode()
-    response = client.update_user(user_id, name=name, avatar=avatar)
+    response = client.update_user(user_id, name=name, avatar=avatar, role_ids=[service.create_role_id()])
     assert 'userId' in response, 'Missing userId in response'
     assert 'email' in response, 'Missing email in response'
     assert 'name' in response, 'Missing name in response'

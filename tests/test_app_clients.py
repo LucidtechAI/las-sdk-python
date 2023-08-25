@@ -9,7 +9,7 @@ from . import service, util
 
 @pytest.mark.parametrize('name_and_description', util.name_and_description_combinations())
 def test_create_app_client(client: Client, name_and_description):
-    response = client.create_app_client(**name_and_description)
+    response = client.create_app_client(role_ids=[service.create_role_id()], **name_and_description)
     assert_app_client(response)
 
 
@@ -52,7 +52,11 @@ def test_delete_app_client(client: Client):
 
 @pytest.mark.parametrize('name_and_description', util.name_and_description_combinations(at_least_one=True))
 def test_update_app_client(client: Client, name_and_description):
-    response = client.update_app_client(service.create_app_client_id(), **name_and_description)
+    response = client.update_app_client(
+        app_client_id=service.create_app_client_id(),
+        role_ids=[service.create_role_id()],
+        **name_and_description,
+    )
     assert_app_client(response)
 
 
