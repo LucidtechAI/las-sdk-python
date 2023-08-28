@@ -1,6 +1,5 @@
 import base64
 import pathlib
-import logging
 import random
 
 import pytest
@@ -16,12 +15,12 @@ def test_create_user(client: Client):
         app_client_id=service.create_app_client_id(),
         role_ids=[service.create_role_id()],
     )
-    logging.info(response)
+    assert 'userId' in response, 'Missing userId in response'
+    assert 'roleIds' in response, 'Missing roleIds in response'
 
 
 def test_list_users(client: Client):
     response = client.list_users()
-    logging.info(response)
     assert 'users' in response, 'Missing users in response'
 
 
@@ -58,6 +57,5 @@ def test_update_user(client: Client):
 def test_delete_user(client: Client):
     user_id = service.create_user_id()
     response = client.delete_user(user_id)
-    logging.info(response)
     assert 'userId' in response, 'Missing userId in response'
     assert 'email' in response, 'Missing email in response'

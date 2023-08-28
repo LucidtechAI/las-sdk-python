@@ -1,4 +1,3 @@
-import logging
 import random
 
 import pytest
@@ -15,7 +14,6 @@ def test_get_role(client: Client):
 
 def test_list_roles(client: Client):
     response = client.list_roles()
-    logging.info(response)
     assert 'roles' in response, 'Missing roles in response'
     for role in response['roles']:
         assert_role(role)

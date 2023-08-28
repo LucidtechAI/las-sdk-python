@@ -1,4 +1,3 @@
-import logging
 import random
 
 import pytest
@@ -28,7 +27,6 @@ def test_create_app_client_without_secret(client: Client, name_and_description):
 
 def test_list_app_clients(client: Client):
     response = client.list_app_clients()
-    logging.info(response)
     assert 'appClients' in response, 'Missing appClients in response'
 
 
