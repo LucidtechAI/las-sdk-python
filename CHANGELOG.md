@@ -1,5 +1,14 @@
 # Changelog
 
+## Version 9.22.0 - 2023-08-18
+
+- Added `list_roles`
+- Added `get_role`
+- Added optional `role_ids` to `create_user`
+- Added optional `role_ids` to `update_user`
+- Added optional `role_ids` to `create_app_client`
+- Added optional `role_ids` to `update_app_client`
+
 ## Version 9.1.0 - 2023-06-27
 
 - `create_document` now uses fileserver to PUT document content.
