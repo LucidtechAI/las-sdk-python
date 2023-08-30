@@ -1,6 +1,12 @@
 # Changelog
 
-## Version 9.22.0 - 2023-08-18
+## Version 9.3.0 - 2023-08-30
+
+- Removed deprecated optional arguments `avatar` and `name` from `create_user` and `update_user`
+- Fixed bug in `create_app_client`, `update_app_client`, `create_user` and `update_user` where `role_ids=None` would be
+incorrectly sent as `roleIds=null` to the API instead of `roleIds=[]`
+
+## Version 9.2.0 - 2023-08-18
 
 - Added `list_roles`
 - Added `get_role`

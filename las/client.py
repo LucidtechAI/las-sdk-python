@@ -285,7 +285,7 @@ class Client:
         })
         body['generateSecret'] = generate_secret
         if 'role_ids' in body:
-            body['roleIds'] = body.pop('role_ids')
+            body['roleIds'] = body.pop('role_ids') or []
 
         return self._make_request(requests.post, '/appClients', body=body)
 
@@ -330,7 +330,7 @@ class Client:
  :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
         """
         if 'role_ids' in optional_args:
-            optional_args['roleIds'] = optional_args.pop('role_ids')
+            optional_args['roleIds'] = optional_args.pop('role_ids') or []
 
         return self._make_request(requests.patch, f'/appClients/{app_client_id}', body=optional_args)
 
@@ -2057,10 +2057,6 @@ class Client:
 
         :param email: Email to the new user
         :type email: str
-        :param name: Name of the user
-        :type name: str, optional
-        :param avatar: base64 encoded JPEG avatar of the user
-        :type avatar: str, optional
         :param role_ids: List of roles to assign user
         :type role_ids: str, optional
         :return: User response from REST API
@@ -2075,7 +2071,7 @@ class Client:
             **optional_args,
         }
         if 'role_ids' in body:
-            body['roleIds'] = body.pop('role_ids')
+            body['roleIds'] = body.pop('role_ids') or []
 
         return self._make_request(requests.post, '/users', body=dictstrip(body))
 
@@ -2128,10 +2124,6 @@ class Client:
 
         :param user_id: Id of the user
         :type user_id: str
-        :param name: Name of the user
-        :type name: str, optional
-        :param avatar: base64 encoded JPEG avatar of the user
-        :type avatar: str, optional
         :param role_ids: List of roles to assign user
         :type role_ids: str, optional
         :return: User response from REST API
@@ -2141,7 +2133,7 @@ class Client:
  :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
         """
         if 'role_ids' in optional_args:
-            optional_args['roleIds'] = optional_args.pop('role_ids')
+            optional_args['roleIds'] = optional_args.pop('role_ids') or []
             
         return self._make_request(requests.patch, f'/users/{user_id}', body=optional_args)
 
