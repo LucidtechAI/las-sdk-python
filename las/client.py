@@ -2134,7 +2134,7 @@ class Client:
         """
         if 'role_ids' in optional_args:
             optional_args['roleIds'] = optional_args.pop('role_ids') or []
-            
+
         return self._make_request(requests.patch, f'/users/{user_id}', body=optional_args)
 
     def delete_user(self, user_id: str) -> Dict:
@@ -2160,6 +2160,7 @@ class Client:
         *,
         error_config: Optional[dict] = None,
         completed_config: Optional[dict] = None,
+        metadata: Optional[dict] = None,
         **optional_args,
     ) -> Dict:
         """Creates a new workflow, calls the POST /workflows endpoint.
@@ -2175,14 +2176,16 @@ class Client:
         :param specification: Specification of the workflow, \
             currently supporting ASL: https://states-language.net/spec.html
         :type specification: dict
-        :param name: Name of the workflow
-        :type name: str, optional
-        :param description: Description of the workflow
-        :type description: str, optional
         :param error_config: Configuration of error handler
         :type error_config: dict, optional
         :param completed_config: Configuration of a job to run whenever a workflow execution ends
         :type completed_config: dict, optional
+        :param metadata: Dictionary that can be used to store additional information
+        :type metadata: dict, optional
+        :param name: Name of the workflow
+        :type name: str, optional
+        :param description: Description of the workflow
+        :type description: str, optional
         :return: Workflow response from REST API
         :rtype: dict
 
@@ -2190,9 +2193,10 @@ class Client:
  :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
         """
         body = dictstrip({
-            'specification': specification,
-            'errorConfig': error_config,
             'completedConfig': completed_config,
+            'errorConfig': error_config,
+            'metadata': metadata,
+            'specification': specification,
         })
         body.update(**optional_args)
 
@@ -2244,6 +2248,7 @@ class Client:
         *,
         error_config: Optional[dict] = None,
         completed_config: Optional[dict] = None,
+        metadata: Optional[dict] = None,
         **optional_args,
     ) -> Dict:
         """Updates a workflow, calls the PATCH /workflows/{workflowId} endpoint.
@@ -2255,15 +2260,17 @@ class Client:
         >>> client.update_workflow('<workflow-id>', name='<name>', description='<description>')
 
         :param workflow_id: Id of the workflow
+        :param error_config: Configuration of error handler
+        :type error_config: dict, optional
+        :param completed_config: Configuration of a job to run whenever a workflow execution ends
+        :type completed_config: dict, optional
+        :param metadata: Dictionary that can be used to store additional information
+        :type metadata: dict, optional
         :type name: str
         :param name: Name of the workflow
         :type name: str, optional
         :param description: Description of the workflow
         :type description: str, optional
-        :param error_config: Configuration of error handler
-        :type error_config: dict, optional
-        :param completed_config: Configuration of a job to run whenever a workflow execution ends
-        :type completed_config: dict, optional
         :return: Workflow response from REST API
         :rtype: dict
 
@@ -2271,8 +2278,9 @@ class Client:
  :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
         """
         body = dictstrip({
-            'errorConfig': error_config,
             'completedConfig': completed_config,
+            'errorConfig': error_config,
+            'metadata': metadata,
         })
         body.update(**optional_args)
         return self._make_request(requests.patch, f'/workflows/{workflow_id}', body=body)

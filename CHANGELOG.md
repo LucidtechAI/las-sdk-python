@@ -1,5 +1,10 @@
 # Changelog
 
+## Version 9.4.0 - 2023-09-07
+
+- Added optional `metadata` to `create_workflow`
+- Added optional `metadata` to `update_workflow`
+
 ## Version 9.3.0 - 2023-08-30
 
 - Removed deprecated optional arguments `avatar` and `name` from `create_user` and `update_user`

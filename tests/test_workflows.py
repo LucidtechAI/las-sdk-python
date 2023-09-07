@@ -10,14 +10,16 @@ from . import service, util
 
 @pytest.mark.parametrize('error_config', [None, service.create_error_config()])
 @pytest.mark.parametrize('completed_config', [None, service.create_completed_config()])
+@pytest.mark.parametrize('metadata', [util.metadata(), None])
 @pytest.mark.parametrize('name_and_description', util.name_and_description_combinations(True))
-def test_create_workflow(client: Client, name_and_description, error_config, completed_config):
+def test_create_workflow(client: Client, error_config, completed_config, metadata, name_and_description):
     specification = {'definition': {}}
     response = client.create_workflow(
         specification,
-        **name_and_description,
         error_config=error_config,
-        completed_config=completed_config
+        completed_config=completed_config,
+        metadata=metadata,
+        **name_and_description,
     )
     logging.info(response)
     assert_workflow(response)
@@ -50,12 +52,14 @@ def test_get_workflow(client: Client):
 
 @pytest.mark.parametrize('error_config', [None, service.create_error_config()])
 @pytest.mark.parametrize('completed_config', [None, service.create_completed_config()])
+@pytest.mark.parametrize('metadata', [util.metadata(), None])
 @pytest.mark.parametrize('name_and_description', util.name_and_description_combinations(True))
-def test_update_workflow(client: Client, name_and_description, error_config, completed_config):
+def test_update_workflow(client: Client, error_config, completed_config, metadata, name_and_description):
     response = client.update_workflow(
         service.create_workflow_id(),
-        error_config=error_config,
         completed_config=completed_config,
+        error_config=error_config,
+        metadata=metadata,
         **name_and_description,
     )
     logging.info(response)
@@ -80,8 +84,8 @@ def test_update_workflow(client: Client, name_and_description, error_config, com
 def test_list_workflow_executions(client: Client, status, from_start_time, to_start_time):
     workflow_id = service.create_workflow_id()
     response = client.list_workflow_executions(
-        workflow_id=workflow_id, 
-        status=status, 
+        workflow_id=workflow_id,
+        status=status,
         from_start_time=from_start_time,
         to_start_time=to_start_time,
     )
