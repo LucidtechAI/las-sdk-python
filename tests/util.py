@@ -20,3 +20,8 @@ def name_and_description_combinations(at_least_one=False):
 
 def metadata():
     return {'foo': 'bar'}
+
+
+def assert_in_response(field, response):
+    assert field in response, f'Missing {field} in response'
+    

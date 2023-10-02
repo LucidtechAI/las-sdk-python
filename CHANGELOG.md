@@ -1,5 +1,11 @@
 # Changelog
 
+## Version 9.6.0 - 2023-10-02
+
+- Added `create_transformation`
+- Added `list_transformations`
+- Added `delete_transformation`
+
 ## Version 9.5.0 - 2023-09-14
 
 - Added optional `model_id` to `list_predictions`
