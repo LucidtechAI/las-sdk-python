@@ -1,6 +1,6 @@
 # Changelog
 
-## Version 9.6.0 - 2023-10-02
+## Version 10.0.0 - 2023-10-02
 
 - Added `create_transformation`
 - Added `list_transformations`
