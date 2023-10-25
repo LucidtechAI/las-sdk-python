@@ -79,6 +79,10 @@ def create_workflow_execution_id():
     return f'las:workflow-execution:{uuid4().hex}'
 
 
+def create_transformation_id():
+    return f'las:dataset-transformation:{uuid4().hex}'
+
+
 def create_error_config():
     return {'email': 'foo@bar.com'}
 

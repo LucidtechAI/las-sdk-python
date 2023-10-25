@@ -57,7 +57,6 @@ def test_update_user(client: Client):
     assert_user(user)
 
 
-@pytest.mark.skip(reason='DELETE does not work for the mocked API')
 def test_delete_user(client: Client):
     user_id = service.create_user_id()
     user = client.delete_user(user_id)

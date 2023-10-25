@@ -41,7 +41,6 @@ def test_list_app_clients_with_pagination(client: Client, max_results, next_toke
     assert 'nextToken' in response, 'Missing nextToken in response'
 
 
-@pytest.mark.skip(reason='DELETE does not work for the mocked API')
 def test_delete_app_client(client: Client):
     app_client_id = service.create_app_client_id()
     response = client.delete_app_client(app_client_id)

@@ -37,7 +37,6 @@ def test_list_transformations_with_pagination(client: Client, max_results, next_
         assert_transformation(transformation)
 
 
-@pytest.mark.skip(reason='DELETE does not work for the mocked API')
 def test_delete_transformation(client: Client):
     response = client.delete_transformation(service.create_dataset_id(), service.create_transformation_id())
     assert_transformation(response)

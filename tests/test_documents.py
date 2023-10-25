@@ -110,7 +110,6 @@ def test_update_document(static_client: Client, metadata):
     (service.create_consent_id(), None),
     ([service.create_consent_id()], [service.create_dataset_id()]),
 ])
-@pytest.mark.skip(reason='DELETE does not work for the mocked API')
 def test_delete_documents(static_client: Client, consent_id, dataset_id):
     delete_documents_response = static_client.delete_documents(consent_id=consent_id, dataset_id=dataset_id)
 
@@ -122,7 +121,6 @@ def test_delete_documents(static_client: Client, consent_id, dataset_id):
     (random.randint(1, 100), 'foo'),
     (None, None),
 ])
-@pytest.mark.skip(reason='DELETE does not work for the mocked API')
 def test_delete_documents_with_pagination(static_client: Client, max_results, next_token):
     response = static_client.delete_documents(max_results=max_results, next_token=next_token)
     assert 'documents' in response, 'Missing documents in response'

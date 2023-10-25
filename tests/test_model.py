@@ -86,7 +86,6 @@ def assert_model(response):
     assert 'description' in response, 'Missing description in response'
 
 
-@pytest.mark.skip(reason='DELETE does not work for the mocked API')
 def test_delete_model(client: Client):
     model_id = service.create_model_id()
     response = client.delete_model(model_id)

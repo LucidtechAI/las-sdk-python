@@ -30,7 +30,6 @@ def test_list_payment_methods_with_pagination(client: Client, max_results, next_
     assert 'nextToken' in response, 'Missing nextToken in response'
 
 
-@pytest.mark.skip(reason='DELETE does not work for the mocked API')
 def test_delete_payment_method(client: Client):
     payment_method_id = service.create_payment_method_id()
     response = client.delete_payment_method(payment_method_id)
