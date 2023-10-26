@@ -47,7 +47,6 @@ def test_update_asset(client: Client, name_and_description):
     assert 'assetId' in response, 'Missing assetId in response'
 
 
-@pytest.mark.skip(reason='DELETE does not work for the mocked API')
 def test_delete_asset(client: Client):
     asset_id = service.create_asset_id()
     response = client.delete_asset(asset_id)

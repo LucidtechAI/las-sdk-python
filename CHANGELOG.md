@@ -1,5 +1,13 @@
 # Changelog
 
+## Version 10.0.0 - 2023-10-25
+
+- Added `create_transformation`
+- Added `list_transformations`
+- Added `delete_transformation`
+- Added Python 3.11 support
+- Removed Python 3.6 and 3.7 support as they have reached end of life
+
 ## Version 9.5.0 - 2023-09-14
 
 - Added optional `model_id` to `list_predictions`

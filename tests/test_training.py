@@ -22,7 +22,6 @@ def test_create_training(client: Client, name_and_description, metadata):
 
 def test_list_trainings(client: Client):
     response = client.list_trainings(service.create_model_id())
-    logging.info(response)
     assert 'trainings' in response, 'Missing dataBundles in response'
 
 

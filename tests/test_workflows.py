@@ -114,7 +114,6 @@ def test_execute_workflow(client: Client):
     assert_workflow_execution(response)
 
 
-@pytest.mark.skip(reason='DELETE does not work for the mocked API')
 def test_delete_workflow_execution(client: Client):
     workflow_id = service.create_workflow_id()
     execution_id = service.create_workflow_execution_id()
@@ -123,7 +122,6 @@ def test_delete_workflow_execution(client: Client):
     assert_workflow_execution(response)
 
 
-@pytest.mark.skip(reason='DELETE does not work for the mocked API')
 def test_delete_workflow(client: Client):
     workflow_id = service.create_workflow_id()
     response = client.delete_workflow(workflow_id)

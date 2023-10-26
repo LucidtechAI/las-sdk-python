@@ -39,7 +39,6 @@ def test_update_secret(client: Client, name_and_description):
     assert 'secretId' in response, 'Missing secretId in response'
 
 
-@pytest.mark.skip(reason='DELETE does not work for the mocked API')
 def test_delete_secret(client: Client):
     secret_id = service.create_secret_id()
     response = client.delete_secret(secret_id)

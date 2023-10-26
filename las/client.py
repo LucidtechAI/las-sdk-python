@@ -646,6 +646,70 @@ class Client:
 
         return self._make_request(requests.delete, f'/datasets/{dataset_id}')
 
+    def create_transformation(self, dataset_id, operations) -> Dict:
+        """Creates a transformation on a dataset, calls the POST /datasets/{datasetId}/transformations endpoint.
+
+        :param dataset_id: Id of the dataset
+        :type dataset_id: str
+        :param operations: Operations to perform on the dataset
+        :type operations: dict
+        :return: Transformation response from REST API
+        :rtype: dict
+
+        :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
+ :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
+        """
+
+        body = {'operations': operations}
+        return self._make_request(requests.post, f'/datasets/{dataset_id}/transformations', body=body)
+
+    def list_transformations(
+        self,
+        dataset_id,
+        *,
+        max_results: Optional[int] = None,
+        next_token: Optional[str] = None,
+        status: Optional[Queryparam] = None,
+    ) -> Dict:
+        """List transformations, calls the GET /datasets/{datasetId}/transformations endpoint.
+
+        :param dataset_id: Id of the dataset
+        :type dataset_id: str
+        :param max_results: Maximum number of results to be returned
+        :type max_results: int, optional
+        :param next_token: A unique token for each page, use the returned token to retrieve the next page.
+        :type next_token: str, optional
+        :param status: Statuses of the transformations
+        :type status: Queryparam, optional
+        :return: Transformations response from REST API
+        :rtype: dict
+
+        :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
+ :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
+        """
+        params = {
+            'maxResults': max_results,
+            'nextToken': next_token,
+            'status': status,
+        }
+        return self._make_request(requests.get, f'/datasets/{dataset_id}/transformations', params=dictstrip(params))
+
+    def delete_transformation(self, dataset_id: str, transformation_id: str) -> Dict:
+        """Delete the transformation with the provided transformation_id,
+        calls the DELETE /datasets/{datasetId}/transformations/{transformationId} endpoint.
+
+        :param dataset_id: Id of the dataset
+        :type dataset_id: str
+        :param transformation_id: Id of the transformation
+        :type transformation_id: str
+        :return: Transformation response from REST API
+        :rtype: dict
+
+        :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
+ :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
+        """
+        return self._make_request(requests.delete, f'/datasets/{dataset_id}/transformations/{transformation_id}')
+
     def create_document(
         self,
         content: Content,
