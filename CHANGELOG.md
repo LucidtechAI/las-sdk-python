@@ -1,5 +1,10 @@
 # Changelog
 
+## Version 10.1.0 - 2023-11-01
+
+- Added `get_data_bundle`
+- Added `get_training`
+
 ## Version 10.0.0 - 2023-10-25
 
 - Added `create_transformation`

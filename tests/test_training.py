@@ -20,6 +20,14 @@ def test_create_training(client: Client, name_and_description, metadata):
     assert_training(response)
 
 
+def test_get_training(client: Client):
+    response = client.get_training(
+        service.create_model_id(),
+        service.create_training_id(),
+    )
+    assert_training(response)
+
+
 def test_list_trainings(client: Client):
     response = client.list_trainings(service.create_model_id())
     assert 'trainings' in response, 'Missing dataBundles in response'

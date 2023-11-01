@@ -1266,6 +1266,21 @@ class Client:
         body.update(**optional_args)
         return self._make_request(requests.post, f'/models/{model_id}/dataBundles', body=body)
 
+    def get_data_bundle(self, model_id: str, data_bundle_id: str) -> Dict:
+        """Get data bundle, calls the GET /models/{modelId}/dataBundles/{dataBundleId} endpoint.
+
+        :param model_id: ID of the model
+        :type model_id: str
+        :param data_bundle_id: ID of the data_bundle
+        :type data_bundle_id: str
+        :return: DataBundle response from REST API
+        :rtype: dict
+
+        :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
+ :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
+        """
+        return self._make_request(requests.get, f'/models/{model_id}/dataBundles/{data_bundle_id}')
+
     def create_training(
         self,
         model_id,
@@ -1303,6 +1318,21 @@ class Client:
         })
         body.update(**optional_args)
         return self._make_request(requests.post, f'/models/{model_id}/trainings', body=body)
+
+    def get_training(self, model_id: str, training_id: str) -> Dict:
+        """Get training, calls the GET /models/{modelId}/trainings/{trainingId} endpoint.
+
+        :param model_id: ID of the model
+        :type model_id: str
+        :param training_id: ID of the training
+        :type training_id: str
+        :return: Training response from REST API
+        :rtype: dict
+
+        :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
+ :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
+        """
+        return self._make_request(requests.get, f'/models/{model_id}/trainings/{training_id}')
 
     def list_trainings(self, model_id, *, max_results: Optional[int] = None, next_token: Optional[str] = None) -> Dict:
         """List trainings available, calls the GET /models/{modelId}/trainings endpoint.

@@ -46,6 +46,10 @@ def create_data_bundle_id():
     return f'las:model-data-bundle:{uuid4().hex}'
 
 
+def create_training_id():
+    return f'las:model-training:{uuid4().hex}'
+
+
 def create_organization_id():
     return f'las:organization:{uuid4().hex}'
 
