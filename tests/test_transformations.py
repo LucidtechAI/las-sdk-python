@@ -11,8 +11,6 @@ from .util import assert_in_response
 @pytest.mark.parametrize('operations', [[{'type': 'remove-duplicates', 'options': {}}]])
 @pytest.mark.parametrize('dataset_id', [service.create_dataset_id()])
 def test_create_transformation(client: Client, dataset_id, operations):
-    print('dataset', dataset_id)
-    print('operations', operations)
     response = client.create_transformation(dataset_id, operations)
     assert_transformation(response)
 

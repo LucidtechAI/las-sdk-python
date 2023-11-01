@@ -14,6 +14,14 @@ def test_create_data_bundle(client: Client, name_and_description):
     assert_data_bundle(response)
 
 
+def test_get_data_bundle(client: Client):
+    response = client.get_data_bundle(
+        service.create_model_id(),
+        service.create_data_bundle_id(),
+    )
+    assert_data_bundle(response)
+
+
 def test_list_data_bundles(client: Client):
     response = client.list_data_bundles(service.create_model_id())
     logging.info(response)
