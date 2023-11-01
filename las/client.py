@@ -1267,7 +1267,7 @@ class Client:
         return self._make_request(requests.post, f'/models/{model_id}/dataBundles', body=body)
 
     def get_data_bundle(self, model_id: str, data_bundle_id: str) -> Dict:
-        """Get dataset, calls the GET /models/{modelId}/dataBundles/{dataBundleId} endpoint.
+        """Get data bundle, calls the GET /models/{modelId}/dataBundles/{dataBundleId} endpoint.
 
         :param model_id: ID of the model
         :type model_id: str
@@ -1320,7 +1320,7 @@ class Client:
         return self._make_request(requests.post, f'/models/{model_id}/trainings', body=body)
 
     def get_training(self, model_id: str, training_id: str) -> Dict:
-        """Get dataset, calls the GET /models/{modelId}/trainings/{trainingId} endpoint.
+        """Get training, calls the GET /models/{modelId}/trainings/{trainingId} endpoint.
 
         :param model_id: ID of the model
         :type model_id: str
