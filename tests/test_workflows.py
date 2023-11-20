@@ -1,4 +1,3 @@
-import logging
 import random
 from datetime import datetime, timezone
 
@@ -8,20 +7,21 @@ from las.client import Client
 from . import service, util
 
 
+@pytest.mark.parametrize('email_config', [None, service.create_email_config()])
 @pytest.mark.parametrize('error_config', [None, service.create_error_config()])
 @pytest.mark.parametrize('completed_config', [None, service.create_completed_config()])
 @pytest.mark.parametrize('metadata', [util.metadata(), None])
 @pytest.mark.parametrize('name_and_description', util.name_and_description_combinations(True))
-def test_create_workflow(client: Client, error_config, completed_config, metadata, name_and_description):
+def test_create_workflow(client: Client, email_config, error_config, completed_config, metadata, name_and_description):
     specification = {'definition': {}}
     response = client.create_workflow(
         specification,
+        email_config=email_config,
         error_config=error_config,
         completed_config=completed_config,
         metadata=metadata,
         **name_and_description,
     )
-    logging.info(response)
     assert_workflow(response)
 
 
@@ -46,23 +46,23 @@ def test_list_workflows_with_pagination(client: Client, max_results, next_token)
 def test_get_workflow(client: Client):
     workflow_id = service.create_workflow_id()
     response = client.get_workflow(workflow_id)
-    logging.info(response)
     assert_workflow(response)
 
 
+@pytest.mark.parametrize('email_config', [None, service.create_email_config()])
 @pytest.mark.parametrize('error_config', [None, service.create_error_config()])
 @pytest.mark.parametrize('completed_config', [None, service.create_completed_config()])
 @pytest.mark.parametrize('metadata', [util.metadata(), None])
 @pytest.mark.parametrize('name_and_description', util.name_and_description_combinations(True))
-def test_update_workflow(client: Client, error_config, completed_config, metadata, name_and_description):
+def test_update_workflow(client: Client, email_config, error_config, completed_config, metadata, name_and_description):
+    optional_args = {'email_config': email_config, **name_and_description}
     response = client.update_workflow(
         service.create_workflow_id(),
         completed_config=completed_config,
         error_config=error_config,
         metadata=metadata,
-        **name_and_description,
+        **optional_args,
     )
-    logging.info(response)
     assert_workflow(response)
 
 
@@ -89,7 +89,6 @@ def test_list_workflow_executions(client: Client, status, from_start_time, to_st
         from_start_time=from_start_time,
         to_start_time=to_start_time,
     )
-    logging.info(response)
     assert 'workflowId' in response, 'Missing workflowId in response'
     assert 'executions' in response, 'Missing executions in response'
 
@@ -110,7 +109,6 @@ def test_list_workflow_executions_with_pagination(client: Client, max_results, n
 def test_execute_workflow(client: Client):
     workflow_id = service.create_workflow_id()
     response = client.execute_workflow(workflow_id, content={})
-    logging.info(response)
     assert_workflow_execution(response)
 
 
@@ -118,20 +116,17 @@ def test_delete_workflow_execution(client: Client):
     workflow_id = service.create_workflow_id()
     execution_id = service.create_workflow_execution_id()
     response = client.delete_workflow_execution(workflow_id, execution_id)
-    logging.info(response)
     assert_workflow_execution(response)
 
 
 def test_delete_workflow(client: Client):
     workflow_id = service.create_workflow_id()
     response = client.delete_workflow(workflow_id)
-    logging.info(response)
     assert_workflow(response)
 
 
 def test_get_workflow_execution(client: Client):
     response = client.get_workflow_execution(service.create_workflow_id(), service.create_workflow_execution_id())
-    logging.info(response)
     assert_workflow_execution(response)
 
 
@@ -141,7 +136,6 @@ def test_update_workflow_execution(client: Client):
         service.create_workflow_execution_id(),
         service.create_transition_id(),
     )
-    logging.info(response)
     assert_workflow_execution(response)
 
 
