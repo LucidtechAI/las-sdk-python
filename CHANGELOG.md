@@ -2,8 +2,8 @@
 
 ## Version 10.2.0 - 2023-11-14
 
-- Added optional `emailConfig`to `create_workflow`
-- Added optional `emailConfig`to `update_workflow`
+- Added optional `email_config` to `create_workflow`
+- Added optional `email_config` to `update_workflow`
 -
 ## Version 10.1.0 - 2023-11-01
 
