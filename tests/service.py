@@ -91,6 +91,14 @@ def create_error_config():
     return {'email': 'foo@bar.com'}
 
 
+def create_email_config():
+    return {
+        'additionalWorkflowInput': {'foo': 'bar'},
+        'allowedOrigins': ['.+', 'foobar@myemaildomain.com'],
+        'secretId': create_secret_id(),
+    }
+
+
 def create_completed_config():
     return {
         'imageUrl': 'my/docker:image',

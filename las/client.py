@@ -2256,6 +2256,7 @@ class Client:
         self,
         specification: dict,
         *,
+        email_config: Optional[dict] = None,
         error_config: Optional[dict] = None,
         completed_config: Optional[dict] = None,
         metadata: Optional[dict] = None,
@@ -2274,6 +2275,8 @@ class Client:
         :param specification: Specification of the workflow, \
             currently supporting ASL: https://states-language.net/spec.html
         :type specification: dict
+        :param email_config: Create workflow with email input
+        :type email_config: dict, optional
         :param error_config: Configuration of error handler
         :type error_config: dict, optional
         :param completed_config: Configuration of a job to run whenever a workflow execution ends
@@ -2292,6 +2295,7 @@ class Client:
         """
         body = dictstrip({
             'completedConfig': completed_config,
+            'emailConfig': email_config,
             'errorConfig': error_config,
             'metadata': metadata,
             'specification': specification,
@@ -2369,6 +2373,8 @@ class Client:
         :type name: str, optional
         :param description: Description of the workflow
         :type description: str, optional
+        :param email_config: Update workflow with email input
+        :type email_config: dict, optional
         :return: Workflow response from REST API
         :rtype: dict
 
@@ -2380,7 +2386,11 @@ class Client:
             'errorConfig': error_config,
             'metadata': metadata,
         })
+
+        if 'email_config' in optional_args:
+            optional_args['emailConfig'] = optional_args.pop('email_config')
         body.update(**optional_args)
+
         return self._make_request(requests.patch, f'/workflows/{workflow_id}', body=body)
 
     def delete_workflow(self, workflow_id: str) -> Dict:
