@@ -1,6 +1,6 @@
 # Changelog
 
-## Version 10.3.0 - 2023-11-21
+## Version 10.3.0 - 2023-11-24
 
 - Added `get_app_client`
 
