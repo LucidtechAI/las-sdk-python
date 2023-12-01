@@ -1078,13 +1078,14 @@ class Client:
         :param postprocess_config: Post processing configuration for predictions.
             {
                 'strategy': 'BEST_FIRST' | 'BEST_N_PAGES',  (required)
+                'outputFormat': 'v1' | 'v2',                (optional)
                 'parameters': {                             (required if strategy=BEST_N_PAGES, omit otherwise)
                     'n': int,                               (required if strategy=BEST_N_PAGES, omit otherwise)
                     'collapse': True | False                (optional if strategy=BEST_N_PAGES, omit otherwise)
                 }
             }
             Examples:
-            {'strategy': 'BEST_FIRST'}
+            {'strategy': 'BEST_FIRST', 'outputFormat': 'v2'}
             {'strategy': 'BEST_N_PAGES', 'parameters': {'n': 3}}
             {'strategy': 'BEST_N_PAGES', 'parameters': {'n': 3, 'collapse': False}}
         :type postprocess_config: dict, optional
@@ -1154,18 +1155,21 @@ class Client:
         }
         return self._make_request(requests.get, '/models', params=dictstrip(params))
 
-    def get_model(self, model_id: str) -> Dict:
+    def get_model(self, model_id: str, *, statistics_last_n_days: Optional[int] = None) -> Dict:
         """Get a model, calls the GET /models/{modelId} endpoint.
 
         :param model_id: The Id of the model
         :type model_id: str
+        :param statistics_last_n_days: Integer between 1 and 30
+        :type statistics_last_n_days: int, optional 
         :return: Model response from REST API
         :rtype: dict
 
         :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
  :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
         """
-        return self._make_request(requests.get, f'/models/{model_id}')
+        params = {'statisticsLastNDays': statistics_last_n_days}
+        return self._make_request(requests.get, f'/models/{quote(model_id, safe="")}', params=params)
 
     def update_model(
         self,
@@ -1205,13 +1209,14 @@ class Client:
         :param postprocess_config: Post processing configuration for predictions.
             {
                 'strategy': 'BEST_FIRST' | 'BEST_N_PAGES',  (required)
+                'outputFormat': 'v1' | 'v2',                (optional)
                 'parameters': {                             (required if strategy=BEST_N_PAGES, omit otherwise)
                     'n': int,                               (required if strategy=BEST_N_PAGES, omit otherwise)
                     'collapse': True | False                (optional if strategy=BEST_N_PAGES, omit otherwise)
                 }
             }
             Examples:
-            {'strategy': 'BEST_FIRST'}
+            {'strategy': 'BEST_FIRST', 'outputFormat': 'v2'}
             {'strategy': 'BEST_N_PAGES', 'parameters': {'n': 3}}
             {'strategy': 'BEST_N_PAGES', 'parameters': {'n': 3, 'collapse': False}}
         :type postprocess_config: dict, optional
@@ -1547,13 +1552,14 @@ class Client:
         :param postprocess_config: Post processing configuration for prediction.
             {
                 'strategy': 'BEST_FIRST' | 'BEST_N_PAGES',  (required)
+                'outputFormat': 'v1' | 'v2',                (optional)
                 'parameters': {                             (required if strategy=BEST_N_PAGES, omit otherwise)
                     'n': int,                               (required if strategy=BEST_N_PAGES, omit otherwise)
                     'collapse': True | False                (optional if strategy=BEST_N_PAGES, omit otherwise)
                 }
             }
             Examples:
-            {'strategy': 'BEST_FIRST'}
+            {'strategy': 'BEST_FIRST', 'outputFormat': 'v2'}
             {'strategy': 'BEST_N_PAGES', 'parameters': {'n': 3}}
             {'strategy': 'BEST_N_PAGES', 'parameters': {'n': 3, 'collapse': False}}
         :type postprocess_config: dict, optional
@@ -2524,7 +2530,9 @@ class Client:
         self,
         workflow_id: str,
         execution_id: str,
-        next_transition_id: str,
+        *,
+        next_transition_id: Optional[str],
+        status: Optional[str],
     ) -> Dict:
         """Retry or end the processing of a workflow execution,
         calls the PATCH /workflows/{workflow_id}/executions/{execution_id} endpoint.
@@ -2539,7 +2547,9 @@ class Client:
         :type execution_id: str
         :param next_transition_id: the next transition to transition into, to end the workflow-execution, \
         use: las:transition:commons-failed
-        :type next_transition_id: str
+        :type next_transition_id: str, optional
+        :param status: Update the execution with this status, can only update from succeeded to completed and vice versa
+        :type status: str, optional
         :return: Workflow execution response from REST API
         :rtype: dict
 
@@ -2549,6 +2559,7 @@ class Client:
         url = f'/workflows/{workflow_id}/executions/{execution_id}'
         body = {
             'nextTransitionId': next_transition_id,
+            'status': status,
         }
         return self._make_request(requests.patch, url, body=dictstrip(body))
 

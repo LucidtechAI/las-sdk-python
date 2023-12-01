@@ -15,7 +15,7 @@ from . import service
     None,
 ])
 @pytest.mark.parametrize('postprocess_config', [
-    {'strategy': 'BEST_FIRST'},
+    {'strategy': 'BEST_FIRST', 'outputFormat': 'v2'},
     {'strategy': 'BEST_N_PAGES', 'parameters': {'n': 3}},
     {'strategy': 'BEST_N_PAGES', 'parameters': {'n': 3, 'collapse': False}},
     None,

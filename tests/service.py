@@ -134,6 +134,7 @@ def preprocess_config():
 def postprocess_config():
     return {
         'strategy': 'BEST_N_PAGES',
+        'outputFormat': 'v2',
         'parameters': {'n': 3, 'collapse': True},
     }
 
