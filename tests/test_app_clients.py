@@ -62,3 +62,9 @@ def assert_app_client(response):
     assert 'name' in response, 'Missing name in response'
     assert 'description' in response, 'Missing description in response'
 
+
+def test_get_app_client(client: Client):
+    app_client_id = service.create_app_client_id()
+    response = client.get_app_client(app_client_id)
+    assert_app_client(response)
+    

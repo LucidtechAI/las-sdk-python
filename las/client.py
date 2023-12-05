@@ -289,6 +289,19 @@ class Client:
 
         return self._make_request(requests.post, '/appClients', body=body)
 
+    def get_app_client(self, app_client_id: str) -> Dict:
+        """Get appClient, calls the GET /appClients/{appClientId} endpoint.
+
+        :param app_client_id: Id of the appClient
+        :type app_client_id: str
+        :return: AppClient response from REST API
+        :rtype: dict
+
+        :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
+ :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
+        """
+        return self._make_request(requests.get, f'/appClients/{app_client_id}')
+
     def list_app_clients(self, *, max_results: Optional[int] = None, next_token: Optional[str] = None) -> Dict:
         """List appClients available, calls the GET /appClients endpoint.
 
