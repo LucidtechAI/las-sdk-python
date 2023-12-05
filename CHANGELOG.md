@@ -5,7 +5,7 @@
 - Added optional `status` to `update_workflow_execution`
 - Added optional `next_transition_id` to `update_workflow_execution`
 - Removed required `next_transition_id` from `update_workflow_execution`
-- Added support for model with organization ID specification in `get_model`
+- Added support for model with organization ID prefix in `get_model`
 - Added optional `statistics_last_n_days` to `get_model`
 
 ## Version 10.3.0 - 2023-11-24
