@@ -130,11 +130,15 @@ def test_get_workflow_execution(client: Client):
     assert_workflow_execution(response)
 
 
-def test_update_workflow_execution(client: Client):
+@pytest.mark.parametrize('optional_args', [
+    {'next_transition_id': service.create_transition_id()},
+    {'status': 'completed'}
+])
+def test_update_workflow_execution(client: Client, optional_args):
     response = client.update_workflow_execution(
         service.create_workflow_id(),
         service.create_workflow_execution_id(),
-        service.create_transition_id(),
+        **optional_args,
     )
     assert_workflow_execution(response)
 
