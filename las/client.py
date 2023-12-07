@@ -2531,8 +2531,8 @@ class Client:
         workflow_id: str,
         execution_id: str,
         *,
-        next_transition_id: Optional[str],
-        status: Optional[str],
+        next_transition_id: Optional[str] = None,
+        status: Optional[str] = None,
     ) -> Dict:
         """Retry or end the processing of a workflow execution,
         calls the PATCH /workflows/{workflow_id}/executions/{execution_id} endpoint.
