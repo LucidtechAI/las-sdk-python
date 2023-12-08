@@ -132,7 +132,7 @@ def test_get_workflow_execution(client: Client):
 
 @pytest.mark.parametrize('optional_args', [
     {'next_transition_id': service.create_transition_id()},
-    {'status': 'completed'}
+    {'status': 'completed'},
 ])
 def test_update_workflow_execution(client: Client, optional_args):
     response = client.update_workflow_execution(

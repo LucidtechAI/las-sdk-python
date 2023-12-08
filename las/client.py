@@ -883,6 +883,7 @@ class Client:
         page: Optional[int] = None,
         rotation: Optional[int] = None,
         density: Optional[int] = None,
+        quality: Optional[str] = None,
     ) -> Dict:
         """Get document, calls the GET /documents/{documentId} endpoint.
 
@@ -902,6 +903,9 @@ class Client:
         :type rotation: int, optional
         :param density: Convert PDF/TIFF document to JPEG with this density setting
         :type density: int, optional
+        :param quality: The returned quality of the document. Currently the only valid quality is "low", and only PDFs
+        will have their quality adjusted.
+        :type quality: str, optional
         :return: Document response from REST API
         :rtype: dict
 
@@ -915,6 +919,7 @@ class Client:
             'page': page,
             'rotation': rotation,
             'density': density,
+            'quality': quality,
         })
 
         if query_params or 'content' not in document:
@@ -1161,7 +1166,7 @@ class Client:
         :param model_id: The Id of the model
         :type model_id: str
         :param statistics_last_n_days: Integer between 1 and 30
-        :type statistics_last_n_days: int, optional 
+        :type statistics_last_n_days: int, optional
         :return: Model response from REST API
         :rtype: dict
 
