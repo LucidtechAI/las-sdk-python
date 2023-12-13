@@ -1,5 +1,9 @@
 # Changelog
 
+## Version 11.2.0 - 2023-12-13
+
+- Added optional `status` to `update_workflow`
+
 ## Version 11.1.0 - 2023-12-07
 
 - Added optional `quality` to `get_document`

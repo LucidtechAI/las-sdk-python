@@ -54,13 +54,23 @@ def test_get_workflow(client: Client):
 @pytest.mark.parametrize('completed_config', [None, service.create_completed_config()])
 @pytest.mark.parametrize('metadata', [util.metadata(), None])
 @pytest.mark.parametrize('name_and_description', util.name_and_description_combinations(True))
-def test_update_workflow(client: Client, email_config, error_config, completed_config, metadata, name_and_description):
+@pytest.mark.parametrize('status', [None, 'development', 'production'])
+def test_update_workflow(
+    client: Client, 
+    email_config, 
+    error_config, 
+    completed_config, 
+    metadata, 
+    name_and_description,
+    status,
+):
     optional_args = {'email_config': email_config, **name_and_description}
     response = client.update_workflow(
         service.create_workflow_id(),
         completed_config=completed_config,
         error_config=error_config,
         metadata=metadata,
+        status=status,
         **optional_args,
     )
     assert_workflow(response)
