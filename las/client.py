@@ -2375,6 +2375,7 @@ class Client:
         error_config: Optional[dict] = None,
         completed_config: Optional[dict] = None,
         metadata: Optional[dict] = None,
+        status: Optional[str] = None,
         **optional_args,
     ) -> Dict:
         """Updates a workflow, calls the PATCH /workflows/{workflowId} endpoint.
@@ -2399,6 +2400,8 @@ class Client:
         :type description: str, optional
         :param email_config: Update workflow with email input
         :type email_config: dict, optional
+        :param status: Set status of workflow to development or production
+        :type status: str, optional
         :return: Workflow response from REST API
         :rtype: dict
 
@@ -2409,6 +2412,7 @@ class Client:
             'completedConfig': completed_config,
             'errorConfig': error_config,
             'metadata': metadata,
+            'status': status,
         })
 
         if 'email_config' in optional_args:
