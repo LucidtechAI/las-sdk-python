@@ -1,5 +1,9 @@
 # Changelog
 
+## Version 11.2.1 - 2024-02-22
+
+- Truncate too long error message text in `transition_handler`
+
 ## Version 11.2.0 - 2023-12-13
 
 - Added optional `status` to `update_workflow`
