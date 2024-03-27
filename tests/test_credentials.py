@@ -1,8 +1,10 @@
 import json
 
 import pytest
+from functools import partial
 from las.credentials import (
     Credentials,
+    MissingCredentials,
     NULL_TOKEN,
     read_from_environ,
     read_from_file,
@@ -38,17 +40,36 @@ def cache_path(tmp_path):
 def mock_read_from_environ(*args, **kwargs):
     return ['foo', 'bar', 'baz', 'foobar']
 
+def equal_credentials(c0, c1):
+    return all([
+        c0.client_id == c1.client_id,
+        c0.client_secret == c1.client_secret,
+        c0.auth_endpoint == c1.auth_endpoint,
+        c0.api_endpoint == c1.api_endpoint,
+    ])
 
-def test_guess_credentials():
-    (client_id, client_secret, auth_endpoint, api_endpoint) = mock_read_from_environ()
+@pytest.mark.parametrize('section', ['default'])
+def test_guess_credentials(section, credentials_path):
+    credentials_from_env = Credentials(*mock_read_from_environ())
 
     with pytest.MonkeyPatch().context() as mp:
         mp.setattr('las.credentials.read_from_environ', mock_read_from_environ)
-        credentials = guess_credentials()
-        assert client_id == credentials.client_id
-        assert client_secret == credentials.client_secret
-        assert auth_endpoint == credentials.auth_endpoint
-        assert api_endpoint == credentials.api_endpoint
+        mp.setattr('las.credentials.read_from_file', partial(read_from_file, credentials_path=credentials_path))
+
+        # Default to using credentials defined in the environment
+        assert equal_credentials(credentials_from_env, guess_credentials())
+
+        # Use credentials defined in the config if a profile is specified
+        credentials_from_file = guess_credentials(profile=section)
+        assert not equal_credentials(credentials_from_env, credentials_from_file)
+
+        # Although credentials are defined in the environment we will not use these when a profile is provided
+        with pytest.raises(MissingCredentials):
+            guess_credentials(profile='missing-section')
+
+        # Use credentials from file if the credentials from the environment are incomplete
+        mp.setattr('las.credentials.read_from_environ', lambda: mock_read_from_environ()[:2])
+        equal_credentials(guess_credentials(), credentials_from_file)
 
 
 def test_read_token_from_cache(cache_path, token, section):
