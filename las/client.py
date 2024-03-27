@@ -177,10 +177,10 @@ class FileFormatException(ClientException):
 
 class Client:
     """A low level client to invoke api methods from Lucidtech AI Services."""
-    def __init__(self, credentials: Optional[Credentials] = None):
+    def __init__(self, credentials: Optional[Credentials] = None, profile=None):
         """:param credentials: Credentials to use, instance of :py:class:`~las.Credentials`
         :type credentials: Credentials"""
-        self.credentials = credentials or guess_credentials()
+        self.credentials = credentials or guess_credentials(profile)
 
     @on_exception(expo, TooManyRequestsException, max_tries=4)
     @on_exception(expo, RequestException, max_tries=3, giveup=_fatal_code)
