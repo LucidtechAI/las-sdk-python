@@ -1,5 +1,9 @@
 # Changelog
 
+## Version 11.3.0 - 2024-03-27
+
+- Support profile argument when creating a Client
+
 ## Version 11.2.1 - 2024-02-22
 
 - Truncate too long error message text in `transition_handler`

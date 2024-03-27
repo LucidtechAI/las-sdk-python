@@ -149,7 +149,7 @@ def read_from_file(credentials_path: str = expanduser('~/.lucidtech/credentials.
     return [client_id, client_secret, auth_endpoint, api_endpoint, cached_profile]
 
 
-def guess_credentials() -> Credentials:
+def guess_credentials(profile=None) -> Credentials:
     """Tries to fetch Credentials first by looking at the environment variables, next by looking at the default
     credentials path ~/.lucidtech/credentials.cfg. Note that if not all the required environment variables
     are present, _all_ variables will be disregarded, and the credentials in the default path will be used.
@@ -159,8 +159,14 @@ def guess_credentials() -> Credentials:
 
     :raises: :py:class:`~las.MissingCredentials`"""
 
+    if profile:
+        try:
+            return Credentials(*read_from_file(section=profile))
+        except:
+            raise MissingCredentials(f'Could not find valid credentials for {profile} in ~/.lucidtech/credentials.cfg')
+
     for guesser in [read_from_environ, read_from_file]:
         args = guesser()  # type: ignore
-        if all(args[:4]):
+        if len(args) >= 4 and all(args[:4]):
             return Credentials(*args)
     raise MissingCredentials
