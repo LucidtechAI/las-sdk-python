@@ -731,8 +731,10 @@ class Client:
         consent_id: Optional[str] = None,
         dataset_id: str = None,
         ground_truth: Sequence[Dict[str, str]] = None,
-        retention_in_days: int = None,
         metadata: Optional[dict] = None,
+        project_id: str = None,
+        project_run_id: str = None,
+        retention_in_days: int = None,
     ) -> Dict:
         """Creates a document, calls the POST /documents endpoint.
 
@@ -748,6 +750,10 @@ class Client:
         :type consent_id: str, optional
         :param dataset_id: Id of the associated dataset
         :type dataset_id: str, optional
+        :param project_id: Id of the associated project
+        :type project_id: str, optional
+        :param project_run_id: Id of the associated project_run
+        :type project_run_id: str, optional
         :param ground_truth: List of items {'label': label, 'value': value} \
             representing the ground truth values for the document
         :type ground_truth: Sequence [ Dict [ str, Union [ str, bool ]  ] ], optional
@@ -768,6 +774,8 @@ class Client:
             'datasetId': dataset_id,
             'groundTruth': ground_truth,
             'metadata': metadata,
+            'projectId': project_id,
+            'projectRunId': project_run_id,
             'retentionInDays': retention_in_days,
         }
 
@@ -2623,3 +2631,73 @@ class Client:
  :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
         """
         return self._make_request(requests.get, f'/roles/{role_id}')
+
+    def get_validation(self, validation_id: str) -> Dict:
+        """Get validation, calls the GET /validations/{validationId} endpoint.
+
+        :param validation_id: Id of the validation
+        :type validation_id: str
+        :return: Validation response from REST API
+        :rtype: dict
+
+        :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
+ :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
+        """
+        return self._make_request(requests.get, f'/validations/{validation_id}')
+
+    def list_validations(self, *, max_results: Optional[int] = None, next_token: Optional[str] = None) -> Dict:
+        """List validations available, calls the GET /validations endpoint.
+
+        :param max_results: Maximum number of results to be returned
+        :type max_results: int, optional
+        :param next_token: A unique token for each page, use the returned token to retrieve the next page.
+        :type next_token: str, optional
+        :return: Validations response from REST API without the content of each validation
+        :rtype: dict
+
+        :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
+ :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
+        """
+        params = {
+            'maxResults': max_results,
+            'nextToken': next_token,
+        }
+        return self._make_request(requests.get, '/validations', params=params)
+
+    def create_validation(self, *, metadata: Optional[dict] = None, **optional_args) -> Dict:
+        """Creates a validation, calls the POST /validations endpoint.
+
+        :param name: Name of the validation
+        :type name: str, optional
+        :param description: Description of the validation
+        :type description: str, optional
+        :param metadata: Dictionary that can be used to store additional information
+        :type metadata: dict, optional
+        :return: Dataset response from REST API
+        :rtype: dict
+
+        :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
+ :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
+        """
+        body = dictstrip({'metadata': metadata})
+        body.update(**optional_args)
+        return self._make_request(requests.post, '/validations', body=body)
+
+    def create_validation_task(self, validation_id: str, *, metadata: Optional[dict] = None, **optional_args) -> Dict:
+        """Creates a validation, calls the POST /validations endpoint.
+
+        :param name: Name of the validation
+        :type name: str, optional
+        :param description: Description of the validation
+        :type description: str, optional
+        :param metadata: Dictionary that can be used to store additional information
+        :type metadata: dict, optional
+        :return: Dataset response from REST API
+        :rtype: dict
+
+        :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
+ :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
+        """
+        body = dictstrip({'metadata': metadata})
+        body.update(**optional_args)
+        return self._make_request(requests.post, f'/validations/{validation_id}/tasks', body=body)
