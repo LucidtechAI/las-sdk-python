@@ -2683,9 +2683,20 @@ class Client:
         body.update(**optional_args)
         return self._make_request(requests.post, '/validations', body=body)
 
-    def create_validation_task(self, validation_id: str, *, metadata: Optional[dict] = None, **optional_args) -> Dict:
+    def create_validation_task(
+        self,
+        validation_id: str,
+        input: dict,
+        *,
+        metadata: Optional[dict] = None,
+        **optional_args,
+    ) -> Dict:
         """Creates a validation, calls the POST /validations endpoint.
 
+        :param validation_id: Id of the validation
+        :type validation_id: str
+        :param input: Dictionary that can be used to store additional information
+        :type input: dict, optional
         :param name: Name of the validation
         :type name: str, optional
         :param description: Description of the validation
@@ -2698,6 +2709,43 @@ class Client:
         :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
  :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
         """
-        body = dictstrip({'metadata': metadata})
+        body = dictstrip({'input': input, 'metadata': metadata})
         body.update(**optional_args)
         return self._make_request(requests.post, f'/validations/{validation_id}/tasks', body=body)
+
+    def update_validation_task(
+        self,
+        validation_id: str,
+        validation_task_id: str,
+        output: dict,
+        *,
+        metadata: Optional[dict] = None,
+        **optional_args,
+    ) -> Dict:
+        """Creates a validation, calls the POST /validations endpoint.
+
+        :param validation_id: Id of the validation
+        :type validation_id: str
+        :param validation_task_id: Id of the validation task
+        :type validation_task_id: str
+        :param output: Dictionary that can be used to store additional information
+        :type output: dict, optional
+        :param name: Name of the validation
+        :type name: str, optional
+        :param description: Description of the validation
+        :type description: str, optional
+        :param metadata: Dictionary that can be used to store additional information
+        :type metadata: dict, optional
+        :return: Dataset response from REST API
+        :rtype: dict
+
+        :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
+ :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
+        """
+        body = dictstrip({'output': output, 'metadata': metadata})
+        body.update(**optional_args)
+        return self._make_request(
+            requests_fn=requests.patch,
+            path=f'/validations/{validation_id}/tasks/{validation_task_id}',
+            body=body,
+        )
