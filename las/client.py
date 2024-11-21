@@ -1531,7 +1531,7 @@ class Client:
         training_id: Optional[str] = None,
         preprocess_config: Optional[dict] = None,
         postprocess_config: Optional[dict] = None,
-        async: Optional[bool] = None,
+        sync: Optional[bool] = None,
     ) -> Dict:
         """Create a prediction on a document using specified model, calls the POST /predictions endpoint.
 
@@ -1572,8 +1572,8 @@ class Client:
             {'strategy': 'BEST_N_PAGES', 'parameters': {'n': 3}}
             {'strategy': 'BEST_N_PAGES', 'parameters': {'n': 3, 'collapse': False}}
         :type postprocess_config: dict, optional
-        :param async: Run the prediction asynchronously
-        :type async: bool
+        :param sync: If True run the prediction synchronously, if false run async. if omitted run synchronously
+        :type sync: bool
         :return: Prediction response from REST API
         :rtype: dict
 
@@ -1586,7 +1586,7 @@ class Client:
             'trainingId': training_id,
             'preprocessConfig': preprocess_config,
             'postprocessConfig': postprocess_config,
-            'async': async,
+            'async': None if sync is None else sync == False,
         }
         return self._make_request(requests.post, '/predictions', body=dictstrip(body))
 
@@ -1629,6 +1629,23 @@ class Client:
             'sortBy': sort_by,
         }
         return self._make_request(requests.get, '/predictions', params=dictstrip(params))
+
+    def get_prediction(self, prediction_id: str) -> Dict:
+        """Get prediction, calls the GET /predictions/{predictionId} endpoint.
+
+        >>> from las.client import Client
+        >>> client = Client()
+        >>> client.get_prediction(prediction_id='<prediction id>')
+
+        :param prediction_id: Id of the prediction
+        :type prediction_id: str
+        :return: Asset response from REST API with content
+        :rtype: dict
+
+        :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
+ :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
+        """
+        return self._make_request(requests.get, f'/predictions/{prediction_id}')
 
     def get_plan(self, plan_id: str) -> Dict:
         """Get information about a specific plan, calls the GET /plans/{plan_id} endpoint.
