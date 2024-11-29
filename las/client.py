@@ -646,7 +646,7 @@ class Client:
 
         :param dataset_id: Id of the dataset
         :type dataset_id: str
-        :param delete_documents: Set to true to delete documents in dataset before deleting dataset
+        :param delete_documents: Set to True to delete documents in dataset before deleting dataset
         :type delete_documents: bool
         :return: Dataset response from REST API
         :rtype: dict
@@ -1572,8 +1572,8 @@ class Client:
             {'strategy': 'BEST_N_PAGES', 'parameters': {'n': 3}}
             {'strategy': 'BEST_N_PAGES', 'parameters': {'n': 3, 'collapse': False}}
         :type postprocess_config: dict, optional
-        :param sync: If True run the prediction synchronously, if false run async. if omitted run synchronously
-        :type sync: bool
+        :param run_async: If True run the prediction async, if False run sync. if omitted run synchronously.
+        :type run_async: bool
         :return: Prediction response from REST API
         :rtype: dict
 

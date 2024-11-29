@@ -20,8 +20,8 @@ from . import service
     {'strategy': 'BEST_N_PAGES', 'parameters': {'n': 3, 'collapse': False}},
     None,
 ])
-@pytest.mark.parametrize('sync', [True, False, None])
-def test_create_prediction(client: Client, preprocess_config, postprocess_config, sync):
+@pytest.mark.parametrize('run_async', [True, False, None])
+def test_create_prediction(client: Client, preprocess_config, postprocess_config, run_async):
     document_id = service.create_document_id()
     model_id = service.create_model_id()
     response = client.create_prediction(
@@ -29,7 +29,7 @@ def test_create_prediction(client: Client, preprocess_config, postprocess_config
         model_id,
         preprocess_config=dictstrip(preprocess_config) if preprocess_config else None,
         postprocess_config=postprocess_config,
-        sync=sync,
+        run_async=run_async,
     )
     assert 'predictionId' in response, 'Missing predictionId in response'
 
