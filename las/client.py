@@ -1531,7 +1531,7 @@ class Client:
         training_id: Optional[str] = None,
         preprocess_config: Optional[dict] = None,
         postprocess_config: Optional[dict] = None,
-        sync: Optional[bool] = None,
+        run_async: Optional[bool] = None,
     ) -> Dict:
         """Create a prediction on a document using specified model, calls the POST /predictions endpoint.
 
@@ -1586,7 +1586,7 @@ class Client:
             'trainingId': training_id,
             'preprocessConfig': preprocess_config,
             'postprocessConfig': postprocess_config,
-            'async': None if sync is None else sync == False,
+            'async': run_async,
         }
         return self._make_request(requests.post, '/predictions', body=dictstrip(body))
 
