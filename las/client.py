@@ -646,7 +646,7 @@ class Client:
 
         :param dataset_id: Id of the dataset
         :type dataset_id: str
-        :param delete_documents: Set to true to delete documents in dataset before deleting dataset
+        :param delete_documents: Set to True to delete documents in dataset before deleting dataset
         :type delete_documents: bool
         :return: Dataset response from REST API
         :rtype: dict
@@ -1342,20 +1342,23 @@ class Client:
         body.update(**optional_args)
         return self._make_request(requests.post, f'/models/{model_id}/trainings', body=body)
 
-    def get_training(self, model_id: str, training_id: str) -> Dict:
+    def get_training(self, model_id: str, training_id: str, statistics_last_n_days: Optional[int] = None) -> Dict:
         """Get training, calls the GET /models/{modelId}/trainings/{trainingId} endpoint.
 
         :param model_id: ID of the model
         :type model_id: str
         :param training_id: ID of the training
         :type training_id: str
+        :param statistics_last_n_days: Integer between 1 and 30
+        :type statistics_last_n_days: int, optional
         :return: Training response from REST API
         :rtype: dict
 
         :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
  :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
         """
-        return self._make_request(requests.get, f'/models/{model_id}/trainings/{training_id}')
+        params = {'statisticsLastNDays': statistics_last_n_days}
+        return self._make_request(requests.get, f'/models/{model_id}/trainings/{training_id}', params=params)
 
     def list_trainings(self, model_id, *, max_results: Optional[int] = None, next_token: Optional[str] = None) -> Dict:
         """List trainings available, calls the GET /models/{modelId}/trainings endpoint.
@@ -1528,6 +1531,7 @@ class Client:
         training_id: Optional[str] = None,
         preprocess_config: Optional[dict] = None,
         postprocess_config: Optional[dict] = None,
+        run_async: Optional[bool] = None,
     ) -> Dict:
         """Create a prediction on a document using specified model, calls the POST /predictions endpoint.
 
@@ -1568,6 +1572,8 @@ class Client:
             {'strategy': 'BEST_N_PAGES', 'parameters': {'n': 3}}
             {'strategy': 'BEST_N_PAGES', 'parameters': {'n': 3, 'collapse': False}}
         :type postprocess_config: dict, optional
+        :param run_async: If True run the prediction async, if False run sync. if omitted run synchronously.
+        :type run_async: bool
         :return: Prediction response from REST API
         :rtype: dict
 
@@ -1580,6 +1586,7 @@ class Client:
             'trainingId': training_id,
             'preprocessConfig': preprocess_config,
             'postprocessConfig': postprocess_config,
+            'async': run_async,
         }
         return self._make_request(requests.post, '/predictions', body=dictstrip(body))
 
@@ -1622,6 +1629,23 @@ class Client:
             'sortBy': sort_by,
         }
         return self._make_request(requests.get, '/predictions', params=dictstrip(params))
+
+    def get_prediction(self, prediction_id: str) -> Dict:
+        """Get prediction, calls the GET /predictions/{predictionId} endpoint.
+
+        >>> from las.client import Client
+        >>> client = Client()
+        >>> client.get_prediction(prediction_id='<prediction id>')
+
+        :param prediction_id: Id of the prediction
+        :type prediction_id: str
+        :return: Asset response from REST API with content
+        :rtype: dict
+
+        :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
+ :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
+        """
+        return self._make_request(requests.get, f'/predictions/{prediction_id}')
 
     def get_plan(self, plan_id: str) -> Dict:
         """Get information about a specific plan, calls the GET /plans/{plan_id} endpoint.
