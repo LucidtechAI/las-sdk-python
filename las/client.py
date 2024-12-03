@@ -1844,8 +1844,6 @@ class Client:
         self,
         transition_type: str,
         *,
-        in_schema: Optional[dict] = None,
-        out_schema: Optional[dict] = None,
         parameters: Optional[dict] = None,
         **optional_args,
     ) -> Dict:
@@ -1855,25 +1853,19 @@ class Client:
         >>> from pathlib import Path
         >>> from las.client import Client
         >>> client = Client()
-        >>> in_schema = {'$schema': 'https://json-schema.org/draft-04/schema#', 'title': 'in', 'properties': {...} }
-        >>> out_schema = {'$schema': 'https://json-schema.org/draft-04/schema#', 'title': 'out', 'properties': {...} }
         >>> # A typical docker transition
         >>> docker_params = {
         >>>     'imageUrl': '<image_url>',
         >>>     'credentials': {'username': '<username>', 'password': '<password>'}
         >>> }
-        >>> client.create_transition('docker', in_schema=in_schema, out_schema=out_schema, params=docker_params)
+        >>> client.create_transition('docker', params=docker_params)
         >>> # A manual transition with UI
         >>> assets = {'jsRemoteComponent': 'las:asset:<hex-uuid>', '<other asset name>': 'las:asset:<hex-uuid>'}
         >>> manual_params = {'assets': assets}
-        >>> client.create_transition('manual', in_schema=in_schema, out_schema=out_schema, params=manual_params)
+        >>> client.create_transition('manual', params=manual_params)
 
         :param transition_type: Type of transition "docker"|"manual"
         :type transition_type: str
-        :param in_schema: Json-schema that defines the input to the transition
-        :type in_schema: dict, optional
-        :param out_schema: Json-schema that defines the output of the transition
-        :type out_schema: dict, optional
         :param name: Name of the transition
         :type name: str, optional
         :param parameters: Parameters to the corresponding transition type
@@ -1887,8 +1879,6 @@ class Client:
  :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
         """
         body = dictstrip({
-            'inputJsonSchema': in_schema,
-            'outputJsonSchema': out_schema,
             'transitionType': transition_type,
             'parameters': parameters,
         })
@@ -1949,8 +1939,6 @@ class Client:
         self,
         transition_id: str,
         *,
-        in_schema: Optional[dict] = None,
-        out_schema: Optional[dict] = None,
         assets: Optional[dict] = None,
         cpu: Optional[int] = None,
         memory: Optional[int] = None,
@@ -1971,10 +1959,6 @@ class Client:
         :type name: str, optional
         :param description: Description of the transition
         :type description: str, optional
-        :param in_schema: Json-schema that defines the input to the transition
-        :type in_schema: dict, optional
-        :param out_schema: Json-schema that defines the output of the transition
-        :type out_schema: dict, optional
         :param assets: A dictionary where the values are assetIds that can be used in a manual transition
         :type assets: dict, optional
         :param environment: Environment variables to use for a docker transition
@@ -1996,11 +1980,7 @@ class Client:
         :raises: :py:class:`~las.InvalidCredentialsException`, :py:class:`~las.TooManyRequestsException`,\
  :py:class:`~las.LimitExceededException`, :py:class:`requests.exception.RequestException`
         """
-        body = dictstrip({
-            'inputJsonSchema': in_schema,
-            'outputJsonSchema': out_schema,
-        })
-
+        body = {}
         parameters = dictstrip({
             'assets': assets,
             'cpu': cpu,
