@@ -1,5 +1,9 @@
 # Changelog
 
+## Version 11.4.1 - 2024-12-02
+
+- Remove `in_schema` and `out_schema` from `create_transition` and `update_transition`
+
 ## Version 11.4.0 - 2024-11-21
 
 - Added `get_prediction`
