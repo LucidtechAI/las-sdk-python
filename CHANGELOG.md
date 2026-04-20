@@ -1,5 +1,9 @@
 # Changelog
 
+## Version 0.6.4 - 2026-04-20
+
+- Bugfix for backoff in credentials
+
 ## Version 0.6.3 - 2026-03-03
 
 - Bugfix for Kinde claims check
