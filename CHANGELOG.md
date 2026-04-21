@@ -1,6 +1,6 @@
 # Changelog
 
-## Version 0.6.4 - 2026-04-21
+## Version 0.6.5 - 2026-04-21
 
 - Get predictions if needed from fileserver for `create_prediction` and `get_prediction`
 
