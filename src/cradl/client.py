@@ -1061,12 +1061,13 @@ class Client:
             'agentRunId': agent_run_id,
         }
         prediction = self._make_request(requests.post, '/predictions', body=dictstrip(body))
+        predictions_format = prediction['postprocessConfig'].get('outputFormat')
 
         if prediction['status'] == 'succeeded' and prediction.get('predictions') is None:
             prediction['predictions'] = json.loads(self._make_fileserver_request(
                 requests_fn=requests.get,
                 file_url=prediction['fileUrl'],
-                query_params={},
+                query_params={'predictionsFormat': predictions_format} if predictions_format else {},
             ).decode())
 
         return prediction
@@ -1127,12 +1128,13 @@ class Client:
  :py:class:`~cradl.LimitExceededException`, :py:class:`requests.exception.RequestException`
         """
         prediction = self._make_request(requests.get, f'/predictions/{prediction_id}')
+        predictions_format = prediction['postprocessConfig'].get('outputFormat')
 
         if prediction['status'] == 'succeeded' and prediction.get('predictions') is None:
             prediction['predictions'] = json.loads(self._make_fileserver_request(
                 requests_fn=requests.get,
                 file_url=prediction['fileUrl'],
-                query_params={},
+                query_params={'predictionsFormat': predictions_format} if predictions_format else {},
             ).decode())
 
         return prediction
