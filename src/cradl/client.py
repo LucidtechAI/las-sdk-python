@@ -1061,12 +1061,13 @@ class Client:
             'agentRunId': agent_run_id,
         }
         prediction = self._make_request(requests.post, '/predictions', body=dictstrip(body))
+        output_format = prediction['postprocessConfig'].get('outputFormat')
 
         if prediction['status'] == 'succeeded' and prediction.get('predictions') is None:
             prediction['predictions'] = json.loads(self._make_fileserver_request(
                 requests_fn=requests.get,
                 file_url=prediction['fileUrl'],
-                query_params={},
+                query_params={'predictionsFormat': output_format} if output_format else {},
             ).decode())
 
         return prediction
@@ -1111,7 +1112,7 @@ class Client:
         }
         return self._make_request(requests.get, '/predictions', params=dictstrip(params))
 
-    def get_prediction(self, prediction_id: str) -> Dict:
+    def get_prediction(self, prediction_id: str, *, predictions_format: Optional[str] = None) -> Dict:
         """Get prediction, calls the GET /predictions/{predictionId} endpoint.
 
         >>> from cradl.client import Client
@@ -1120,6 +1121,8 @@ class Client:
 
         :param prediction_id: Id of the prediction
         :type prediction_id: str
+        :param predictions_format: Desired output format for the predictions, i.e. 'v1' or 'v2'
+        :type predictions_format: str, optional
         :return: Asset response from REST API with content
         :rtype: dict
 
@@ -1132,7 +1135,7 @@ class Client:
             prediction['predictions'] = json.loads(self._make_fileserver_request(
                 requests_fn=requests.get,
                 file_url=prediction['fileUrl'],
-                query_params={},
+                query_params={'predictionsFormat': predictions_format} if predictions_format else {},
             ).decode())
 
         return prediction

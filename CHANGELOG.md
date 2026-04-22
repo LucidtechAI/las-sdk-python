@@ -1,5 +1,10 @@
 # Changelog
 
+## Version 0.6.6 - 2026-04-22
+
+- Add predictions_format argument to `get_prediction`
+- Get predictions with correct output format in `create_prediction`
+
 ## Version 0.6.5 - 2026-04-21
 
 - Get predictions if needed from fileserver for `create_prediction` and `get_prediction`
